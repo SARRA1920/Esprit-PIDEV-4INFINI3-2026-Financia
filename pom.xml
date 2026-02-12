@@ -7,11 +7,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent Spring Boot -->
+    <!-- Spring Boot Parent -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.2</version>
+        <version>3.3.2</version>
         <relativePath/>
     </parent>
 
@@ -21,9 +21,9 @@
     <name>financia</name>
     <description>Spring Boot project - Financia</description>
 
-    <!-- Java version -->
+    <!-- Java 24 -->
     <properties>
-        <java.version>17</java.version>
+        <java.version>24</java.version>
     </properties>
 
     <dependencies>
@@ -46,24 +46,25 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- BCrypt Password Encoder -->
+        <!-- BCrypt -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-        <!-- MySQL Driver -->
+        <!-- MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- Lombok (Updated for Java 24) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.34</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Tests -->
@@ -78,7 +79,17 @@
     <build>
         <plugins>
 
-            <!-- Spring Boot Plugin (OBLIGATOIRE) -->
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <release>24</release>
+                </configuration>
+            </plugin>
+
+            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

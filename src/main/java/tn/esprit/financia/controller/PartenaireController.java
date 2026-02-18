@@ -1,20 +1,21 @@
 package tn.esprit.financia.controller;
 
-import lombok.AllArgsConstructor;
+import tn.esprit.financia.entities.Partenaire;
+import tn.esprit.financia.dto.PartnerPerformanceMetrics;
+import tn.esprit.financia.service.IPartenaireService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.financia.entities.Partenaire;
-import tn.esprit.financia.service.IPartenaireService;
 
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/partenaires")
 public class PartenaireController {
 
-    private final IPartenaireService partenaireService;
+    @Autowired
+    private IPartenaireService partenaireService;
 
     @GetMapping
     public List<Partenaire> getAllPartenaires() {
@@ -52,5 +53,17 @@ public class PartenaireController {
         }
         partenaireService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{partnerId}/performance")
+    public ResponseEntity<PartnerPerformanceMetrics> getPartnerPerformanceMetrics(@PathVariable Long partnerId) {
+        PartnerPerformanceMetrics metrics = partenaireService.getPartnerPerformanceMetrics(partnerId);
+        return new ResponseEntity<>(metrics, HttpStatus.OK);
+    }
+
+    @PutMapping("/{partnerId}/status")
+    public ResponseEntity<Void> updatePartnerStatus(@PathVariable Long partnerId) {
+        partenaireService.updatePartnerStatus(partnerId);
+        return ResponseEntity.ok().build();
     }
 }

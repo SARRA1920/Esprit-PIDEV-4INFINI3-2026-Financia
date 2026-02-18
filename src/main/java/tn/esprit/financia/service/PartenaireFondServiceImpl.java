@@ -1,6 +1,8 @@
 package tn.esprit.financia.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import tn.esprit.financia.entities.PartenaireFond;
 import tn.esprit.financia.repository.PartenaireFondRepository;
@@ -8,10 +10,16 @@ import tn.esprit.financia.repository.PartenaireFondRepository;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class PartenaireFondServiceImpl implements IPartenaireFondService {
 
     private final PartenaireFondRepository partenaireFondRepository;
+    private final IPartenaireService partenaireService;
+
+    @Autowired
+    public PartenaireFondServiceImpl(PartenaireFondRepository partenaireFondRepository, @Lazy IPartenaireService partenaireService) {
+        this.partenaireFondRepository = partenaireFondRepository;
+        this.partenaireService = partenaireService;
+    }
 
     @Override
     public List<PartenaireFond> findAll() {
@@ -25,7 +33,11 @@ public class PartenaireFondServiceImpl implements IPartenaireFondService {
 
     @Override
     public PartenaireFond save(PartenaireFond partenaireFond) {
-        return partenaireFondRepository.save(partenaireFond);
+        PartenaireFond savedPartenaireFond = partenaireFondRepository.save(partenaireFond);
+        if (savedPartenaireFond.getPartenaire() != null) {
+            partenaireService.updatePartnerStatus(savedPartenaireFond.getPartenaire().getIdPartenaire());
+        }
+        return savedPartenaireFond;
     }
 
     @Override

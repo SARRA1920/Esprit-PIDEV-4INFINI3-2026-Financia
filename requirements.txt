@@ -1,0 +1,14 @@
+# Micro-service reconnaissance faciale (Python 3.11)
+# Aucune compilation C++ requise !
+#
+# Installation :
+#   pip install facenet-pytorch torch torchvision flask Pillow
+#
+# Démarrage :
+#   python deepface_service.py
+
+facenet-pytorch>=2.5.3
+torch>=2.0.0
+torchvision>=0.15.0
+flask>=3.0.0
+Pillow>=10.0.0

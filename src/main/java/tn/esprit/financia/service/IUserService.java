@@ -1,14 +1,20 @@
 package tn.esprit.financia.service;
 
+import org.springframework.data.domain.Page;
+import tn.esprit.financia.entities.Role;
 import tn.esprit.financia.entities.User;
 
 import java.util.List;
 
 public interface IUserService {
-    public User addUser(User user);
-    public User updateUser(User user);
-    public User getUser(Long idUser);
-    public void deleteUser (Long idUser);
-    public List<User> getAllUsers();
-    public List<User> addAllUsers(List<User> users);
+    User addUser(User user);
+    User updateUser(User user);
+    User getUser(Long idUser);
+    User getUserByEmail(String email);
+    void deleteUser(Long idUser);
+    void updatePassword(Long userId, String newPassword);
+    void updateFacePhoto(Long userId, byte[] facePhoto);
+    List<User> getAllUsers();
+    List<User> addAllUsers(List<User> users);
+    Page<User> searchUsers(String keyword, Role role, int page, int size, String sortBy, String direction);
 }

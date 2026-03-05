@@ -23,6 +23,7 @@ public class Fond implements Serializable {
     private String name;
     private String description;
     private double amount;
+    private double committedAmount;
 
     @Enumerated(EnumType.STRING)
     private FundStatus status;

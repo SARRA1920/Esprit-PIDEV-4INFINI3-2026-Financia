@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tn.esprit.financia.entities.enums.CommitmentStatus;
+import tn.esprit.financia.entities.enums.PaymentMode;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -37,20 +39,15 @@ public class PartenaireFond implements Serializable {
     private PaymentMode paymentMode;
 
     private LocalDate commitmentDate;
+    private LocalDate paymentDate;
+    private Double paymentAmount;  // Changed to Double to allow null
+    private LocalDate defaultDate;
 
     @PrePersist
     protected void onCommit() {
         commitmentDate = LocalDate.now();
         if (commitmentStatus == null) {
-            commitmentStatus = CommitmentStatus.COMMITTED;
+            commitmentStatus = CommitmentStatus.PENDING;
         }
-    }
-
-    public enum CommitmentStatus {
-        COMMITTED, PAID, DEFAULTED
-    }
-
-    public enum PaymentMode {
-        LUMP_SUM, INSTALLMENTS
     }
 }

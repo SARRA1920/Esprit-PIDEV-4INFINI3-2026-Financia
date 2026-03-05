@@ -40,9 +40,17 @@ public class PartenaireController {
         if (partenaire == null) {
             return ResponseEntity.notFound().build();
         }
-        // You can add specific field updates here if needed
-        partenaireDetails.setIdPartenaire(id);
-        Partenaire updatedPartenaire = partenaireService.save(partenaireDetails);
+        // Update fields from partenaireDetails to the fetched partenaire object
+        partenaire.setName(partenaireDetails.getName());
+        partenaire.setType(partenaireDetails.getType());
+        partenaire.setEmail(partenaireDetails.getEmail());
+        partenaire.setPhone(partenaireDetails.getPhone());
+        partenaire.setAddress(partenaireDetails.getAddress());
+        partenaire.setWebsite(partenaireDetails.getWebsite());
+        partenaire.setStatus(partenaireDetails.getStatus());
+        // createdAt should not be updated here, it's set @PrePersist
+
+        Partenaire updatedPartenaire = partenaireService.save(partenaire);
         return ResponseEntity.ok(updatedPartenaire);
     }
 

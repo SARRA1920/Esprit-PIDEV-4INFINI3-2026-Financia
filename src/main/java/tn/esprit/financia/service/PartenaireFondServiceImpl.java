@@ -14,11 +14,15 @@ public class PartenaireFondServiceImpl implements IPartenaireFondService {
 
     private final PartenaireFondRepository partenaireFondRepository;
     private final IPartenaireService partenaireService;
+    private final IFundStatusManager fundStatusManager;
 
     @Autowired
-    public PartenaireFondServiceImpl(PartenaireFondRepository partenaireFondRepository, @Lazy IPartenaireService partenaireService) {
+    public PartenaireFondServiceImpl(PartenaireFondRepository partenaireFondRepository, 
+                                      @Lazy IPartenaireService partenaireService,
+                                      IFundStatusManager fundStatusManager) {
         this.partenaireFondRepository = partenaireFondRepository;
         this.partenaireService = partenaireService;
+        this.fundStatusManager = fundStatusManager;
     }
 
     @Override
@@ -34,9 +38,17 @@ public class PartenaireFondServiceImpl implements IPartenaireFondService {
     @Override
     public PartenaireFond save(PartenaireFond partenaireFond) {
         PartenaireFond savedPartenaireFond = partenaireFondRepository.save(partenaireFond);
+        
+        // Update partner status
         if (savedPartenaireFond.getPartenaire() != null) {
             partenaireService.updatePartnerStatus(savedPartenaireFond.getPartenaire().getIdPartenaire());
         }
+        
+        // Recalculate fund's committed amount and status
+        if (savedPartenaireFond.getFond() != null) {
+            fundStatusManager.recalculateStatus(savedPartenaireFond.getFond().getIdFond());
+        }
+        
         return savedPartenaireFond;
     }
 

@@ -2,6 +2,7 @@ package tn.esprit.financia.service;
 
 import tn.esprit.financia.entities.Partenaire;
 import tn.esprit.financia.entities.PartenaireFond;
+import tn.esprit.financia.entities.enums.CommitmentStatus;
 import tn.esprit.financia.repository.PartenaireRepository;
 import tn.esprit.financia.repository.PartenaireFondRepository;
 import tn.esprit.financia.dto.PartnerPerformanceMetrics;
@@ -53,7 +54,7 @@ public class PartenaireServiceImpl implements IPartenaireService {
                 .sum();
 
         long numberOfActiveFunds = partnerFonds.stream()
-                .filter(pf -> pf.getCommitmentStatus() == PartenaireFond.CommitmentStatus.COMMITTED) // Corrected from ACTIVE
+                .filter(pf -> pf.getCommitmentStatus() == CommitmentStatus.COMMITTED)
                 .count();
 
         double averageCommitmentPerFund = numberOfActiveFunds > 0 ? totalCommittedAmount / numberOfActiveFunds : 0.0;

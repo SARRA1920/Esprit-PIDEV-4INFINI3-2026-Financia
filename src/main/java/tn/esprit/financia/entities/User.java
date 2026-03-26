@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,18 @@ public class User
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @JsonManagedReference
+    /**
+     * Revenu mensuel utilisé pour le scoring (DTI).
+     */
+    @Column(precision = 12, scale = 3)
+    private BigDecimal monthlyIncome;
+
+    /**
+     * Ancienneté client (en années) utilisée pour le scoring.
+     */
+    private Integer yearsAsClient;
+
+    @JsonManagedReference("user-credits")
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Credit> credits = new ArrayList<>();
 

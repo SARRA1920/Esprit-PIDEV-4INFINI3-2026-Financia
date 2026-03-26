@@ -21,7 +21,7 @@ public class Credit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
+    @JsonBackReference("user-credits")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -31,6 +31,12 @@ public class Credit {
 
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal interestRate;
+
+    @Column(name = "paid_amount", precision = 12, scale = 3)
+    private BigDecimal paidAmount;
+
+    @Column(name = "remaining_amount", precision = 12, scale = 3)
+    private BigDecimal remainingAmount;
 
     @Column(nullable = false)
     private Integer durationMonths;
@@ -48,8 +54,9 @@ public class Credit {
     private Instant createdAt;
     private Instant updatedAt;
 
-    @JsonManagedReference
+    @JsonManagedReference("credit-remboursements")
     @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Remboursement> remboursements = new ArrayList<>();
 
     @PrePersist
@@ -57,6 +64,8 @@ public class Credit {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         if (this.status == null) this.status = StatusC.PENDING;
+        if (this.paidAmount == null) this.paidAmount = BigDecimal.ZERO;
+        if (this.remainingAmount == null && this.amount != null) this.remainingAmount = this.amount;
     }
 
     @PreUpdate

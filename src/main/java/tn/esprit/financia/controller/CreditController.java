@@ -16,7 +16,7 @@ public class CreditController {
 
     private final CreditService creditService;
 
-    // CREATE (userId obligatoire pour lier User -> Credit)
+    // CREATE
     @PostMapping("/user/{userId}")
     public ResponseEntity<Credit> create(@PathVariable Long userId, @RequestBody Credit credit) {
         return ResponseEntity.ok(creditService.create(credit, userId));
@@ -44,6 +44,12 @@ public class CreditController {
     @PutMapping("/{id}")
     public ResponseEntity<Credit> update(@PathVariable Long id, @RequestBody Credit updated) {
         return ResponseEntity.ok(creditService.update(id, updated));
+    }
+
+    // RECALCULATE RISK SCORE + DECISION
+    @PutMapping("/{id}/recalculate")
+    public ResponseEntity<Credit> recalculate(@PathVariable Long id) {
+        return ResponseEntity.ok(creditService.recalculateRisk(id));
     }
 
     // DELETE

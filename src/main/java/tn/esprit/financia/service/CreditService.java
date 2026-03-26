@@ -9,5 +9,7 @@ public interface CreditService {
     List<Credit> getAll();
     List<Credit> getByUser(Long userId);
     Credit update(Long id, Credit credit);
+    Credit recalculateRisk(Long creditId);
+    Credit updateRiskAfterPayment(Long creditId);
     void delete(Long id);
 }

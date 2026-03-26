@@ -6,7 +6,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -18,7 +20,7 @@ public class Remboursement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
+    @JsonBackReference("credit-remboursements")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "credit_id", nullable = false)
     private Credit credit;
@@ -26,8 +28,18 @@ public class Remboursement {
     @Column(nullable = false, precision = 12, scale = 3)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    /**
+     * Date d'échéance (utile pour calculer les retards).
+     */
+    private LocalDate dueDate;
+
+    @Column(name = "payment_date", nullable = true)
     private LocalDateTime paymentDate;
+
+    /**
+     * Nombre de jours de retard (>= 0).
+     */
+    private Integer lateDays;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,7 +50,57 @@ public class Remboursement {
     @PrePersist
     public void onCreate() {
         this.createdAt = Instant.now();
-        if (this.paymentDate == null) this.paymentDate = LocalDateTime.now();
-        if (this.status == null) this.status = PaymentStatus.PAID;
+        normalizePaymentFields();
+        recomputeLateDays();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        normalizePaymentFields();
+        recomputeLateDays();
+    }
+
+    /**
+     * Calcul du retard:
+     * - si payé: compare dueDate vs paymentDate
+     * - si non payé: compare dueDate vs aujourd'hui (pour identifier un retard en cours)
+     */
+    public void recomputeLateDays() {
+        if (this.dueDate == null) {
+            this.lateDays = 0;
+            return;
+        }
+
+        LocalDate ref = (this.paymentDate != null) ? this.paymentDate.toLocalDate() : LocalDate.now();
+        long days = ChronoUnit.DAYS.between(this.dueDate, ref);
+        this.lateDays = (int) Math.max(0, days);
+    }
+
+    @Transient
+    public boolean isLate() {
+        return this.lateDays != null && this.lateDays > 0;
+    }
+
+    @Transient
+    public boolean isOverdue() {
+        return this.status == PaymentStatus.PENDING
+                && this.paymentDate == null
+                && this.dueDate != null
+                && LocalDate.now().isAfter(this.dueDate);
+    }
+
+    private void normalizePaymentFields() {
+        // Si paymentDate est fourni, on considère que c'est un paiement effectué.
+        if (this.paymentDate != null && (this.status == null || this.status == PaymentStatus.PENDING)) {
+            this.status = PaymentStatus.PAID;
+        }
+        // Si status PAID => paymentDate doit exister
+        if (this.status == PaymentStatus.PAID && this.paymentDate == null) {
+            this.paymentDate = LocalDateTime.now();
+        }
+        // Si rien n'est fourni => PENDING
+        if (this.status == null) {
+            this.status = PaymentStatus.PENDING;
+        }
     }
 }

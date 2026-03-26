@@ -3,6 +3,7 @@ package tn.esprit.financia.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.financia.dto.PaymentRequestDto;
 import tn.esprit.financia.entities.Remboursement;
 import tn.esprit.financia.service.RemboursementService;
 
@@ -16,7 +17,7 @@ public class RemboursementController {
 
     private final RemboursementService remboursementService;
 
-    // CREATE (creditId obligatoire pour lier Credit -> Remboursement)
+    // CREATE
     @PostMapping("/credit/{creditId}")
     public ResponseEntity<Remboursement> create(@PathVariable Long creditId, @RequestBody Remboursement r) {
         return ResponseEntity.ok(remboursementService.create(r, creditId));
@@ -44,6 +45,12 @@ public class RemboursementController {
     @PutMapping("/{id}")
     public ResponseEntity<Remboursement> update(@PathVariable Long id, @RequestBody Remboursement updated) {
         return ResponseEntity.ok(remboursementService.update(id, updated));
+    }
+
+    // PAY (mark installment as PAID)
+    @PutMapping("/{id}/pay")
+    public ResponseEntity<Remboursement> pay(@PathVariable Long id, @RequestBody(required = false) PaymentRequestDto req) {
+        return ResponseEntity.ok(remboursementService.pay(id, req != null ? req.getPaymentDate() : null));
     }
 
     // DELETE

@@ -37,6 +37,8 @@ public class UserServiceImpl implements IUserService {
         existingUser.setPhone(user.getPhone());
         existingUser.setAddress(user.getAddress());
         existingUser.setRole(user.getRole());
+        existingUser.setMonthlyIncome(user.getMonthlyIncome());
+        existingUser.setYearsAsClient(user.getYearsAsClient());
 
         // 🔐 update password ONLY if provided
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {

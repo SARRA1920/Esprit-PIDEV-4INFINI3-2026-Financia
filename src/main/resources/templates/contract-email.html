@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Contract is Ready</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            padding: 20px;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .message {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .contract-details {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .contract-details h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .amount-highlight {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .button-container {
+            text-align: center;
+        }
+        
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .footer p {
+            color: #777;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 30px 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="icon">💼</div>
+            <h1>Financia</h1>
+            <p>Your Trusted Financial Partner</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Dear <strong th:text="${customerName}">Customer</strong>,
+            </div>
+            
+            <div class="message">
+                <p>🎉 Congratulations! Your loan contract has been successfully created and is now ready for your review.</p>
+                <p style="margin-top: 15px;">We are delighted to assist you with your financial needs. Below are the details of your contract:</p>
+            </div>
+            
+            <!-- Contract Details -->
+            <div class="contract-details">
+                <h2>📋 Contract Details</h2>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Contract ID:</span>
+                    <span class="detail-value highlight" th:text="${contractId}">12345</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Contract Type:</span>
+                    <span class="detail-value" th:text="${type}">INITIAL</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Signed Date:</span>
+                    <span class="detail-value" th:text="${signedDate}">18/02/2024</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Duration:</span>
+                    <span class="detail-value" th:text="${duration} + ' months'">12 months</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Interest Rate:</span>
+                    <span class="detail-value" th:text="${rate} + '%'">5.5%</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="badge badge-success" th:text="${status}">ACTIVE</span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Version:</span>
+                    <span class="detail-value" th:text="${version}">1.0</span>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="amount-highlight">
+                    💰 Loan Amount: <span th:text="${amount} + ' ' + ${currency}">10,000 USD</span>
+                </div>
+                
+                <!-- Show conversion if foreign currency -->
+                <div th:if="${isForeignCurrency}" style="text-align: center; margin-top: 15px;">
+                    <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%); 
+                                padding: 15px; 
+                                border-radius: 8px; 
+                                border-left: 4px solid #667eea;">
+                        <p style="margin: 0; font-size: 14px; color: #555;">
+                            <strong>💱 Currency Conversion</strong>
+                        </p>
+                        <p style="margin: 10px 0 0 0; font-size: 16px; color: #333;">
+                            <span th:text="${originalAmount} + ' ' + ${currency}">10,000 USD</span>
+                            <strong>=</strong>
+                            <span th:text="${amountInTND} + ' TND'" style="color: #667eea; font-weight: bold;">31,500 TND</span>
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #777;">
+                            Exchange Rate: 1 <span th:text="${currency}">USD</span> = 
+                            <span th:text="${exchangeRate}">3.15</span> TND
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info Box -->
+            <div class="info-box">
+                <p><strong>📌 Important:</strong> Please review all the contract details carefully. If you have any questions or need clarification, our support team is here to help you.</p>
+            </div>
+            
+            <!-- CTA Button -->
+            <div class="button-container">
+                <a href="#" class="cta-button">View Full Contract Details</a>
+            </div>
+            
+            <div class="message" style="margin-top: 30px;">
+                <p><strong>What's Next?</strong></p>
+                <p style="margin-top: 10px;">
+                    ✓ Your payment schedule has been generated<br>
+                    ✓ You will receive payment reminders before each due date<br>
+                    ✓ You can track your payments anytime through our portal
+                </p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="message">
+                <p>Thank you for choosing <strong>Financia</strong> as your financial partner. We are committed to providing you with the best service possible.</p>
+                <p style="margin-top: 15px;">If you have any questions, please don't hesitate to contact us.</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Financia - Your Trusted Financial Partner</strong></p>
+            <p>📧 Email: support@financia.tn | 📞 Phone: +216 XX XXX XXX</p>
+            <p>🏢 Address: Tunis, Tunisia</p>
+            
+            <div class="social-links">
+                <a href="#">Facebook</a> |
+                <a href="#">LinkedIn</a> |
+                <a href="#">Twitter</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 11px; color: #999;">
+                This is an automated email. Please do not reply to this message.<br>
+                © 2024 Financia. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

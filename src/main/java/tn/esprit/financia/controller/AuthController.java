@@ -2,6 +2,7 @@ package tn.esprit.financia.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,14 +11,17 @@ import tn.esprit.financia.dto.AuthResponse;
 import tn.esprit.financia.dto.FaceEnrollRequest;
 import tn.esprit.financia.dto.FaceVerifyRequest;
 import tn.esprit.financia.dto.ForgotPasswordRequest;
+import tn.esprit.financia.dto.GoogleLoginRequest;
 import tn.esprit.financia.dto.LoginRequest;
 import tn.esprit.financia.dto.RegisterRequest;
 import tn.esprit.financia.dto.ResetPasswordRequest;
+import tn.esprit.financia.dto.SecurityAlertResponse;
 import tn.esprit.financia.entities.User;
 import tn.esprit.financia.security.JwtPrincipal;
 import tn.esprit.financia.service.AuthService;
 import tn.esprit.financia.service.IUserService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,12 +43,26 @@ public class AuthController {
 
     @Operation(summary = "Connexion", description = "Authentification par email et mot de passe")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
-            AuthResponse response = authService.login(request);
+            String clientIp = extractClientIp(httpRequest);
+            AuthResponse response = authService.login(request, clientIp, request.country());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Connexion Google", description = "Authentification Google via id_token puis génération JWT interne")
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
+        try {
+            AuthResponse response = authService.googleLogin(request.idToken());
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -90,6 +108,12 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+    @Operation(summary = "Alertes de securite", description = "Retourne les alertes de securite du compte connecte")
+    @GetMapping("/security-alerts")
+    public ResponseEntity<List<SecurityAlertResponse>> getSecurityAlerts(@AuthenticationPrincipal JwtPrincipal principal) {
+        return ResponseEntity.ok(authService.getSecurityAlerts(principal.userId()));
+    }
+
     @Operation(summary = "Enregistrer photo de visage", description = "Sauvegarde la photo de référence de l'utilisateur connecté (nécessite JWT)")
     @PostMapping("/face/enroll")
     public ResponseEntity<?> faceEnroll(@AuthenticationPrincipal JwtPrincipal principal,
@@ -115,5 +139,13 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

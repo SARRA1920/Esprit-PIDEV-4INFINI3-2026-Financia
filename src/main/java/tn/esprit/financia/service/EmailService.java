@@ -45,4 +45,22 @@ public class EmailService {
             log.error("Échec envoi email à {} - Erreur: {} - Lien dev: {}", toEmail, e.getMessage(), resetLink, e);
         }
     }
+
+    public void sendSecurityAlertEmail(String toEmail, String userName, String alertMessage) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("Alerte sécurité - Financia");
+            message.setText("Bonjour " + userName + ",\n\n" +
+                    "Une activité suspecte a été détectée sur votre compte :\n" +
+                    alertMessage + "\n\n" +
+                    "Si ce n'est pas vous, changez immédiatement votre mot de passe.");
+            message.setFrom(fromEmail);
+
+            mailSender.send(message);
+            log.info("Email d'alerte sécurité envoyé à {}", toEmail);
+        } catch (Exception e) {
+            log.error("Échec envoi email d'alerte à {} - Erreur: {}", toEmail, e.getMessage(), e);
+        }
+    }
 }

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register",
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/google",
                                 "/api/auth/forgot-password", "/api/auth/reset-password", "/reset-password",
                                 "/api/auth/face/verify").permitAll()
                         .requestMatchers("/api/auth/face/enroll").authenticated()

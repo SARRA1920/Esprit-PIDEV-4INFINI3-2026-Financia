@@ -2,29 +2,46 @@ package tn.esprit.financia.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import tn.esprit.financia.dto.AuthResponse;
 import tn.esprit.financia.dto.LoginRequest;
 import tn.esprit.financia.dto.RegisterRequest;
+import tn.esprit.financia.dto.SecurityAlertResponse;
+import tn.esprit.financia.entities.LoginEvent;
 import tn.esprit.financia.entities.PasswordResetToken;
 import tn.esprit.financia.entities.Role;
+import tn.esprit.financia.entities.SecurityAlert;
 import tn.esprit.financia.entities.User;
+import tn.esprit.financia.repository.LoginEventRepository;
 import tn.esprit.financia.repository.PasswordResetTokenRepository;
+import tn.esprit.financia.repository.SecurityAlertRepository;
 import tn.esprit.financia.security.JwtService;
 
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private static final int RESET_TOKEN_EXPIRY_HOURS = 1;
+    private static final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=%s";
+    private static final int FAILED_ATTEMPTS_THRESHOLD = 5;
+    private static final int FAILED_ATTEMPTS_WINDOW_MINUTES = 15;
+    private static final String ALERT_TYPE_TOO_MANY_FAILED_LOGINS = "TOO_MANY_FAILED_LOGINS";
+    private static final String ALERT_TYPE_NEW_COUNTRY_LOGIN = "NEW_COUNTRY_LOGIN";
 
     private final IUserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -32,30 +49,81 @@ public class AuthService {
     private final EmailService emailService;
     private final PasswordResetTokenRepository resetTokenRepository;
     private final FaceRecognitionService faceRecognitionService;
+    private final LoginEventRepository loginEventRepository;
+    private final SecurityAlertRepository securityAlertRepository;
+    private final String googleClientId;
+    private final RestTemplate restTemplate;
 
     public AuthService(IUserService userService, PasswordEncoder passwordEncoder, JwtService jwtService,
                        EmailService emailService, PasswordResetTokenRepository resetTokenRepository,
-                       FaceRecognitionService faceRecognitionService) {
+                       FaceRecognitionService faceRecognitionService,
+                       LoginEventRepository loginEventRepository,
+                       SecurityAlertRepository securityAlertRepository,
+                       @Value("${google.oauth.client-id:}") String googleClientId) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.emailService = emailService;
         this.resetTokenRepository = resetTokenRepository;
         this.faceRecognitionService = faceRecognitionService;
+        this.loginEventRepository = loginEventRepository;
+        this.securityAlertRepository = securityAlertRepository;
+        this.googleClientId = googleClientId;
+        this.restTemplate = new RestTemplate();
     }
 
     public AuthResponse login(LoginRequest request) {
+        return login(request, null, request.country());
+    }
+
+    public AuthResponse login(LoginRequest request, String clientIp, String requestCountry) {
         String email = normalizeEmail(request.email());
         if (email == null) {
             throw new IllegalArgumentException("Invalid email or password");
         }
         User user = userService.getUserByEmail(email);
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
+            recordLoginEvent(user, email, false, clientIp, requestCountry);
+            if (user != null) {
+                evaluateFailedLoginAlert(user);
+            }
             throw new IllegalArgumentException("Invalid email or password");
         }
         if (user.getRole() == null) {
             throw new IllegalArgumentException("User has no role assigned");
         }
+        recordLoginEvent(user, email, true, clientIp, requestCountry);
+        evaluateNewCountryAlert(user, requestCountry, clientIp);
+        String token = jwtService.generateToken(user.getEmail(), user.getIdUser(), user.getRole().name());
+        return new AuthResponse(token, user);
+    }
+
+    @Transactional
+    public AuthResponse googleLogin(String idToken) {
+        if (idToken == null || idToken.isBlank()) {
+            throw new IllegalArgumentException("Google idToken is required");
+        }
+        if (googleClientId == null || googleClientId.isBlank()) {
+            throw new IllegalArgumentException("Google OAuth client id is not configured");
+        }
+
+        Map<String, Object> tokenInfo = fetchGoogleTokenInfo(idToken.trim());
+        validateGoogleTokenInfo(tokenInfo);
+
+        String email = normalizeEmail((String) tokenInfo.get("email"));
+        if (email == null) {
+            throw new IllegalArgumentException("Google account email is missing");
+        }
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            user = createUserFromGoogle(email, tokenInfo);
+        }
+
+        if (user.getRole() == null) {
+            user.setRole(Role.CLIENT);
+        }
+
         String token = jwtService.generateToken(user.getEmail(), user.getIdUser(), user.getRole().name());
         return new AuthResponse(token, user);
     }
@@ -152,6 +220,163 @@ public class AuthService {
 
     private String normalizeEmail(String email) {
         return (email != null && !email.isBlank()) ? email.trim().toLowerCase() : null;
+    }
+
+    private Map<String, Object> fetchGoogleTokenInfo(String idToken) {
+        try {
+            String url = String.format(GOOGLE_TOKEN_INFO_URL, idToken);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {}
+            );
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new IllegalArgumentException("Unable to validate Google token");
+            }
+            return response.getBody();
+        } catch (RestClientException e) {
+            throw new IllegalArgumentException("Invalid Google token");
+        }
+    }
+
+    private void validateGoogleTokenInfo(Map<String, Object> tokenInfo) {
+        String audience = (String) tokenInfo.get("aud");
+        if (!googleClientId.equals(audience)) {
+            throw new IllegalArgumentException("Google token audience is invalid");
+        }
+
+        String emailVerified = (String) tokenInfo.get("email_verified");
+        if (!"true".equalsIgnoreCase(emailVerified)) {
+            throw new IllegalArgumentException("Google email is not verified");
+        }
+    }
+
+    private User createUserFromGoogle(String email, Map<String, Object> tokenInfo) {
+        User user = new User();
+        user.setEmail(email);
+        user.setFirstName(defaultIfBlank((String) tokenInfo.get("given_name"), "Google"));
+        user.setLastName(defaultIfBlank((String) tokenInfo.get("family_name"), "User"));
+        user.setPhone("SOCIAL_LOGIN");
+        user.setAddress("Google Account");
+        user.setRole(Role.CLIENT);
+        user.setPassword(generateSecureToken());
+
+        try {
+            return userService.addUser(user);
+        } catch (DataIntegrityViolationException e) {
+            // Si l'utilisateur a été créé en parallèle juste avant ce save
+            User existing = userService.getUserByEmail(email);
+            if (existing != null) {
+                return existing;
+            }
+            throw new IllegalArgumentException("Unable to create account from Google profile");
+        }
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return (value == null || value.isBlank()) ? fallback : value.trim();
+    }
+
+    public List<SecurityAlertResponse> getSecurityAlerts(Long userId) {
+        return securityAlertRepository.findByUser_IdUserOrderByCreatedAtDesc(userId).stream()
+                .map(alert -> new SecurityAlertResponse(
+                        alert.getId(),
+                        alert.getType(),
+                        alert.getSeverity(),
+                        alert.getMessage(),
+                        alert.getMetadata(),
+                        alert.isRead(),
+                        alert.getCreatedAt()
+                ))
+                .toList();
+    }
+
+    private void recordLoginEvent(User user, String email, boolean success, String clientIp, String requestCountry) {
+        LoginEvent event = new LoginEvent();
+        event.setUser(user);
+        event.setEmail(email);
+        event.setSuccess(success);
+        event.setIpAddress(normalizeIp(clientIp));
+        event.setCountry(normalizeCountry(requestCountry));
+        loginEventRepository.save(event);
+    }
+
+    private void evaluateFailedLoginAlert(User user) {
+        Instant after = Instant.now().minusSeconds(FAILED_ATTEMPTS_WINDOW_MINUTES * 60L);
+        long failedAttempts = loginEventRepository.countByUserAndSuccessIsFalseAndCreatedAtAfter(user, after);
+        if (failedAttempts < FAILED_ATTEMPTS_THRESHOLD) {
+            return;
+        }
+
+        boolean recentAlertExists = securityAlertRepository.existsByUserAndTypeAndCreatedAtAfter(
+                user,
+                ALERT_TYPE_TOO_MANY_FAILED_LOGINS,
+                after
+        );
+        if (recentAlertExists) {
+            return;
+        }
+
+        createAndNotifyAlert(
+                user,
+                ALERT_TYPE_TOO_MANY_FAILED_LOGINS,
+                "HIGH",
+                "Trop de tentatives de connexion échouées détectées.",
+                "failedAttempts=" + failedAttempts + ",windowMinutes=" + FAILED_ATTEMPTS_WINDOW_MINUTES
+        );
+    }
+
+    private void evaluateNewCountryAlert(User user, String requestCountry, String clientIp) {
+        String normalizedCountry = normalizeCountry(requestCountry);
+        if (normalizedCountry == null) {
+            return;
+        }
+
+        boolean seenDifferentCountry = loginEventRepository.existsByUserAndSuccessIsTrueAndCountryIgnoreCaseNot(
+                user,
+                normalizedCountry
+        );
+        if (!seenDifferentCountry) {
+            return;
+        }
+
+        Instant last24h = Instant.now().minusSeconds(24 * 3600L);
+        boolean recentAlertExists = securityAlertRepository.existsByUserAndTypeAndCreatedAtAfter(
+                user,
+                ALERT_TYPE_NEW_COUNTRY_LOGIN,
+                last24h
+        );
+        if (recentAlertExists) {
+            return;
+        }
+
+        createAndNotifyAlert(
+                user,
+                ALERT_TYPE_NEW_COUNTRY_LOGIN,
+                "MEDIUM",
+                "Connexion détectée depuis un nouveau pays: " + normalizedCountry + ".",
+                "country=" + normalizedCountry + ",ip=" + normalizeIp(clientIp)
+        );
+    }
+
+    private void createAndNotifyAlert(User user, String type, String severity, String message, String metadata) {
+        SecurityAlert alert = new SecurityAlert();
+        alert.setUser(user);
+        alert.setType(type);
+        alert.setSeverity(severity);
+        alert.setMessage(message);
+        alert.setMetadata(metadata);
+        securityAlertRepository.save(alert);
+        emailService.sendSecurityAlertEmail(user.getEmail(), user.getFirstName(), message);
+    }
+
+    private String normalizeCountry(String country) {
+        return (country != null && !country.isBlank()) ? country.trim().toUpperCase() : null;
+    }
+
+    private String normalizeIp(String clientIp) {
+        return (clientIp != null && !clientIp.isBlank()) ? clientIp.trim() : null;
     }
 
     @Transactional

@@ -10,16 +10,21 @@
     </parent>
     <groupId>tn.fiancia</groupId>
     <artifactId>financia</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>financia</name>
-    <description>financia</description>
-    <url/>
+    <name>Financia</name>
+    <description>Educational Platform with AI-powered Features</description>
+    <url>https://github.com/esprit/financia</url>
     <licenses>
-        <license/>
+        <license>
+            <name>Apache License 2.0</name>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>Development Team</name>
+            <email>dev@financia.local</email>
+        </developer>
     </developers>
     <scm>
         <connection/>
@@ -92,7 +97,12 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>9.9.0</version>
         </dependency>
-            <dependency>
+        <!-- Jackson JSON processing (explicit to ensure proper loading) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
                 <groupId>com.google.genai</groupId>
                 <artifactId>google-genai</artifactId>
                 <version>1.0.0</version>

@@ -54,8 +54,8 @@ public class TextExtractionService {
     private String extractFromDocx(File file) throws IOException {
         StringBuilder text = new StringBuilder();
         try (FileInputStream fis = new FileInputStream(file);
-             XWPFDocument document = new XWPFDocument(fis)) {
-            XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+             XWPFDocument document = new XWPFDocument(fis);
+             XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
             text.append(extractor.getText());
         }
         return text.toString();

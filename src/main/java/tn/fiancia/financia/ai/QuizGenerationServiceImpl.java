@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tn.fiancia.financia.entities.LessonContent;
 
@@ -47,6 +46,7 @@ public class QuizGenerationServiceImpl implements QuizGenerationService {
 
             // Validate JSON
             try {
+                @SuppressWarnings("unused")
                 JsonNode node = mapper.readTree(modelOutput);
                 return modelOutput;
             } catch (Exception e) {

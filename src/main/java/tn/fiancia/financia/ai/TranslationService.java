@@ -2,8 +2,6 @@ package tn.fiancia.financia.ai;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +12,6 @@ public class TranslationService {
     private static final String MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     public String translate(String text, String target) {
@@ -92,10 +89,12 @@ public class TranslationService {
                 java.net.URLEncoder.encode(text, "UTF-8"), 
                 target);
 
-            Map response = restTemplate.getForObject(url, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
             
             if (response != null && response.containsKey("responseData")) {
-                Map responseData = (Map) response.get("responseData");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> responseData = (Map<String, Object>) response.get("responseData");
                 if (responseData != null && responseData.containsKey("translatedText")) {
                     String translatedText = (String) responseData.get("translatedText");
                     if (translatedText != null && !translatedText.isBlank()) {

@@ -36,6 +36,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final CourseRepository courseRepository;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<Course> recommendForCourse(long idCourse, int limit) {
         List<Course> all = new ArrayList<>();
         courseRepository.findAll().forEach(all::add);

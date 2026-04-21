@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Create an account on Financia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Register — Financia</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/custom-override.css">
+</head>
+<body>
+<div class="preloader d-flex align-items-center justify-content-center">
+    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<header class="ve-header" id="ve-sticky">
+    <div class="container-fluid ve-nav-wrap">
+        <div class="ve-logo">
+            <a href="index.html">
+                <span class="ve-logo-icon">F</span>
+                <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+            </a>
+        </div>
+        <nav class="ve-nav">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="ve-nav-cta" id="ve-auth-area"></div>
+        <button class="ve-toggler" id="ve-toggle"><span></span><span></span><span></span></button>
+    </div>
+    <div class="ve-mobile-menu" id="ve-mobile-menu">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<section class="ve-page-hero" style="background-image:url(img/bg-img/23.jpg);">
+    <div class="ve-page-hero-overlay"></div>
+    <div class="container ve-page-hero-content">
+        <span class="ve-section-tag">Account</span>
+        <h1>Create your <span>account</span></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="ve-breadcrumb">
+                <li><a href="index.html">Home</a></li>
+                <li class="active">Register</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-7">
+                <div class="ve-contact-form-wrap">
+                    <span class="ve-section-tag">Get Started</span>
+                    <h2>Register on <span>Financia</span></h2>
+                    <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
+                    <form id="ve-register-form" class="ve-contact-form" action="#" method="post">
+                        <div class="ve-form-row">
+                            <div class="ve-form-group">
+                                <label>First Name</label>
+                                <input name="firstName" type="text" placeholder="First name" required>
+                            </div>
+                            <div class="ve-form-group">
+                                <label>Last Name</label>
+                                <input name="lastName" type="text" placeholder="Last name" required>
+                            </div>
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Email</label>
+                            <input name="email" type="email" placeholder="you@email.com" required>
+                        </div>
+                        <div class="ve-form-row">
+                            <div class="ve-form-group">
+                                <label>Phone</label>
+                                <input name="phone" type="text" placeholder="Phone" required>
+                            </div>
+                            <div class="ve-form-group">
+                                <label>Address</label>
+                                <input name="address" type="text" placeholder="Address">
+                            </div>
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Monthly income</label>
+                            <input name="monthlyIncome" type="number" min="0" step="0.01" placeholder="e.g. 1500 (optional)">
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Password</label>
+                            <input name="password" type="password" placeholder="Choose a password" required>
+                        </div>
+                        <div class="ve-login-oauth">
+                            <p class="ve-login-oauth-sep">or continue with</p>
+                            <div id="google-signin-button-register" class="ve-login-oauth-google"></div>
+                        </div>
+                        <button type="submit" class="ve-btn-primary">Create Account <i class="fa fa-user"></i></button>
+                        <p style="margin-top:14px;">
+                            Already have an account? <a href="login.html">Login</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>window.FINANCIA_GOOGLE_CLIENT_ID = "";</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="js/jquery/jquery-2.2.4.min.js"></script>
+<script src="js/bootstrap/popper.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/plugins/plugins.js"></script>
+<script src="js/active.js"></script>
+<script src="js/vaultedge.js"></script>
+<script src="js/auth-ui.js"></script>
+</body>
+</html>
+

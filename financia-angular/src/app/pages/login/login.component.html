@@ -1,0 +1,78 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/22.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Compte</span>
+    <h1>Connexion <span>Financia</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Connexion</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7">
+        <div class="ve-contact-form-wrap">
+          <span class="ve-section-tag">Bienvenue</span>
+          <h2>Se connecter à votre <span>compte</span></h2>
+
+          @if (error) {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;">{{ error }}</p>
+          } @else {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
+          }
+
+          <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="ve-form-group">
+              <label>Email</label>
+              <input name="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+            </div>
+            <div class="ve-form-group">
+              <label>Password</label>
+              <input
+                name="password"
+                type="password"
+                formControlName="password"
+                placeholder="Your password"
+                autocomplete="current-password"
+              />
+            </div>
+
+            <button type="submit" class="ve-btn-primary" [disabled]="loading || faceLoading || form.invalid">
+              {{ loading ? 'Connexion…' : 'Login' }} <i class="fa fa-arrow-right"></i>
+            </button>
+
+            <div class="ve-login-oauth">
+              <p class="ve-login-oauth-sep">ou</p>
+              @if (googleEnabled) {
+                <div id="google-signin-button" class="ve-login-oauth-google"></div>
+              }
+              <input
+                id="face-capture-input"
+                type="file"
+                accept="image/*"
+                capture="user"
+                style="display:none"
+                (change)="onFaceFileSelected($event)"
+              />
+              <button type="button" class="ve-btn-face" [disabled]="loading || faceLoading" (click)="triggerFaceCapture()">
+                {{ faceLoading ? 'Vérification…' : 'Connexion Face ID' }}
+              </button>
+              <p class="ve-login-oauth-note">
+                Face ID : renseignez votre e-mail ci-dessus, puis une photo. Nécessite une photo enregistrée sur le compte.
+              </p>
+            </div>
+
+            <p style="margin-top:14px;">
+              Pas de compte ? <a routerLink="/register">Créer un compte</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

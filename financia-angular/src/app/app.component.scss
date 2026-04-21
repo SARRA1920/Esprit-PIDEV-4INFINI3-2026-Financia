@@ -1,0 +1,11 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Template frontend handles almost all styling; keep only layout padding for Angular outlet. */
+.main {
+  flex: 1;
+  padding-top: 72px;
+}

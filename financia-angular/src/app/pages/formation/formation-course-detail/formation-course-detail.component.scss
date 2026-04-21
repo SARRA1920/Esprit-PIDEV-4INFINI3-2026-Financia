@@ -1,0 +1,80 @@
+.ve-course-detail-head {
+  max-width: 800px;
+
+  h2 {
+    margin: 12px 0 16px;
+    color: #1a1f2c;
+  }
+}
+
+.ve-course-desc {
+  color: #64748b;
+  line-height: 1.65;
+  font-size: 1.05rem;
+}
+
+.ve-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ve-lesson-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px 24px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.ve-lesson-order {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1a1f2c, #2d3548);
+  color: #f4d03f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.ve-lesson-body h4 {
+  margin: 0 0 8px;
+  color: #1a1f2c;
+}
+
+.ve-lesson-type {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #c9a227;
+  margin-bottom: 8px;
+}
+
+.ve-lesson-excerpt {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.mt-20 {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.mt-40 {
+  margin-top: 40px;
+}
+
+.text-center {
+  text-align: center;
+}

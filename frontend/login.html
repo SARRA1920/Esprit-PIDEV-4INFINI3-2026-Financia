@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Login to Financia">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login — Financia</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/custom-override.css">
+</head>
+<body>
+<div class="preloader d-flex align-items-center justify-content-center">
+    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<header class="ve-header" id="ve-sticky">
+    <div class="container-fluid ve-nav-wrap">
+        <div class="ve-logo">
+            <a href="index.html">
+                <span class="ve-logo-icon">F</span>
+                <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+            </a>
+        </div>
+        <nav class="ve-nav">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="ve-nav-cta" id="ve-auth-area"></div>
+        <button class="ve-toggler" id="ve-toggle"><span></span><span></span><span></span></button>
+    </div>
+    <div class="ve-mobile-menu" id="ve-mobile-menu">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<section class="ve-page-hero" style="background-image:url(img/bg-img/22.jpg);">
+    <div class="ve-page-hero-overlay"></div>
+    <div class="container ve-page-hero-content">
+        <span class="ve-section-tag">Account</span>
+        <h1>Login to <span>Financia</span></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="ve-breadcrumb">
+                <li><a href="index.html">Home</a></li>
+                <li class="active">Login</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-7">
+                <div class="ve-contact-form-wrap">
+                    <span class="ve-section-tag">Welcome Back</span>
+                    <h2>Sign in to your <span>account</span></h2>
+                    <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
+                    <form id="ve-login-form" class="ve-contact-form" action="#" method="post">
+                        <div class="ve-form-group">
+                            <label>Email</label>
+                            <input name="email" type="email" placeholder="you@email.com" required>
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Password</label>
+                            <input name="password" type="password" placeholder="Your password" required>
+                        </div>
+                        <button type="submit" class="ve-btn-primary">Login <i class="fa fa-arrow-right"></i></button>
+                        <div class="ve-login-oauth">
+                            <p class="ve-login-oauth-sep">ou</p>
+                            <div id="google-signin-button" class="ve-login-oauth-google"></div>
+                            <input type="file" id="ve-face-file" accept="image/*" capture="user" style="display:none" />
+                            <button type="button" id="ve-face-login-btn" class="ve-btn-face">Connexion Face ID</button>
+                            <p class="ve-login-oauth-note">Face ID : renseignez votre e-mail ci-dessus, puis une photo. Nécessite une photo enregistrée sur le compte et le service DeepFace (voir <code>face.service.url</code> côté Spring).</p>
+                        </div>
+                        <p style="margin-top:14px;">
+                            No account? <a href="register.html">Create one</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>window.FINANCIA_GOOGLE_CLIENT_ID = "934039181083-90loa0ibafrsqvopn5u1n89nd6jboe51.apps.googleusercontent.com";</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="js/jquery/jquery-2.2.4.min.js"></script>
+<script src="js/bootstrap/popper.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/plugins/plugins.js"></script>
+<script src="js/active.js"></script>
+<script src="js/vaultedge.js"></script>
+<script src="js/auth-ui.js"></script>
+</body>
+</html>
+

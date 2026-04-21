@@ -1,0 +1,68 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/22.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Contact</span>
+    <h1>Contactez <span>Financia</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Contact</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-lg-7 wow fadeInLeft" data-wow-delay="100ms">
+        <div class="ve-contact-form-wrap">
+          <span class="ve-section-tag">Envoyer un message</span>
+          <h2>Besoin d’<span>aide</span> ?</h2>
+          <p>Formulaire UI (API à brancher si besoin).</p>
+
+          <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="ve-form-row">
+              <div class="ve-form-group">
+                <label>Nom</label>
+                <input type="text" formControlName="name" placeholder="Votre nom" />
+              </div>
+              <div class="ve-form-group">
+                <label>Email</label>
+                <input type="email" formControlName="email" placeholder="ex: salma@mail.com" />
+              </div>
+            </div>
+            <div class="ve-form-group">
+              <label>Message</label>
+              <textarea rows="5" formControlName="message" placeholder="Votre message..."></textarea>
+            </div>
+
+            <button type="submit" class="ve-btn-primary" [disabled]="form.invalid">
+              Envoyer <i class="fa fa-paper-plane"></i>
+            </button>
+
+            @if (sent) {
+              <p style="margin-top:14px; color:#166534;">
+                Message prêt à être envoyé (API à brancher). Merci.
+              </p>
+            }
+          </form>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5 wow fadeInRight" data-wow-delay="200ms">
+        <div class="ve-contact-aside">
+          <div class="ve-ca-box">
+            <h4>Infos</h4>
+            <ul class="ve-ca-list">
+              <li><i class="fa fa-check-circle"></i> Réponse rapide</li>
+              <li><i class="fa fa-check-circle"></i> Support via le projet</li>
+              <li><i class="fa fa-check-circle"></i> Parcours client guidé</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,72 @@
+/* Styled by the legacy template CSS (src/legacy/*). Keep empty to avoid conflicts. */
+.page {
+  max-width: 420px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+input {
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+button[type='submit'] {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #1a2f4b;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.err {
+  color: #b91c1c;
+  margin: 0;
+}
+
+.oauth {
+  margin: 0.5rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.oauth__sep {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.oauth__google {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.oauth__hint {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0;
+}
+.oauth__hint code {
+  font-size: 0.72rem;
+  background: #f1f5f9;
+  padding: 0.1rem 0.25rem;
+  border-radius: 4px;
+}

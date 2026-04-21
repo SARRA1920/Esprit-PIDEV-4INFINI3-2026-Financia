@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Financia — plateforme de gestion des demandes de crédit, scoring et suivi des dossiers.">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Financia — Gestion de crédit</title>
+
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/custom-override.css">
+</head>
+
+<body>
+    <div class="preloader d-flex align-items-center justify-content-center">
+        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+    <header class="ve-header" id="ve-sticky">
+        <div class="container-fluid ve-nav-wrap">
+            <div class="ve-logo">
+                <a href="index.html">
+                    <span class="ve-logo-icon">F</span>
+                    <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+                </a>
+            </div>
+
+            <nav class="ve-nav">
+                <ul>
+                    <li><a href="index.html" class="active">Accueil</a></li>
+                    <li><a href="espace-client.html">Demande de crédit</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">À propos</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="ve-nav-cta" id="ve-auth-area"></div>
+
+            <button class="ve-toggler" id="ve-toggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+
+        <div class="ve-mobile-menu" id="ve-mobile-menu">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="espace-client.html">Demande de crédit</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="about.html">À propos</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="ve-hero">
+        <div class="ve-hero-left">
+            <span class="ve-hero-badge">Plateforme académique &nbsp;·&nbsp; Gestion de crédit</span>
+            <h1>Vos demandes de <span class="ve-highlight">crédit</span>,<br>du dossier au suivi</h1>
+            <p>
+                Financia centralise l’inscription des clients, la demande de financement, le calcul de risque
+                et le pilotage des remboursements — avec une interface claire pour les clients et les équipes.
+            </p>
+            <div id="ve-hero-guest-btns" class="ve-hero-btns">
+                <a href="login.html" class="ve-btn-primary">Se connecter</a>
+                <a href="espace-client.html" class="ve-btn-ghost">Demander un crédit</a>
+            </div>
+            <div id="ve-hero-user-btns" class="ve-hero-btns" style="display:none;">
+                <a href="espace-client.html" class="ve-btn-primary">Mon espace crédit</a>
+            </div>
+            <div class="ve-hero-stats">
+                <div class="ve-stat">
+                    <strong>Web</strong>
+                    <span>Tests via l’interface (Angular ou pages HTML)</span>
+                </div>
+                <div class="ve-stat-divider"></div>
+                <div class="ve-stat">
+                    <strong>Scoring</strong>
+                    <span>Risque &amp; décision automatique</span>
+                </div>
+                <div class="ve-stat-divider"></div>
+                <div class="ve-stat">
+                    <strong>Paiements</strong>
+                    <span>Intégration Stripe (remboursements)</span>
+                </div>
+            </div>
+        </div>
+        <div class="ve-hero-right">
+            <div class="ve-hero-img-main bg-img" style="background-image:url(img/bg-img/1.jpg);"></div>
+            <div class="ve-hero-img-accent bg-img" style="background-image:url(img/bg-img/3.jpg);"></div>
+            <div class="ve-float-card">
+                <i class="fa fa-line-chart"></i>
+                <div>
+                    <strong>DTI &amp; score</strong>
+                    <span>Analyse du dossier</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="ve-trust-bar">
+        <div class="ve-trust-inner">
+            <span><i class="fa fa-shield"></i> Authentification sécurisée</span>
+            <span><i class="fa fa-check-circle"></i> Workflow demande → décision</span>
+            <span><i class="fa fa-users"></i> Espace client dédié</span>
+            <span><i class="fa fa-lock"></i> Données utilisateur protégées</span>
+            <span><i class="fa fa-credit-card"></i> Paiements en ligne</span>
+            <span><i class="fa fa-shield"></i> Authentification sécurisée</span>
+            <span><i class="fa fa-check-circle"></i> Workflow demande → décision</span>
+            <span><i class="fa fa-users"></i> Espace client dédié</span>
+        </div>
+    </div>
+
+    <section class="ve-section ve-services-section">
+        <div class="container">
+            <div class="ve-section-header text-center">
+                <span class="ve-section-tag">Fonctionnalités</span>
+                <h2>Ce que propose <span>Financia</span></h2>
+                <p>Modules principaux du projet : crédit, utilisateurs, notifications et tableau de bord métier.</p>
+            </div>
+            <div class="ve-services-grid">
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="100ms">
+                    <div class="ve-service-icon"><i class="icon-money-1"></i></div>
+                    <h4>Demande de crédit</h4>
+                    <p>Montant, durée et date de début : le système calcule taux, score de risque et statut du dossier.</p>
+                    <a href="espace-client.html" class="ve-card-link">Accéder à l’espace client <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="200ms">
+                    <div class="ve-service-icon"><i class="icon-profits"></i></div>
+                    <h4>Suivi des crédits</h4>
+                    <p>Historique par client, états PENDING / APPROVED / ACTIVE et recalcul du risque à la demande.</p>
+                    <a href="services.html" class="ve-card-link">Voir les services <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="300ms">
+                    <div class="ve-service-icon"><i class="icon-coin"></i></div>
+                    <h4>Remboursements</h4>
+                    <p>Échéancier, statuts de paiement et passerelle Stripe pour encaisser les mensualités.</p>
+                    <a href="services.html" class="ve-card-link">En savoir plus <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="400ms">
+                    <div class="ve-service-icon"><i class="icon-smartphone-1"></i></div>
+                    <h4>Compte client</h4>
+                    <p>Inscription, connexion et accès rapide à la demande de crédit après authentification.</p>
+                    <a href="register.html" class="ve-card-link">Créer un compte <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="500ms">
+                    <div class="ve-service-icon"><i class="icon-diamond"></i></div>
+                    <h4>Client Angular</h4>
+                    <p>Application sur le port 4200 : même API Spring, consommation via HttpClient (proxy en dev).</p>
+                    <a href="http://localhost:4200/" class="ve-card-link" target="_blank" rel="noopener">Ouvrir Angular <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+                <div class="ve-service-card wow fadeInUp" data-wow-delay="600ms">
+                    <div class="ve-service-icon"><i class="icon-piggy-bank"></i></div>
+                    <h4>Scoring &amp; taux</h4>
+                    <p>Indicateurs DTI, revenu et ancienneté ; estimation du taux d’intérêt (service ML optionnel).</p>
+                    <a href="about.html" class="ve-card-link">À propos du projet <i class="fa fa-long-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-section ve-whyus-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12 col-lg-5">
+                    <div class="ve-whyus-img-wrap wow fadeInLeft" data-wow-delay="100ms">
+                        <div class="ve-whyus-img-main bg-img" style="background-image:url(img/bg-img/5.jpg);"></div>
+                        <div class="ve-whyus-badge">
+                            <strong>1</strong>
+                            <span>Parcours client unifié</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-7 wow fadeInRight" data-wow-delay="200ms">
+                    <div class="ve-whyus-content">
+                        <span class="ve-section-tag">Pourquoi Financia</span>
+                        <h2>Une base claire pour la <span>gestion du crédit</span></h2>
+                        <p>
+                            Le projet regroupe authentification, modèle de données crédit / remboursement,
+                            règles métier (unicité des dossiers en cours) et exposition API pour brancher votre interface.
+                        </p>
+                        <div class="ve-checklist">
+                            <div class="ve-check-item">
+                                <i class="fa fa-check-circle"></i>
+                                <div><strong>Parcours client</strong><p>Connexion puis formulaire de demande avec retour immédiat sur le statut et le score.</p></div>
+                            </div>
+                            <div class="ve-check-item">
+                                <i class="fa fa-check-circle"></i>
+                                <div><strong>Règles métier</strong><p>Un seul crédit actif (PENDING / APPROVED / ACTIVE) par client jusqu’à clôture ou rejet.</p></div>
+                            </div>
+                            <div class="ve-check-item">
+                                <i class="fa fa-check-circle"></i>
+                                <div><strong>Évolutif</strong><p>Agents, administration et reporting peuvent s’enrichir étape par étape sur la même base.</p></div>
+                            </div>
+                        </div>
+                        <a href="login.html" class="ve-btn-primary mt-30">Commencer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-counter-section">
+        <div class="container">
+            <div class="ve-counter-grid">
+                <div class="ve-counter-item wow fadeInUp" data-wow-delay="100ms">
+                    <i class="fa fa-cogs"></i>
+                    <strong class="counter" data-count="1">0</strong><span></span>
+                    <p>Application Spring Boot</p>
+                </div>
+                <div class="ve-counter-item wow fadeInUp" data-wow-delay="200ms">
+                    <i class="fa fa-database"></i>
+                    <strong class="counter" data-count="1">0</strong><span></span>
+                    <p>Base MySQL (JPA)</p>
+                </div>
+                <div class="ve-counter-item wow fadeInUp" data-wow-delay="300ms">
+                    <i class="fa fa-plug"></i>
+                    <strong class="counter" data-count="3">0</strong><span>+</span>
+                    <p>Intégrations (ex. Stripe, SMS)</p>
+                </div>
+                <div class="ve-counter-item wow fadeInUp" data-wow-delay="400ms">
+                    <i class="fa fa-users"></i>
+                    <strong class="counter" data-count="3">0</strong><span></span>
+                    <p>Rôles (CLIENT, AGENT, ADMIN)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-section ve-testimonials-section">
+        <div class="container">
+            <div class="ve-section-header text-center">
+                <span class="ve-section-tag">Contexte projet</span>
+                <h2>Objectifs <span>pédagogiques</span></h2>
+            </div>
+            <div class="ve-testi-grid">
+                <div class="ve-testi-card wow fadeInUp" data-wow-delay="100ms">
+                    <div class="ve-testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>« Mettre en œuvre un cycle complet : inscription, demande de crédit, décision automatique et suivi des remboursements. »</p>
+                    <div class="ve-testi-author">
+                        <div class="ve-testi-avatar bg-img" style="background-image:url(img/bg-img/32.jpg);"></div>
+                        <div><strong>Parcours client</strong><span>Front + API</span></div>
+                    </div>
+                </div>
+                <div class="ve-testi-card wow fadeInUp" data-wow-delay="250ms">
+                    <div class="ve-testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>« Comprendre la sécurité (Spring Security), les transactions JPA et les appels à des services externes. »</p>
+                    <div class="ve-testi-author">
+                        <div class="ve-testi-avatar bg-img" style="background-image:url(img/bg-img/33.jpg);"></div>
+                        <div><strong>Architecture</strong><span>Backend Java</span></div>
+                    </div>
+                </div>
+                <div class="ve-testi-card wow fadeInUp" data-wow-delay="400ms">
+                    <div class="ve-testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>« Présenter une interface cohérente avec la marque Financia et les parcours réels des utilisateurs. »</p>
+                    <div class="ve-testi-author">
+                        <div class="ve-testi-avatar bg-img" style="background-image:url(img/bg-img/14.jpg);"></div>
+                        <div><strong>UX</strong><span>Template &amp; intégration</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-cta-banner bg-img" style="background-image:url(img/bg-img/6.jpg);">
+        <div class="ve-cta-overlay"></div>
+        <div class="container ve-cta-content">
+            <div class="row align-items-center">
+                <div class="col-12 col-lg-8">
+                    <h2>Prêt à tester une <span>demande de crédit ?</span></h2>
+                    <p>Connectez-vous avec un compte client, puis ouvrez l’espace dédié pour soumettre votre formulaire.</p>
+                </div>
+                <div class="col-12 col-lg-4 text-lg-right">
+                    <a href="login.html" class="ve-btn-white">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-section ve-insights-section">
+        <div class="container">
+            <div class="ve-section-header text-center">
+                <span class="ve-section-tag">À lire</span>
+                <h2>Liens <span>utiles</span></h2>
+                <p>Raccourcis vers les parcours à tester depuis le navigateur.</p>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-4 wow fadeInUp" data-wow-delay="100ms">
+                    <div class="ve-insight-card">
+                        <div class="ve-insight-img bg-img" style="background-image:url(img/bg-img/10.jpg);"></div>
+                        <div class="ve-insight-body">
+                            <span class="ve-insight-cat">Client</span>
+                            <h5><a href="espace-client.html">Soumettre une demande de crédit</a></h5>
+                            <p>Montant, durée et date de début : la réponse affiche statut, score et taux calculés.</p>
+                            <div class="ve-insight-meta">
+                                <span><i class="fa fa-calendar"></i> Espace client</span>
+                                <a href="espace-client.html">Ouvrir <i class="fa fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 wow fadeInUp" data-wow-delay="250ms">
+                    <div class="ve-insight-card">
+                        <div class="ve-insight-img bg-img" style="background-image:url(img/bg-img/11.jpg);"></div>
+                        <div class="ve-insight-body">
+                            <span class="ve-insight-cat">Angular</span>
+                            <h5><a href="http://localhost:4200/" target="_blank" rel="noopener">Application Angular</a></h5>
+                            <p>Lancez <code>npm start</code> à la racine du projet, puis testez connexion et demande de crédit.</p>
+                            <div class="ve-insight-meta">
+                                <span><i class="fa fa-calendar"></i> Port 4200</span>
+                                <a href="http://localhost:4200/" target="_blank" rel="noopener">Ouvrir <i class="fa fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 wow fadeInUp" data-wow-delay="400ms">
+                    <div class="ve-insight-card">
+                        <div class="ve-insight-img bg-img" style="background-image:url(img/bg-img/12.jpg);"></div>
+                        <div class="ve-insight-body">
+                            <span class="ve-insight-cat">Compte</span>
+                            <h5><a href="register.html">Créer un compte client</a></h5>
+                            <p>Inscription rapide pour accéder au formulaire de demande après connexion.</p>
+                            <div class="ve-insight-meta">
+                                <span><i class="fa fa-calendar"></i> Register</span>
+                                <a href="register.html">S’inscrire <i class="fa fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ve-newsletter-section">
+        <div class="container">
+            <div class="ve-newsletter-wrap">
+                <div class="ve-nl-left">
+                    <i class="fa fa-envelope-o"></i>
+                    <div>
+                        <h3>Besoin d’aide ?</h3>
+                        <p>Consultez la page contact ou testez les parcours depuis l’interface Angular ou les pages HTML.</p>
+                    </div>
+                </div>
+                <div class="ve-nl-right">
+                    <a href="contact.html" class="ve-btn-primary" style="white-space:nowrap;">Contact</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="ve-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-sm-6 col-lg-4 mb-50">
+                    <div class="ve-footer-brand">
+                        <a href="index.html" class="ve-footer-logo">
+                            <span class="ve-logo-icon">F</span>
+                            <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+                        </a>
+                        <p>Plateforme de gestion de crédit : dossiers clients, scoring, remboursements et paiements en ligne.</p>
+                        <div class="ve-social">
+                            <a href="https://github.com" aria-label="GitHub" rel="noopener noreferrer"><i class="fa fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-2 mb-50">
+                    <h5 class="ve-footer-title">Navigation</h5>
+                    <ul class="ve-footer-links">
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="login.html">Connexion</a></li>
+                        <li><a href="register.html">Inscription</a></li>
+                        <li><a href="espace-client.html">Demande de crédit</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3 mb-50">
+                    <h5 class="ve-footer-title">Projet</h5>
+                    <ul class="ve-footer-links">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="about.html">À propos</a></li>
+                        <li><a href="http://localhost:4200/" target="_blank" rel="noopener">Client Angular</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3 mb-50">
+                    <h5 class="ve-footer-title">Informations</h5>
+                    <ul class="ve-footer-contact">
+                        <li><i class="fa fa-server"></i> API locale : port configuré (ex. 8083)</li>
+                        <li><i class="fa fa-envelope"></i> Support : via page Contact</li>
+                        <li><i class="fa fa-clock-o"></i> Projet académique / démonstration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="ve-footer-bottom">
+            <div class="container">
+                <div class="ve-footer-bottom-inner">
+                    <p>Copyright &copy; <script>document.write(new Date().getFullYear());</script> Financia — Projet de gestion de crédit.</p>
+                    <ul>
+                        <li><a href="#">Confidentialité</a></li>
+                        <li><a href="#">Mentions</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap/popper.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/plugins/plugins.js"></script>
+    <script src="js/active.js"></script>
+    <script src="js/vaultedge.js"></script>
+    <script src="js/auth-ui.js"></script>
+</body>
+</html>

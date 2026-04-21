@@ -1,0 +1,171 @@
+<div class="adm-stack">
+  <div>
+    <h1 class="adm-page-title">Tableau de bord</h1>
+    <p class="adm-page-sub">Vue d'ensemble des opérations Financia</p>
+  </div>
+
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Encours total</p>
+          <p class="adm-kpi__value">3,28M €</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(16, 185, 129, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--up"><span>↑ +8.2%</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Crédits actifs</p>
+          <p class="adm-kpi__value">145</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(59, 130, 246, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--up"><span>↑ +12</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Échéances en retard</p>
+          <p class="adm-kpi__value">7</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(239, 68, 68, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--down"><span>↓ -3</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Nouvelles demandes</p>
+          <p class="adm-kpi__value">28</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(245, 158, 11, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--up"><span>↑ +5</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Cours actifs (LMS)</p>
+          <p class="adm-kpi__value">18</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(234, 179, 8, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--up"><span>↑ +2</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+
+    <div class="adm-kpi">
+      <div class="adm-kpi__row">
+        <div>
+          <p class="adm-kpi__label">Apprenants inscrits</p>
+          <p class="adm-kpi__value">342</p>
+        </div>
+        <div class="adm-kpi__icon" style="background-color: rgba(16, 185, 129, 0.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>
+        </div>
+      </div>
+      <div class="adm-kpi__change adm-kpi__change--up"><span>↑ +24</span><span class="adm-kpi__change-hint">vs dernier mois</span></div>
+    </div>
+  </div>
+
+  <div class="adm-grid-2">
+    <div class="adm-card">
+      <h3 class="adm-card__title">Évolution du portefeuille crédit</h3>
+      <p class="adm-card__sub">Encours total des 6 derniers mois</p>
+      <div class="adm-chart-wrap">
+        <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="admAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stop-color="#10b981" stop-opacity="0.35" />
+              <stop offset="95%" stop-color="#10b981" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          @for (g of gridYs; track g) {
+            <line x1="40" [attr.y1]="g" x2="380" [attr.y2]="g" stroke="#334155" stroke-dasharray="3 3" opacity="0.6" />
+          }
+          <polygon [attr.points]="areaPoints" fill="url(#admAreaGrad)" />
+          <polyline [attr.points]="linePoints" fill="none" stroke="#10b981" stroke-width="2" />
+          @for (p of chartPoints; track p.month) {
+            <text [attr.x]="p.x" y="190" fill="#64748b" font-size="11" text-anchor="middle">{{ p.month }}</text>
+          }
+          @for (t of yTicks; track t.label) {
+            <text x="4" [attr.y]="t.y" fill="#64748b" font-size="10">{{ t.label }}</text>
+          }
+        </svg>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <h3 class="adm-card__title">Répartition par statut</h3>
+      <p class="adm-card__sub">Distribution des crédits</p>
+      <div class="adm-donut-wrap">
+        <svg viewBox="0 0 200 200" width="200" height="200">
+          @for (s of donutSegments; track s.name) {
+            <path [attr.d]="s.path" [attr.fill]="s.color" stroke="#1e293b" stroke-width="1" />
+          }
+          <circle cx="100" cy="100" r="52" fill="#1e293b" />
+        </svg>
+      </div>
+      <div class="adm-legend">
+        @for (item of statusData; track item.name) {
+          <div class="adm-legend__row">
+            <div class="adm-legend__left">
+              <span class="adm-legend__swatch" [style.background-color]="item.color"></span>
+              <span class="adm-legend__name">{{ item.name }}</span>
+            </div>
+            <span class="adm-legend__val">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-table-card">
+    <div class="adm-table-card__head">
+      <h3 class="adm-card__title" style="margin: 0">Activité récente</h3>
+      <p class="adm-card__sub" style="margin: 0.25rem 0 0">Dernières actions système et utilisateurs</p>
+    </div>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Heure</th>
+            <th>Acteur</th>
+            <th>Action</th>
+            <th>Entité</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of recentActivity; track $index) {
+            <tr>
+              <td class="adm-mono adm-text-muted">{{ row.time }}</td>
+              <td class="adm-text-bright">{{ row.actor }}</td>
+              <td class="adm-text-muted">{{ row.action }}</td>
+              <td class="adm-mono adm-text-bright">{{ row.entity }}</td>
+              <td>
+                <app-admin-status-badge [status]="row.status" />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

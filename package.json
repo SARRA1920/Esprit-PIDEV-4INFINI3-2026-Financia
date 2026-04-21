@@ -1,0 +1,11 @@
+{
+  "name": "financia-root",
+  "private": true,
+  "description": "Scripts racine : le client Angular est dans financia-angular/",
+  "scripts": {
+    "start": "npm --prefix financia-angular run start",
+    "start:angular": "npm --prefix financia-angular run start",
+    "build:angular": "npm --prefix financia-angular run build",
+    "install:angular": "npm --prefix financia-angular install"
+  }
+}

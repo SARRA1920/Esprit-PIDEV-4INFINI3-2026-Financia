@@ -1,0 +1,82 @@
+<div class="adm-users">
+  <div class="adm-users__head">
+    <div>
+      <h1 class="adm-users__title">Utilisateurs</h1>
+      <p class="adm-users__sub">Comptes applicatifs (table <code>users</code>)</p>
+    </div>
+  </div>
+
+  <div class="adm-users__toolbar">
+    <div class="adm-users__search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <path d="M21 21l-4.35-4.35" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Filtrer par nom, e-mail, téléphone, rôle…"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+      />
+    </div>
+    <p class="adm-users__count">{{ filtered().length }} utilisateur{{ filtered().length > 1 ? 's' : '' }}</p>
+  </div>
+
+  @if (loading()) {
+    <p class="adm-users__state">Chargement…</p>
+  } @else if (error()) {
+    <div class="adm-users__err" role="alert">{{ error() }}</div>
+  } @else if (users().length === 0) {
+    <p class="adm-users__state">Aucun utilisateur en base.</p>
+  } @else {
+    <div class="adm-users__table-wrap">
+      <table class="adm-users__table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>E-mail</th>
+            <th>Téléphone</th>
+            <th>Rôle</th>
+            <th>Revenu mensuel</th>
+            <th>Ancienneté</th>
+            <th>Inscription</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of filtered(); track u.idUser) {
+            <tr>
+              <td class="adm-mono">{{ u.idUser }}</td>
+              <td>
+                <span class="adm-name">{{ u.firstName }} {{ u.lastName }}</span>
+              </td>
+              <td class="adm-mono adm-email">{{ u.email }}</td>
+              <td class="adm-mono">{{ u.phone }}</td>
+              <td>
+                <span [class]="'adm-role-pill ' + roleClass(u.role)">{{ roleLabel(u.role) }}</span>
+              </td>
+              <td class="adm-mono">{{ formatIncome(u.monthlyIncome) }}</td>
+              <td class="adm-muted">
+                @if (u.yearsAsClient != null) {
+                  {{ u.yearsAsClient }} an{{ u.yearsAsClient > 1 ? 's' : '' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td class="adm-mono adm-muted">
+                @if (u.createdAt) {
+                  {{ u.createdAt | date: 'dd/MM/yyyy' }}
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (filtered().length === 0 && users().length > 0) {
+        <p class="adm-users__state">Aucun résultat pour ce filtre.</p>
+      }
+    </div>
+  }
+</div>

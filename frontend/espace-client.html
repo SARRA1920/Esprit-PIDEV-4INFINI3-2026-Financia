@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Espace client — Demande de crédit | Financia</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/custom-override.css">
+</head>
+<body>
+<div class="preloader d-flex align-items-center justify-content-center">
+    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<header class="ve-header" id="ve-sticky">
+    <div class="container-fluid ve-nav-wrap">
+        <div class="ve-logo">
+            <a href="index.html">
+                <span class="ve-logo-icon">F</span>
+                <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+            </a>
+        </div>
+        <nav class="ve-nav">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="espace-client.html" class="active">Mon crédit</a></li>
+                <li><a href="http://localhost:4200/espace-client#remboursements" target="_blank" rel="noopener">Remboursements</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="ve-nav-cta" id="ve-auth-area"></div>
+        <button class="ve-toggler" id="ve-toggle"><span></span><span></span><span></span></button>
+    </div>
+    <div class="ve-mobile-menu" id="ve-mobile-menu">
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="espace-client.html">Mon crédit</a></li>
+            <li><a href="http://localhost:4200/espace-client#remboursements" target="_blank" rel="noopener">Remboursements</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<section class="ve-page-hero" style="background-image:url(img/bg-img/22.jpg);">
+    <div class="ve-page-hero-overlay"></div>
+    <div class="container ve-page-hero-content">
+        <span class="ve-section-tag">Espace client</span>
+        <h1>Demande de <span>crédit</span></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="ve-breadcrumb">
+                <li><a href="index.html">Accueil</a></li>
+                <li class="active">Crédit</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <p id="ve-client-greet" style="font-size:1.1rem;margin-bottom:8px;"></p>
+
+                <p id="ve-credit-loading" style="color:var(--ve-text);">Chargement de vos dossiers…</p>
+
+                <div id="ve-credit-blocking" class="ve-contact-form-wrap" style="margin-top:24px;display:none;"></div>
+
+                <div id="ve-credit-form-wrap" class="ve-contact-form-wrap" style="margin-top:24px;display:none;">
+                    <p style="color:var(--ve-text);max-width:640px;margin-bottom:16px;">
+                        Renseignez le montant souhaité et la durée. Le taux d’intérêt et le score de risque sont calculés automatiquement par le système.
+                    </p>
+                    <span class="ve-section-tag">Nouvelle demande</span>
+                    <h2>Formulaire de <span>demande</span></h2>
+
+                    <div id="ve-credit-msg" style="display:none;"></div>
+
+                    <form id="ve-credit-request-form" class="ve-contact-form" action="#" method="post">
+                        <div class="ve-form-group">
+                            <label>Montant demandé (principal)</label>
+                            <input name="amount" type="number" min="1" step="0.001" placeholder="Ex. 10000" required>
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Durée (en mois)</label>
+                            <input name="durationMonths" type="number" min="1" max="360" step="1" placeholder="Ex. 24" required>
+                        </div>
+                        <div class="ve-form-group">
+                            <label>Date de début souhaitée (optionnel)</label>
+                            <input name="startDate" type="date">
+                        </div>
+                        <button type="submit" class="ve-btn-primary">Envoyer la demande <i class="fa fa-arrow-right"></i></button>
+                    </form>
+                </div>
+
+                <div id="ve-credit-result" class="ve-contact-form-wrap" style="margin-top:24px;display:none;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="js/jquery/jquery-2.2.4.min.js"></script>
+<script src="js/bootstrap/popper.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/plugins/plugins.js"></script>
+<script src="js/active.js"></script>
+<script src="js/vaultedge.js"></script>
+<script src="js/auth-ui.js"></script>
+<script src="js/credit-client.js"></script>
+</body>
+</html>

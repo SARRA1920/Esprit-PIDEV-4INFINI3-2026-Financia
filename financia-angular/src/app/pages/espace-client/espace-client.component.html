@@ -1,0 +1,276 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/22.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Espace client</span>
+    @if (!initialLoading && hasBlockingCreditFlag && blockingCredit) {
+      <h1>Mon <span>crédit</span></h1>
+      <p class="ve-hero-sub">
+        Suivi du dossier, progression du remboursement et paiement des échéances.
+      </p>
+    } @else {
+      <h1>Demande de <span>crédit</span></h1>
+      <p class="ve-hero-sub">
+        Déposez une demande et suivez ensuite votre dossier depuis cet espace.
+      </p>
+    }
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Crédit</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-contact-section ve-dash">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+        @if (user(); as u) {
+          <p id="ve-client-greet" class="ve-greet">Bonjour, {{ u.firstName }}</p>
+        }
+
+        @if (initialLoading) {
+          <p id="ve-credit-loading" class="ve-muted">Chargement de vos dossiers…</p>
+        }
+
+        @if (!initialLoading && hasBlockingCreditFlag) {
+          <div class="ve-contact-form-wrap ve-block ve-stack">
+            @if (blockingCredit) {
+              <div class="ve-credit-summary">
+                <span class="ve-section-tag">Dossier en cours</span>
+                <h2 class="ve-credit-title">Votre crédit</h2>
+                <p class="ve-credit-lead">
+                  Vous avez déjà un dossier ouvert. Une nouvelle demande sera possible lorsque celui-ci sera
+                  <strong>soldé</strong> ou <strong>clôturé</strong>.
+                </p>
+
+                <div class="ve-credit-status-row">
+                  <span class="ve-credit-status-lbl">Statut</span>
+                  <span class="ve-credit-status-pill">{{ creditStatusLabel(blockingCredit.status) }}</span>
+                </div>
+
+                <div class="ve-chip-row">
+                  @if (blockingCredit.interestRate !== undefined && blockingCredit.interestRate !== null) {
+                    <span class="ve-chip"
+                      >Taux <strong>{{ blockingCredit.interestRate | number: '1.1-2' }}%</strong></span
+                    >
+                  }
+                  @if (blockingCredit.riskScore !== undefined && blockingCredit.riskScore !== null) {
+                    <span class="ve-chip"
+                      >Risque <strong>{{ blockingCredit.riskScore | number: '1.0-0' }}</strong></span
+                    >
+                  }
+                  @if (blockingCredit.startDate) {
+                    <span class="ve-chip">Début <strong>{{ blockingCredit.startDate }}</strong></span>
+                  }
+                  @if (blockingCredit.endDate) {
+                    <span class="ve-chip">Fin <strong>{{ blockingCredit.endDate }}</strong></span>
+                  }
+                </div>
+
+                @if (repaymentProgressPercent !== null) {
+                  <div class="ve-progress">
+                    <div class="ve-progress-head">
+                      <span class="ve-progress-lbl">Progression du remboursement</span>
+                      <span class="ve-progress-val">{{ repaymentProgressPercent | number: '1.0-1' }}%</span>
+                    </div>
+                    <div class="ve-progress-bar" role="progressbar" [attr.aria-valuenow]="repaymentProgressPercent" aria-valuemin="0" aria-valuemax="100">
+                      <div class="ve-progress-fill" [style.width.%]="repaymentProgressPercent"></div>
+                    </div>
+                    <div class="ve-progress-foot">
+                      <span class="mono">
+                        Payé&nbsp;
+                        <strong>{{ paidSoFarAmount | number: '1.0-2' }}</strong>
+                        &nbsp;€
+                      </span>
+                      <span class="mono">
+                        Restant&nbsp;<strong>{{ blockingCredit.remainingAmount | number: '1.0-2' }}</strong>&nbsp;€
+                      </span>
+                    </div>
+                  </div>
+                }
+
+                <div class="ve-credit-metrics">
+                  <div class="ve-credit-metric">
+                    <span class="ve-credit-metric-lbl">Montant emprunté</span>
+                    <span class="ve-credit-metric-val">
+                      {{ blockingCredit.amount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;€</span>
+                    </span>
+                  </div>
+                  <div class="ve-credit-metric">
+                    <span class="ve-credit-metric-lbl">Durée</span>
+                    <span class="ve-credit-metric-val">
+                      {{ blockingCredit.durationMonths }}<span class="ve-credit-metric-unit">&nbsp;mois</span>
+                    </span>
+                  </div>
+                  <div class="ve-credit-metric ve-credit-metric--primary">
+                    <span class="ve-credit-metric-lbl">Reste à payer</span>
+                    <span class="ve-credit-metric-val">
+                      {{ blockingCredit.remainingAmount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;€</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <span class="ve-section-tag">Dossier en cours</span>
+              <h2>Crédit existant</h2>
+              <p>Nouvelle demande indisponible jusqu’à clôture ou rejet du dossier.</p>
+            }
+          </div>
+
+          <div id="remboursements" class="ve-contact-form-wrap ve-block ve-stack">
+            <div class="ve-section-head">
+              <div>
+                <span class="ve-section-tag">Remboursements</span>
+                <h2>Mon <span>paiement</span></h2>
+                @if (repaymentScheduleProgress; as sp) {
+                  <p class="ve-pay-progress-hint">{{ sp.paid }}/{{ sp.total }} échéances réglées</p>
+                }
+              </div>
+              @if (repaymentScheduleProgress; as sp) {
+                <div class="ve-mini-ring" [attr.title]="sp.paid + '/' + sp.total + ' échéances payées'">
+                  <svg viewBox="0 0 36 36" aria-hidden="true">
+                    <path class="ve-mini-ring-bg" d="M18 2a16 16 0 1 1 0 32 16 16 0 1 1 0-32z" />
+                    <path
+                      class="ve-mini-ring-fg"
+                      [attr.stroke-dasharray]="sp.percent + ', 100'"
+                      d="M18 2a16 16 0 1 1 0 32 16 16 0 1 1 0-32z"
+                    />
+                  </svg>
+                  <div class="ve-mini-ring-lbl">{{ sp.paid }}/{{ sp.total }}</div>
+                </div>
+              }
+            </div>
+
+            @if (remboursementsLoading) {
+              <div class="ve-skel" aria-busy="true">
+                <div class="ve-skel-line"></div>
+                <div class="ve-skel-line ve-skel-line--short"></div>
+                <div class="ve-skel-grid">
+                  <div class="ve-skel-card"></div>
+                  <div class="ve-skel-card"></div>
+                  <div class="ve-skel-card"></div>
+                </div>
+              </div>
+            } @else if (remboursementsError) {
+              <div class="ve-alert ve-alert--danger">{{ remboursementsError }}</div>
+            } @else if (!remboursements.length) {
+              <div class="ve-empty">
+                <div class="ve-empty-art" aria-hidden="true"></div>
+                <div class="ve-empty-copy">
+                  <div class="ve-empty-title">Échéancier en préparation</div>
+                  <p class="ve-muted">
+                    Le serveur n’a pas encore publié les lignes d’échéances pour ce crédit. Voici néanmoins une estimation utile pour anticiper votre budget.
+                  </p>
+                  @if (estimatedMonthlyAmount !== null) {
+                    <div class="ve-repay-estimate">
+                      <div class="ve-repay-estimate-grid">
+                        <div class="ve-repay-estimate-item">
+                          <div class="ve-repay-estimate-lbl">Remboursement estimé / mois</div>
+                          <div class="ve-repay-estimate-val">{{ estimatedMonthlyAmount | number: '1.0-2' }} €</div>
+                        </div>
+                        @if (estimatedNextDueDate) {
+                          <div class="ve-repay-estimate-item">
+                            <div class="ve-repay-estimate-lbl">Prochaine date limite estimée</div>
+                            <div class="ve-repay-estimate-val">{{ estimatedNextDueDate }}</div>
+                          </div>
+                        }
+                      </div>
+                      <p class="ve-repay-estimate-note">
+                        Estimation basée sur le montant, la durée et le taux. Les échéances réelles apparaîtront dès qu’elles seront générées côté serveur.
+                      </p>
+                    </div>
+                  }
+                  <button type="button" class="ve-btn-primary ve-empty-cta" (click)="refreshRemboursements()">
+                    Rafraîchir l’affichage
+                  </button>
+                </div>
+              </div>
+            } @else {
+              @if (allRemboursementsPaid) {
+                <div class="ve-stripe-done" role="status">
+                  <div class="ve-stripe-done-title">Tout est payé</div>
+                  <p class="ve-muted">Toutes vos échéances sont marquées comme payées.</p>
+                </div>
+              } @else if (nextPayableRemboursement) {
+                <div class="ve-pay-now-card">
+                  <div class="ve-pay-now-kicker">À régler maintenant — Stripe sécurisé</div>
+                  <div class="ve-pay-now-row">
+                    <div class="ve-pay-now-main">
+                      <div class="ve-pay-now-label">{{ primaryDueCaption }}</div>
+                      <div class="ve-pay-now-amount mono">{{ amountDueNow | number: '1.0-2' }} €</div>
+                      @if (overduePayable.length > 1) {
+                        <ul class="ve-pay-now-breakdown">
+                          @for (r of overduePayable; track r.id) {
+                            <li><span>{{ r.dueDate }}</span><span class="mono">{{ r.amount | number: '1.0-2' }} €</span></li>
+                          }
+                        </ul>
+                      }
+                      @if (overduePayable.length > 1) {
+                        <p class="ve-pay-now-note">
+                          Le paiement en ligne règle la tranche la plus ancienne en premier ; vous pourrez enchaîner après chaque validation pour solder les autres retards.
+                        </p>
+                      }
+                    </div>
+                    <div class="ve-pay-now-actions">
+                      <button
+                        type="button"
+                        class="ve-btn-primary ve-pay-now-btn"
+                        (click)="payNextWithStripe()"
+                        [disabled]="remboursementsLoading"
+                        title="Ouvre la page de paiement Stripe"
+                      >
+                        Paiement
+                      </button>
+                      <button
+                        type="button"
+                        class="ve-btn-ghost"
+                        (click)="payNow(nextPayableRemboursement)"
+                        [disabled]="remboursementsLoading || (nextPayableRemboursement.status || '') === 'PAID'"
+                      >
+                        Marquer payé (hors ligne)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+
+        @if (!initialLoading && !hasBlockingCreditFlag) {
+          <div class="ve-contact-form-wrap ve-stack">
+            <p class="ve-muted ve-intro">
+              Renseignez le montant souhaité et la durée. Le taux d’intérêt et le score de risque sont calculés automatiquement.
+            </p>
+            <span class="ve-section-tag">Nouvelle demande</span>
+            <h2>Formulaire de <span>demande</span></h2>
+
+            @if (error) {
+              <div class="ve-error" style="margin-bottom: 12px;">{{ error }}</div>
+            }
+
+            <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+              <div class="ve-form-group">
+                <label>Montant demandé (principal)</label>
+                <input name="amount" type="number" formControlName="amount" min="1" step="0.001" placeholder="Ex. 10000" />
+              </div>
+              <div class="ve-form-group">
+                <label>Durée (en mois)</label>
+                <input name="durationMonths" type="number" formControlName="durationMonths" min="1" max="360" step="1" placeholder="Ex. 24" />
+              </div>
+              <div class="ve-form-group">
+                <label>Date de début souhaitée (optionnel)</label>
+                <input name="startDate" type="date" formControlName="startDate" />
+              </div>
+              <button type="submit" class="ve-btn-primary" [disabled]="loading || form.invalid">
+                {{ loading ? 'Envoi…' : 'Envoyer la demande' }} <i class="fa fa-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

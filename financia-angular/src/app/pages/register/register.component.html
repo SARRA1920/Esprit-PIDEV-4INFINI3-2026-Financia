@@ -1,0 +1,94 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/23.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Compte</span>
+    <h1>Créer un <span>compte</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Inscription</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7">
+        <div class="ve-contact-form-wrap">
+          <span class="ve-section-tag">Get Started</span>
+          <h2>Inscription <span>Financia</span></h2>
+
+          @if (error) {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;">{{ error }}</p>
+          } @else {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
+          }
+
+          <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="ve-form-row">
+              <div class="ve-form-group">
+                <label>Prénom</label>
+                <input name="firstName" type="text" formControlName="firstName" placeholder="Prénom" />
+              </div>
+              <div class="ve-form-group">
+                <label>Nom</label>
+                <input name="lastName" type="text" formControlName="lastName" placeholder="Nom" />
+              </div>
+            </div>
+            <div class="ve-form-group">
+              <label>Email</label>
+              <input name="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+            </div>
+            <div class="ve-form-row">
+              <div class="ve-form-group">
+                <label>Téléphone</label>
+                <input name="phone" type="text" formControlName="phone" placeholder="Téléphone" />
+              </div>
+              <div class="ve-form-group">
+                <label>Adresse</label>
+                <input name="address" type="text" formControlName="address" placeholder="Adresse" />
+              </div>
+            </div>
+            <div class="ve-form-group">
+              <label>Revenu mensuel</label>
+              <input
+                name="monthlyIncome"
+                type="number"
+                formControlName="monthlyIncome"
+                min="0"
+                step="0.01"
+                placeholder="ex. 1500 (optionnel)"
+              />
+            </div>
+            <div class="ve-form-group">
+              <label>Mot de passe</label>
+              <input
+                name="password"
+                type="password"
+                formControlName="password"
+                placeholder="Choisir un mot de passe"
+                autocomplete="new-password"
+              />
+            </div>
+
+            <div class="ve-login-oauth">
+              <p class="ve-login-oauth-sep">ou continuer avec</p>
+              @if (googleEnabled) {
+                <div id="google-signin-button-register" class="ve-login-oauth-google"></div>
+              }
+            </div>
+
+            <button type="submit" class="ve-btn-primary" [disabled]="loading || form.invalid">
+              {{ loading ? 'Inscription…' : 'Create Account' }} <i class="fa fa-user"></i>
+            </button>
+            <p style="margin-top:14px;">
+              Déjà un compte ? <a routerLink="/login">Connexion</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

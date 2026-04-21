@@ -1,0 +1,785 @@
+.ve-greet {
+  font-size: 1.1rem;
+  margin: 0 0 8px;
+  color: var(--ve-text);
+}
+
+.ve-muted {
+  color: color-mix(in srgb, var(--ve-text) 75%, transparent);
+  line-height: 1.55;
+}
+
+.ve-intro {
+  max-width: 640px;
+  margin-bottom: 16px;
+}
+
+.ve-dash .container {
+  padding-top: 6px;
+}
+
+.ve-hero-sub {
+  margin: 10px 0 0;
+  max-width: 56ch;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.55;
+}
+
+.ve-stack {
+  margin-top: 24px;
+}
+
+.ve-error {
+  color: #ffdddd;
+}
+
+.ve-block {
+  position: relative;
+}
+
+/* Futuriste light (glass + néon soft) */
+:host {
+  --fx-a: rgba(99, 102, 241, 0.55); /* indigo */
+  --fx-b: rgba(56, 189, 248, 0.45); /* sky */
+  --fx-c: rgba(244, 114, 182, 0.32); /* pink */
+}
+
+.ve-contact-form-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.72) 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 16px 40px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.ve-contact-form-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background:
+    radial-gradient(800px 220px at 15% 0%, var(--fx-b), transparent 60%),
+    radial-gradient(760px 240px at 85% 0%, var(--fx-a), transparent 55%),
+    radial-gradient(520px 220px at 50% 115%, var(--fx-c), transparent 60%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ve-contact-form-wrap > * {
+  position: relative;
+}
+
+/* Résumé crédit */
+.ve-credit-title {
+  color: #78350f;
+  margin: 0.5rem 0 0.35rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+}
+
+.ve-credit-lead {
+  color: #92400e;
+  line-height: 1.55;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
+.ve-credit-summary {
+  border-radius: 16px;
+  padding: 18px 18px 14px;
+  background:
+    radial-gradient(760px 260px at 10% 0%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(820px 280px at 95% 5%, rgba(56, 189, 248, 0.16), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.68));
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 18px 44px rgba(15, 23, 42, 0.1);
+}
+
+.ve-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.ve-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+}
+
+.ve-chip strong {
+  font-weight: 900;
+}
+
+.ve-progress {
+  margin: 6px 0 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.ve-progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ve-progress-lbl {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.78;
+}
+
+.ve-progress-val {
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.ve-progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.ve-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.95), rgba(99, 102, 241, 0.95), rgba(244, 114, 182, 0.9));
+  box-shadow: 0 10px 26px rgba(99, 102, 241, 0.26);
+}
+
+.ve-progress-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  opacity: 0.92;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.ve-credit-summary {
+  position: relative;
+  overflow: hidden;
+}
+
+.ve-credit-summary::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background:
+    radial-gradient(640px 200px at 10% 0%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(680px 240px at 90% 0%, rgba(255,  255, 255, 0.7), transparent 55%);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.ve-credit-summary > * {
+  position: relative;
+}
+
+.ve-credit-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(180, 83, 9, 0.15);
+}
+
+.ve-credit-status-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a16207;
+}
+
+.ve-credit-status-pill {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e3a5f;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.ve-credit-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ve-credit-metric {
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.ve-credit-metric--primary {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, #fff7ed 100%);
+  border: 1px solid rgba(245, 158, 11, 0.32);
+}
+
+.ve-credit-metric-lbl {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #57534e;
+  margin-bottom: 6px;
+}
+
+.ve-credit-metric--primary .ve-credit-metric-lbl {
+  color: #b45309;
+}
+
+.ve-credit-metric-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1c1917;
+  font-variant-numeric: tabular-nums;
+}
+
+.ve-credit-metric--primary .ve-credit-metric-val {
+  font-size: 1.4rem;
+  color: #9a3412;
+}
+
+.ve-credit-metric-unit {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #57534e;
+}
+
+/* État vide: estimation */
+.ve-repay-estimate {
+  margin-top: 12px;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.ve-repay-estimate {
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.ve-repay-estimate-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.ve-repay-estimate-item {
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.ve-repay-estimate-lbl {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.ve-repay-estimate-val {
+  font-weight: 900;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ve-repay-estimate-note {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+  line-height: 1.55;
+}
+
+/* Table */
+.ve-table-wrap {
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 18px 46px rgba(15, 23, 42, 0.08);
+}
+
+.ve-table {
+  margin: 0;
+}
+
+.ve-table thead th {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ve-table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+.ve-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.ve-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.ve-pay-progress-hint {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  opacity: 0.78;
+}
+
+/* Une seule carte : montant à payer maintenant (pas de tableau) */
+.ve-pay-now-card {
+  margin-top: 4px;
+  padding: 22px 22px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    radial-gradient(720px 220px at 0% 0%, rgba(99, 102, 241, 0.14), transparent 58%),
+    radial-gradient(640px 200px at 100% 20%, rgba(56, 189, 248, 0.12), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.92));
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 22px 50px rgba(15, 23, 42, 0.1);
+}
+
+.ve-pay-now-kicker {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  margin-bottom: 14px;
+}
+
+.ve-pay-now-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.ve-pay-now-main {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.ve-pay-now-label {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.ve-pay-now-amount {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(90deg, #1e293b, #6366f1 55%, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ve-pay-now-breakdown {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ve-pay-now-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+}
+
+.ve-pay-now-note {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  opacity: 0.78;
+  max-width: 52ch;
+}
+
+.ve-pay-now-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  justify-content: center;
+  min-width: 200px;
+}
+
+.ve-pay-now-btn {
+  padding: 14px 22px;
+  font-weight: 900;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.ve-btn-ghost {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+.ve-btn-ghost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .ve-pay-now-actions {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* CTA Stripe (prochaine échéance) */
+.ve-stripe-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  background:
+    radial-gradient(520px 160px at 0% 0%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(520px 160px at 100% 0%, rgba(56, 189, 248, 0.14), transparent 55%),
+    rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 14px 36px rgba(99, 102, 241, 0.12);
+}
+
+.ve-stripe-cta-kicker {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.ve-stripe-cta-title {
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.ve-stripe-cta-meta {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.ve-stripe-cta-btn {
+  flex: 0 0 auto;
+  min-width: 200px;
+}
+
+.ve-stripe-done {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.ve-stripe-done-title {
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.ve-mini-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+}
+
+.ve-mini-ring svg {
+  width: 56px;
+  height: 56px;
+  transform: rotate(-90deg);
+}
+
+.ve-mini-ring-bg {
+  fill: none;
+  stroke: rgba(15, 23, 42, 0.12);
+  stroke-width: 3.4;
+}
+
+.ve-mini-ring-fg {
+  fill: none;
+  stroke: rgba(99, 102, 241, 0.95);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 10px 16px rgba(99, 102, 241, 0.2));
+}
+
+.ve-mini-ring-lbl {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.ve-alert {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.ve-alert--danger {
+  border-color: rgba(244, 63, 94, 0.22);
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.ve-empty {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.ve-empty-art {
+  width: 140px;
+  height: 140px;
+  border-radius: 26px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background:
+    radial-gradient(60px 60px at 30% 30%, rgba(56, 189, 248, 0.55), transparent 70%),
+    radial-gradient(70px 70px at 70% 35%, rgba(99, 102, 241, 0.5), transparent 70%),
+    radial-gradient(80px 80px at 55% 70%, rgba(244, 114, 182, 0.45), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.55));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 18px 46px rgba(15, 23, 42, 0.12);
+}
+
+.ve-empty-title {
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.ve-empty-cta {
+  margin-top: 12px;
+}
+
+.ve-skel-line,
+.ve-skel-card {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.06), rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.06));
+  background-size: 240% 100%;
+  animation: veShimmer 1.2s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+.ve-skel-line {
+  height: 14px;
+  margin: 10px 0;
+}
+
+.ve-skel-line--short {
+  width: 60%;
+}
+
+.ve-skel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ve-skel-card {
+  height: 72px;
+}
+
+@keyframes veShimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.ve-cell-muted {
+  opacity: 0.92;
+}
+
+.ve-pay-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.ve-pay-pill::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 1);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
+}
+
+.ve-pay-pill.is-paid {
+  border-color: rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.08);
+}
+.ve-pay-pill.is-paid::before {
+  background: rgba(34, 197, 94, 1);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+}
+
+.ve-pay-pill.is-pending {
+  border-color: rgba(99, 102, 241, 0.26);
+  background: rgba(99, 102, 241, 0.08);
+}
+.ve-pay-pill.is-pending::before {
+  background: rgba(99, 102, 241, 1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.ve-pay-pill.is-failed {
+  border-color: rgba(244, 63, 94, 0.26);
+  background: rgba(244, 63, 94, 0.08);
+}
+.ve-pay-pill.is-failed::before {
+  background: rgba(244, 63, 94, 1);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.16);
+}
+
+.ve-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.ve-actions .ve-cta-btn,
+.ve-actions .ve-btn-primary {
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+.ve-actions .ve-cta-btn:hover,
+.ve-actions .ve-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+  filter: saturate(1.05);
+}
+
+.ve-btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+@media (max-width: 520px) {
+  .ve-credit-metrics {
+    grid-template-columns: 1fr;
+  }
+  .ve-credit-metric--primary {
+    grid-column: 1;
+  }
+  .ve-repay-estimate-grid {
+    grid-template-columns: 1fr;
+  }
+  .ve-empty {
+    grid-template-columns: 1fr;
+  }
+  .ve-empty-art {
+    width: 100%;
+    height: 120px;
+  }
+  .ve-skel-grid {
+    grid-template-columns: 1fr;
+  }
+}

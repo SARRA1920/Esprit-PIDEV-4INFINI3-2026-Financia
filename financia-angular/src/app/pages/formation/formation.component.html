@@ -1,0 +1,127 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/20.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Académie</span>
+    <h1>Formation &amp; <span>apprentissage</span></h1>
+    <p class="ve-hero-sub">
+      Parcours pédagogiques, contenus riches et outils d’IA au service de votre montée en compétences.
+    </p>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Formation</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-formation-api">
+  <div class="container">
+    <div class="ve-section-header text-center">
+      <span class="ve-section-tag">Données Spring Boot</span>
+      <h2>Parcours <span>disponibles</span></h2>
+      <p>
+        Liste issue de l’API REST (<code>/f/course</code>) — même module que la gestion des cours côté backend.
+      </p>
+    </div>
+
+    @if (loading()) {
+      <p class="ve-muted text-center">Chargement des parcours…</p>
+    } @else if (loadError()) {
+      <div class="ve-alert ve-alert--danger ve-formation-alert">{{ loadError() }}</div>
+      <p class="ve-muted text-center">
+        Vérifiez que le serveur Spring tourne sur le port configuré et que le préfixe d’API inclut <code>/f</code>.
+      </p>
+    } @else if (!courses().length) {
+      <div class="ve-empty-formation text-center">
+        <p class="ve-muted">Aucun cours en base pour le moment. Créez-en via l’API ou Swagger.</p>
+      </div>
+    } @else {
+      <div class="ve-formation-catalog">
+        @for (c of courses(); track c.courseId) {
+          <article class="ve-formation-course-card">
+            <div class="ve-formation-course-icon"><i class="icon-idea"></i></div>
+            <h3>{{ c.title }}</h3>
+            <p>{{ excerpt(c.description) }}</p>
+            <div class="ve-formation-course-meta">
+              @if (c.lessons?.length) {
+                <span>{{ c.lessons!.length }} leçon(s)</span>
+              } @else {
+                <span class="ve-muted">Programme à venir</span>
+              }
+            </div>
+            <a [routerLink]="['/formation/course', c.courseId]" class="ve-card-link"
+              >Voir le parcours <i class="fa fa-long-arrow-right"></i
+            ></a>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<section class="ve-section">
+  <div class="container">
+    <div class="ve-section-header text-center">
+      <span class="ve-section-tag">Module LMS</span>
+      <h2>Fonctionnalités <span>côté serveur</span></h2>
+      <p>
+        Cours, leçons, contenus, quiz IA et recommandations — exposés par les contrôleurs Spring du package
+        <code>controller.formation</code>.
+      </p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+        <div class="ve-formation-grid">
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="100ms">
+            <i class="fa fa-graduation-cap"></i>
+            <div>
+              <h4>Cours &amp; leçons</h4>
+              <p>Parcours par cours, leçons ordonnées et suivi de progression.</p>
+            </div>
+          </div>
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="200ms">
+            <i class="fa fa-file-text-o"></i>
+            <div>
+              <h4>Contenus &amp; fichiers</h4>
+              <p>Texte, PDF, bureautique : dépôt et consultation depuis l’espace formation.</p>
+            </div>
+          </div>
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="300ms">
+            <i class="fa fa-magic"></i>
+            <div>
+              <h4>Quiz &amp; IA</h4>
+              <p>Génération de QCM à partir des contenus pour valider vos acquis.</p>
+            </div>
+          </div>
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="400ms">
+            <i class="fa fa-line-chart"></i>
+            <div>
+              <h4>Recommandations</h4>
+              <p>Suggestions de cours proches de vos intérêts (similarité de contenu).</p>
+            </div>
+          </div>
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="500ms">
+            <i class="fa fa-language"></i>
+            <div>
+              <h4>Traduction</h4>
+              <p>Accès multilingue (ex. FR / EN / AR) pour les contenus pédagogiques.</p>
+            </div>
+          </div>
+          <div class="ve-formation-item wow fadeInUp" data-wow-delay="600ms">
+            <i class="fa fa-users"></i>
+            <div>
+              <h4>Rôles</h4>
+              <p>Parcours adaptés aux apprenants, formateurs et administrateurs pédagogiques.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-50">
+          <a routerLink="/services" class="ve-btn-primary">Retour aux services</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

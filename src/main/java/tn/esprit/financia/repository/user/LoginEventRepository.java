@@ -1,0 +1,13 @@
+package tn.esprit.financia.repository.user;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import tn.esprit.financia.entities.user.LoginEvent;
+import tn.esprit.financia.entities.user.User;
+
+import java.time.Instant;
+
+public interface LoginEventRepository extends JpaRepository<LoginEvent, Long> {
+    long countByUserAndSuccessIsFalseAndCreatedAtAfter(User user, Instant createdAt);
+
+    boolean existsByUserAndSuccessIsTrueAndCountryIgnoreCaseNot(User user, String country);
+}

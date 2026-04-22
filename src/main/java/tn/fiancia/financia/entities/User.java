@@ -91,6 +91,14 @@ public class User {
     private LocalDateTime updatedAt;
 
     /**
+     * User's project goal or career objective.
+     * Used to provide personalized course recommendations aligned with user's aspirations.
+     * Examples: "Full Stack Development", "Data Science", "Mobile App Development"
+     */
+    @Column(columnDefinition = "TEXT")
+    private String projectGoal;
+
+    /**
      * Many-to-many relationship with courses.
      * A user can enroll in multiple courses, and each course can have multiple users.
      */
@@ -148,6 +156,7 @@ public class User {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", role=" + role +
+                ", projectGoal='" + projectGoal + '\'' +
                 ", isActive=" + isActive +
                 '}';
     }

@@ -1,0 +1,188 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/23.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Compte</span>
+    <h1>Créer un <span>compte</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Inscription</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-contact-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7">
+        <div class="ve-contact-form-wrap">
+          <span class="ve-section-tag">Get Started</span>
+          <h2>Inscription <span>Financia</span></h2>
+
+          @if (error) {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;">{{ error }}</p>
+          } @else {
+            <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
+          }
+
+          @if (googleSignupPending) {
+            <p
+              style="margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(212, 175, 55, 0.12); color: #1a1a2e; font-size: 14px; line-height: 1.45;"
+            >
+              Prénom, nom et e-mail proviennent de votre compte Google. Complétez téléphone, mot de passe et le reste,
+              puis validez l’inscription.
+            </p>
+            <button
+              type="button"
+              class="ve-btn-face-secondary"
+              style="margin-bottom: 18px"
+              [disabled]="loading"
+              (click)="cancelGoogleSignup()"
+            >
+              Annuler et s’inscrire sans Google
+            </button>
+          }
+
+          <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="ve-form-row">
+              <div class="ve-form-group">
+                <label>Prénom</label>
+                <input
+                  name="firstName"
+                  type="text"
+                  formControlName="firstName"
+                  placeholder="Prénom"
+                  [attr.readonly]="googleSignupPending ? '' : null"
+                />
+              </div>
+              <div class="ve-form-group">
+                <label>Nom</label>
+                <input
+                  name="lastName"
+                  type="text"
+                  formControlName="lastName"
+                  placeholder="Nom"
+                  [attr.readonly]="googleSignupPending ? '' : null"
+                />
+              </div>
+            </div>
+            <div class="ve-form-group">
+              <label>Email</label>
+              <input
+                name="email"
+                type="email"
+                formControlName="email"
+                placeholder="you@email.com"
+                autocomplete="email"
+                [attr.readonly]="googleSignupPending ? '' : null"
+              />
+            </div>
+            <div class="ve-form-row">
+              <div class="ve-form-group">
+                <label>Téléphone</label>
+                <input name="phone" type="text" formControlName="phone" placeholder="Téléphone" />
+              </div>
+              <div class="ve-form-group">
+                <label>Adresse</label>
+                <input name="address" type="text" formControlName="address" placeholder="Adresse" />
+              </div>
+            </div>
+            <div class="ve-form-group">
+              <label>Revenu mensuel</label>
+              <input
+                name="monthlyIncome"
+                type="text"
+                inputmode="decimal"
+                formControlName="monthlyIncome"
+                placeholder="ex. 1500 (optionnel)"
+              />
+            </div>
+            <div class="ve-form-group">
+              <label>Mot de passe</label>
+              <input
+                name="password"
+                type="password"
+                formControlName="password"
+                placeholder="Choisir un mot de passe"
+                autocomplete="new-password"
+              />
+            </div>
+
+            <div class="ve-login-oauth ve-face-register">
+              <p class="ve-login-oauth-sep">Face ID (recommandé)</p>
+              @if (cameraActive) {
+                <video
+                  id="face-register-video"
+                  class="ve-face-video"
+                  playsinline
+                  muted
+                  autoplay
+                  aria-label="Aperçu caméra"
+                ></video>
+                <div class="ve-face-camera-actions">
+                  <button
+                    type="button"
+                    class="ve-btn-face"
+                    [disabled]="loading"
+                    (click)="captureFromCamera()"
+                  >
+                    Capturer et enregistrer
+                  </button>
+                  <button
+                    type="button"
+                    class="ve-btn-face-secondary"
+                    [disabled]="loading"
+                    (click)="closeCamera()"
+                  >
+                    Fermer la caméra
+                  </button>
+                </div>
+              } @else {
+                <button type="button" class="ve-btn-face" [disabled]="loading" (click)="openCamera()">
+                  Ouvrir la caméra
+                </button>
+              }
+              @if (facePhotoBase64) {
+                <div class="ve-face-register-preview">
+                  <span class="ve-face-captured-label">Photo enregistrée :</span>
+                  <img [src]="facePhotoBase64" alt="Visage enregistré" width="120" height="120" />
+                  <button type="button" class="ve-btn-face-secondary" [disabled]="loading" (click)="clearFacePhoto()">
+                    Supprimer et refaire
+                  </button>
+                </div>
+              }
+              <p class="ve-login-oauth-note">
+                Ouvrez la caméra, positionnez votre visage, puis appuyez sur « Capturer et enregistrer ». Cette image
+                sert de référence pour « Connexion Face ID » sur la page de login (service DeepFace requis côté serveur).
+              </p>
+            </div>
+
+            <div class="ve-login-oauth">
+              <p class="ve-login-oauth-sep">ou continuer avec</p>
+              @if (googleEnabled) {
+                <div id="google-signin-button-register" class="ve-login-oauth-google"></div>
+              }
+            </div>
+
+            <div class="ve-register-submit-wrap">
+              <button type="submit" class="ve-btn-primary" [disabled]="loading">
+                {{
+                  loading
+                    ? 'Inscription…'
+                    : googleSignupPending
+                      ? 'Finaliser l’inscription'
+                      : 'Create Account'
+                }}
+                <i class="fa fa-user"></i>
+              </button>
+            </div>
+            <p style="margin-top:14px;">
+              Déjà un compte ? <a routerLink="/login">Connexion</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

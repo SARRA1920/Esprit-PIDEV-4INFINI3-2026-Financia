@@ -1,0 +1,174 @@
+<div class="adm-stack">
+  <div class="adm-head-row">
+    <div>
+      <h1 class="adm-page-title">Crédits & dossiers</h1>
+      <p class="adm-page-sub">Vue claire du portefeuille crédit, avec recherche et suivi du remboursement</p>
+    </div>
+    <button type="button" class="adm-btn-primary" disabled title="Export à brancher sur l'API">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+      Exporter CSV
+    </button>
+  </div>
+
+  <div class="adm-toolbar">
+    <div class="adm-toolbar__search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+      <input
+        type="search"
+        placeholder="Rechercher par ID, client, montant..."
+        [value]="query()"
+        (input)="updateQuery($any($event.target).value)"
+      />
+    </div>
+    <div class="adm-filters">
+      <span class="adm-filters__label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+        Filtres:
+      </span>
+      @for (f of filters; track f) {
+        <button type="button" class="adm-filter-chip" [class.adm-filter-chip--on]="activeFilter() === f" (click)="setFilter(f)">
+          <span>{{ f }}</span>
+          <span class="adm-filter-chip__count">{{ filterCount(f) }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="adm-credit-summary">
+    <div class="adm-summary-card">
+      <span class="adm-summary-card__label">Résultats</span>
+      <strong>{{ filteredCredits().length }}</strong>
+      <span class="adm-summary-card__hint">dossier{{ filteredCredits().length > 1 ? 's' : '' }} affiché{{ filteredCredits().length > 1 ? 's' : '' }}</span>
+    </div>
+    <div class="adm-summary-card">
+      <span class="adm-summary-card__label">Reste à payer</span>
+      <strong>{{ formatCurrency(totalExposure()) }}</strong>
+      <span class="adm-summary-card__hint">sur le filtre actif</span>
+    </div>
+    <div class="adm-summary-card">
+      <span class="adm-summary-card__label">Crédits actifs</span>
+      <strong>{{ activeCreditsCount() }}</strong>
+      <span class="adm-summary-card__hint">dans la sélection</span>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </div>
+      <h3>Chargement des crédits</h3>
+      <p>Récupération des dossiers depuis la base de données…</p>
+    </div>
+  } @else if (error()) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.12)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <h3>Impossible de charger les crédits</h3>
+      <p>{{ error() }}</p>
+      <button type="button" class="adm-details-btn" (click)="fetchCredits()">Réessayer</button>
+    </div>
+  } @else if (filteredCredits().length === 0) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </div>
+      <h3>Aucun crédit trouvé</h3>
+      <p>Essayez un autre statut ou une recherche plus courte.</p>
+    </div>
+  } @else {
+    <div class="adm-credit-grid">
+      @for (credit of filteredCredits(); track credit.id) {
+        <article class="adm-credit-card" [class.adm-credit-card--open]="selectedRow() === credit.id">
+          <button type="button" class="adm-credit-card__main" (click)="toggleRow(credit.id)">
+            <div class="adm-credit-card__top">
+              <div>
+                <span class="adm-credit-card__id">{{ credit.id }}</span>
+                <h3>{{ credit.client }}</h3>
+              </div>
+              <app-admin-status-badge [status]="credit.status" />
+            </div>
+
+            <div class="adm-credit-card__amount">
+              <span>Montant accordé</span>
+              <strong>{{ formatCurrency(credit.amount) }}</strong>
+            </div>
+
+            <div class="adm-progress">
+              <div class="adm-progress__head">
+                <span>Remboursé</span>
+                <strong>{{ repaymentPercent(credit) }}%</strong>
+              </div>
+              <div class="adm-progress__bar">
+                <span [style.width.%]="repaymentPercent(credit)"></span>
+              </div>
+              <div class="adm-progress__foot">
+                <span>Reste à payer</span>
+                <strong>{{ formatCurrency(credit.remaining) }}</strong>
+              </div>
+            </div>
+
+            <div class="adm-credit-card__meta">
+              <span>{{ credit.rate }}% taux</span>
+              <span>{{ credit.duration }} mois</span>
+              <span>Créé le {{ credit.created }}</span>
+            </div>
+          </button>
+
+          <div class="adm-credit-card__footer">
+            <span
+              class="adm-risk"
+              [class.adm-risk--a]="credit.riskScore.startsWith('A')"
+              [class.adm-risk--b]="credit.riskScore.startsWith('B')"
+              [class.adm-risk--c]="!credit.riskScore.startsWith('A') && !credit.riskScore.startsWith('B')"
+            >
+              Score {{ credit.riskScore }}
+            </span>
+            <button type="button" class="adm-details-btn" (click)="toggleRow(credit.id)">
+              {{ selectedRow() === credit.id ? 'Masquer' : 'Voir détails' }}
+            </button>
+          </div>
+
+          @if (selectedRow() === credit.id) {
+            <div class="adm-credit-details">
+              <div>
+                <span>Approuvé le</span>
+                <strong>{{ credit.approved || 'En attente' }}</strong>
+              </div>
+              <div>
+                <span>Reste à payer</span>
+                <strong>{{ formatCurrency(credit.remaining) }}</strong>
+              </div>
+              <div>
+                <span>Mensualité indicative</span>
+                <strong>{{ formatCurrency(credit.remaining / credit.duration) }}</strong>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  <div class="adm-pager">
+    <p class="adm-text-muted" style="margin: 0; font-size: 0.875rem">
+      Affichage de {{ filteredCredits().length }} résultat{{ filteredCredits().length > 1 ? 's' : '' }}
+    </p>
+    <div class="adm-pager__btns">
+      <button type="button" class="adm-btn-ghost" disabled>Précédent</button>
+      <button type="button" class="adm-btn-page-on">1</button>
+      <button type="button" class="adm-btn-ghost">2</button>
+      <button type="button" class="adm-btn-ghost">Suivant</button>
+    </div>
+  </div>
+</div>

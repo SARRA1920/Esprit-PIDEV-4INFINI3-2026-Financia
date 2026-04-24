@@ -1,0 +1,67 @@
+<div class="app-shell">
+  @if (showPublicChrome()) {
+  <header class="ve-header" id="ve-sticky" [class.scrolled]="headerScrolled">
+    <div class="container-fluid ve-nav-wrap">
+      <div class="ve-logo">
+        <a routerLink="/" (click)="closeMobileMenu()">
+          <span class="ve-logo-icon">F</span>
+          <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+        </a>
+      </div>
+
+      <nav class="ve-nav">
+        <ul>
+          <li>
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">Accueil</a>
+          </li>
+          <li>
+            <a routerLink="/espace-client" routerLinkActive="active" (click)="closeMobileMenu()">Demande de crédit</a>
+          </li>
+          <li><a routerLink="/services" routerLinkActive="active" (click)="closeMobileMenu()">Services</a></li>
+          <li><a routerLink="/formation" routerLinkActive="active" (click)="closeMobileMenu()">Formation</a></li>
+          @if (isAdminUser()) {
+            <li><a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Administration</a></li>
+          }
+          <li><a routerLink="/about" routerLinkActive="active" (click)="closeMobileMenu()">À propos</a></li>
+          <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMobileMenu()">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="ve-nav-cta">
+        @if (user(); as u) {
+          @if (isAdminUser()) {
+            <a routerLink="/admin" class="ve-admin-pill" (click)="closeMobileMenu()">Tableau de bord admin</a>
+          }
+          <span style="color:#fff; margin-right:12px;">Bonjour, <strong>{{ u.firstName }}</strong></span>
+          <a href="#" class="ve-cta-btn" (click)="$event.preventDefault(); logout(); closeMobileMenu()">Logout</a>
+        } @else {
+          <a routerLink="/login" class="ve-cta-btn" style="margin-right:10px;" (click)="closeMobileMenu()">Login</a>
+          <a routerLink="/register" class="ve-btn-primary" (click)="closeMobileMenu()">Register</a>
+        }
+      </div>
+
+      <button class="ve-toggler" id="ve-toggle" type="button" (click)="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="ve-mobile-menu" id="ve-mobile-menu" [class.open]="mobileMenuOpen">
+      <ul>
+        <li><a routerLink="/" (click)="closeMobileMenu()">Accueil</a></li>
+        <li><a routerLink="/espace-client" (click)="closeMobileMenu()">Demande de crédit</a></li>
+        <li><a routerLink="/services" (click)="closeMobileMenu()">Services</a></li>
+        <li><a routerLink="/formation" (click)="closeMobileMenu()">Formation</a></li>
+        @if (isAdminUser()) {
+          <li><a routerLink="/admin" (click)="closeMobileMenu()">Administration</a></li>
+        }
+        <li><a routerLink="/about" (click)="closeMobileMenu()">À propos</a></li>
+        <li><a routerLink="/contact" (click)="closeMobileMenu()">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+  }
+
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

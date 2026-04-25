@@ -96,6 +96,18 @@ public class CreditController {
         return ResponseEntity.ok(creditService.recalculateRisk(id));
     }
 
+    /** Réponse à une offre automatique — acceptation : passage en APPROVED puis génération des échéances. */
+    @PostMapping("/{id}/accept-offer")
+    public ResponseEntity<Credit> acceptOffer(@PathVariable Long id, @RequestParam Long userId) {
+        return ResponseEntity.ok(creditService.acceptOffer(id, userId));
+    }
+
+    /** Refus explicite de l’offre ou équivalent après expiration (géré côté métier lors des lectures). */
+    @PostMapping("/{id}/refuse-offer")
+    public ResponseEntity<Credit> refuseOffer(@PathVariable Long id, @RequestParam Long userId) {
+        return ResponseEntity.ok(creditService.refuseOffer(id, userId));
+    }
+
     // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

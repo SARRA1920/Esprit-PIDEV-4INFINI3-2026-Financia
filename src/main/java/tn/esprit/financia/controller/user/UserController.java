@@ -3,6 +3,7 @@ package tn.esprit.financia.controller.user;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.financia.dto.user.ProjectGoalUpdateRequest;
 import tn.esprit.financia.entities.user.User;
 import tn.esprit.financia.service.user.IUserService;
 
@@ -32,6 +33,13 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(user));
     }
 
+    /** Met à jour la description de projet / objectif (alimente le moteur de recommandation LMS). */
+    @PatchMapping("/{idUser}/project-goal")
+    public ResponseEntity<User> updateProjectGoal(
+            @PathVariable Long idUser,
+            @RequestBody ProjectGoalUpdateRequest req) {
+        return ResponseEntity.ok(userService.updateProjectGoal(idUser, req.projectGoal()));
+    }
 
     // ✅ GET by ID
     @GetMapping("/{idUser}")

@@ -26,20 +26,57 @@
             <p id="ve-auth-msg" style="color:#ffdddd; margin-bottom: 12px;"></p>
           }
 
+          @if (googleSignupPending) {
+            <p
+              style="margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(212, 175, 55, 0.12); color: #1a1a2e; font-size: 14px; line-height: 1.45;"
+            >
+              Prénom, nom et e-mail proviennent de votre compte Google. Complétez téléphone, mot de passe et le reste,
+              puis validez l’inscription.
+            </p>
+            <button
+              type="button"
+              class="ve-btn-face-secondary"
+              style="margin-bottom: 18px"
+              [disabled]="loading"
+              (click)="cancelGoogleSignup()"
+            >
+              Annuler et s’inscrire sans Google
+            </button>
+          }
+
           <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
             <div class="ve-form-row">
               <div class="ve-form-group">
                 <label>Prénom</label>
-                <input name="firstName" type="text" formControlName="firstName" placeholder="Prénom" />
+                <input
+                  name="firstName"
+                  type="text"
+                  formControlName="firstName"
+                  placeholder="Prénom"
+                  [attr.readonly]="googleSignupPending ? '' : null"
+                />
               </div>
               <div class="ve-form-group">
                 <label>Nom</label>
-                <input name="lastName" type="text" formControlName="lastName" placeholder="Nom" />
+                <input
+                  name="lastName"
+                  type="text"
+                  formControlName="lastName"
+                  placeholder="Nom"
+                  [attr.readonly]="googleSignupPending ? '' : null"
+                />
               </div>
             </div>
             <div class="ve-form-group">
               <label>Email</label>
-              <input name="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+              <input
+                name="email"
+                type="email"
+                formControlName="email"
+                placeholder="you@email.com"
+                autocomplete="email"
+                [attr.readonly]="googleSignupPending ? '' : null"
+              />
             </div>
             <div class="ve-form-row">
               <div class="ve-form-group">
@@ -55,10 +92,9 @@
               <label>Revenu mensuel</label>
               <input
                 name="monthlyIncome"
-                type="number"
+                type="text"
+                inputmode="decimal"
                 formControlName="monthlyIncome"
-                min="0"
-                step="0.01"
                 placeholder="ex. 1500 (optionnel)"
               />
             </div>
@@ -73,6 +109,55 @@
               />
             </div>
 
+            <div class="ve-login-oauth ve-face-register">
+              <p class="ve-login-oauth-sep">Face ID (recommandé)</p>
+              @if (cameraActive) {
+                <video
+                  id="face-register-video"
+                  class="ve-face-video"
+                  playsinline
+                  muted
+                  autoplay
+                  aria-label="Aperçu caméra"
+                ></video>
+                <div class="ve-face-camera-actions">
+                  <button
+                    type="button"
+                    class="ve-btn-face"
+                    [disabled]="loading"
+                    (click)="captureFromCamera()"
+                  >
+                    Capturer et enregistrer
+                  </button>
+                  <button
+                    type="button"
+                    class="ve-btn-face-secondary"
+                    [disabled]="loading"
+                    (click)="closeCamera()"
+                  >
+                    Fermer la caméra
+                  </button>
+                </div>
+              } @else {
+                <button type="button" class="ve-btn-face" [disabled]="loading" (click)="openCamera()">
+                  Ouvrir la caméra
+                </button>
+              }
+              @if (facePhotoBase64) {
+                <div class="ve-face-register-preview">
+                  <span class="ve-face-captured-label">Photo enregistrée :</span>
+                  <img [src]="facePhotoBase64" alt="Visage enregistré" width="120" height="120" />
+                  <button type="button" class="ve-btn-face-secondary" [disabled]="loading" (click)="clearFacePhoto()">
+                    Supprimer et refaire
+                  </button>
+                </div>
+              }
+              <p class="ve-login-oauth-note">
+                Ouvrez la caméra, positionnez votre visage, puis appuyez sur « Capturer et enregistrer ». Cette image
+                sert de référence pour « Connexion Face ID » sur la page de login (service DeepFace requis côté serveur).
+              </p>
+            </div>
+
             <div class="ve-login-oauth">
               <p class="ve-login-oauth-sep">ou continuer avec</p>
               @if (googleEnabled) {
@@ -80,9 +165,18 @@
               }
             </div>
 
-            <button type="submit" class="ve-btn-primary" [disabled]="loading || form.invalid">
-              {{ loading ? 'Inscription…' : 'Create Account' }} <i class="fa fa-user"></i>
-            </button>
+            <div class="ve-register-submit-wrap">
+              <button type="submit" class="ve-btn-primary" [disabled]="loading">
+                {{
+                  loading
+                    ? 'Inscription…'
+                    : googleSignupPending
+                      ? 'Finaliser l’inscription'
+                      : 'Create Account'
+                }}
+                <i class="fa fa-user"></i>
+              </button>
+            </div>
             <p style="margin-top:14px;">
               Déjà un compte ? <a routerLink="/login">Connexion</a>
             </p>

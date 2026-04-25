@@ -14,6 +14,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import tn.esprit.financia.dto.user.AuthResponse;
+import tn.esprit.financia.dto.user.GoogleProfileResponse;
+import tn.esprit.financia.dto.user.GoogleRegisterRequest;
 import tn.esprit.financia.dto.user.LoginRequest;
 import tn.esprit.financia.dto.user.RegisterRequest;
 import tn.esprit.financia.dto.user.SecurityAlertResponse;
@@ -99,18 +101,12 @@ public class AuthService {
         return new AuthResponse(token, user);
     }
 
+    /**
+     * Connexion Google : uniquement si un compte existe déjà (inscription Google se fait via {@link #registerWithGoogle}).
+     */
     @Transactional
     public AuthResponse googleLogin(String idToken) {
-        if (idToken == null || idToken.isBlank()) {
-            throw new IllegalArgumentException("Google idToken is required");
-        }
-        if (googleClientId == null || googleClientId.isBlank()) {
-            throw new IllegalArgumentException("Google OAuth client id is not configured");
-        }
-
-        Map<String, Object> tokenInfo = fetchGoogleTokenInfo(idToken.trim());
-        validateGoogleTokenInfo(tokenInfo);
-
+        Map<String, Object> tokenInfo = requireValidGoogleIdToken(idToken);
         String email = normalizeEmail((String) tokenInfo.get("email"));
         if (email == null) {
             throw new IllegalArgumentException("Google account email is missing");
@@ -118,7 +114,8 @@ public class AuthService {
 
         User user = userService.getUserByEmail(email);
         if (user == null) {
-            user = createUserFromGoogle(email, tokenInfo);
+            throw new IllegalArgumentException(
+                    "Aucun compte Financia pour cet e-mail. Inscrivez-vous d’abord (formulaire ou inscription Google en deux étapes).");
         }
 
         if (user.getRole() == null) {
@@ -127,6 +124,75 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getEmail(), user.getIdUser(), user.getRole().name());
         return new AuthResponse(token, user);
+    }
+
+    /** Valide l’id_token et renvoie prénom / nom / e-mail sans créer de compte (étape 1 inscription Google). */
+    public GoogleProfileResponse googleProfile(String idToken) {
+        Map<String, Object> tokenInfo = requireValidGoogleIdToken(idToken);
+        String email = normalizeEmail((String) tokenInfo.get("email"));
+        if (email == null) {
+            throw new IllegalArgumentException("Google account email is missing");
+        }
+        if (userService.getUserByEmail(email) != null) {
+            throw new IllegalArgumentException("Un compte existe déjà pour cet e-mail. Connectez-vous.");
+        }
+        return new GoogleProfileResponse(
+                defaultIfBlank((String) tokenInfo.get("given_name"), ""),
+                defaultIfBlank((String) tokenInfo.get("family_name"), ""),
+                email
+        );
+    }
+
+    /**
+     * Inscription finale avec Google : identité (prénom, nom, e-mail) issue du jeton validé ;
+     * téléphone, adresse, mot de passe, revenu et photo viennent du formulaire.
+     */
+    @Transactional
+    public AuthResponse registerWithGoogle(GoogleRegisterRequest request) {
+        Map<String, Object> tokenInfo = requireValidGoogleIdToken(request.idToken());
+        String email = normalizeEmail((String) tokenInfo.get("email"));
+        if (email == null) {
+            throw new IllegalArgumentException("Google account email is missing");
+        }
+        if (userService.getUserByEmail(email) != null) {
+            throw new IllegalArgumentException("This email is already used");
+        }
+        if (request.password() == null || request.password().length() < 6) {
+            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères");
+        }
+        if (request.phone() == null || request.phone().isBlank()) {
+            throw new IllegalArgumentException("Le téléphone est obligatoire");
+        }
+
+        String firstName = defaultIfBlank((String) tokenInfo.get("given_name"), "Google");
+        String lastName = defaultIfBlank((String) tokenInfo.get("family_name"), "User");
+
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setPassword(request.password());
+        user.setPhone(request.phone().trim());
+        String addr = request.address();
+        user.setAddress(addr != null && !addr.isBlank() ? addr.trim() : null);
+        user.setRole(request.role() != null ? request.role() : Role.CLIENT);
+        user.setMonthlyIncome(request.monthlyIncome());
+
+        if (request.facePhotoBase64() != null && !request.facePhotoBase64().isBlank()) {
+            try {
+                user.setFacePhoto(decodeBase64Image(request.facePhotoBase64()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Photo de visage invalide : " + e.getMessage());
+            }
+        }
+
+        try {
+            User saved = userService.addUser(user);
+            String token = jwtService.generateToken(saved.getEmail(), saved.getIdUser(), saved.getRole().name());
+            return new AuthResponse(token, saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("This email is already used");
+        }
     }
 
     @Transactional
@@ -146,6 +212,7 @@ public class AuthService {
         user.setPhone(request.phone());
         user.setAddress(request.address());
         user.setRole(request.role() != null ? request.role() : Role.CLIENT);
+        user.setMonthlyIncome(request.monthlyIncome());
 
         if (request.facePhotoBase64() != null && !request.facePhotoBase64().isBlank()) {
             try {
@@ -270,28 +337,16 @@ public class AuthService {
         return "true".equalsIgnoreCase(String.valueOf(raw).trim());
     }
 
-    private User createUserFromGoogle(String email, Map<String, Object> tokenInfo) {
-        User user = new User();
-        user.setEmail(email);
-        user.setFirstName(defaultIfBlank((String) tokenInfo.get("given_name"), "Google"));
-        user.setLastName(defaultIfBlank((String) tokenInfo.get("family_name"), "User"));
-        // Valeur unique par compte (évite un doublon si la colonne phone est unique en base).
-        String phoneVal = "g-" + email.replace('@', '-');
-        user.setPhone(phoneVal.length() > 50 ? phoneVal.substring(0, 50) : phoneVal);
-        user.setAddress("Google Account");
-        user.setRole(Role.CLIENT);
-        user.setPassword(generateSecureToken());
-
-        try {
-            return userService.addUser(user);
-        } catch (DataIntegrityViolationException e) {
-            // Si l'utilisateur a été créé en parallèle juste avant ce save
-            User existing = userService.getUserByEmail(email);
-            if (existing != null) {
-                return existing;
-            }
-            throw new IllegalArgumentException("Unable to create account from Google profile");
+    private Map<String, Object> requireValidGoogleIdToken(String idToken) {
+        if (idToken == null || idToken.isBlank()) {
+            throw new IllegalArgumentException("Google idToken is required");
         }
+        if (googleClientId == null || googleClientId.isBlank()) {
+            throw new IllegalArgumentException("Google OAuth client id is not configured");
+        }
+        Map<String, Object> tokenInfo = fetchGoogleTokenInfo(idToken.trim());
+        validateGoogleTokenInfo(tokenInfo);
+        return tokenInfo;
     }
 
     private String defaultIfBlank(String value, String fallback) {
@@ -428,8 +483,11 @@ public class AuthService {
 
     @Transactional
     public void resetPassword(String token, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères.");
+        }
         PasswordResetToken resetToken = resetTokenRepository.findByTokenWithUser(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+                .orElseThrow(() -> new IllegalArgumentException("Lien invalide ou expiré. Demandez un nouveau lien."));
 
         if (resetToken.isExpired()) {
             resetTokenRepository.delete(resetToken);

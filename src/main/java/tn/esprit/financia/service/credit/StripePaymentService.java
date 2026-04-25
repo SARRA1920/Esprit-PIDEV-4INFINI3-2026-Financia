@@ -45,8 +45,14 @@ public class StripePaymentService {
             throw new IllegalStateException("Ce remboursement est déjà payé.");
         }
         // REJECTED : aucun paiement. PENDING / APPROVED / ACTIVE : paiement Stripe autorisé si l’échéance existe.
-        if (r.getCredit() != null && r.getCredit().getStatus() == StatusC.REJECTED) {
-            throw new IllegalStateException("Impossible de payer une échéance pour un crédit REJECTED.");
+        if (r.getCredit() != null) {
+            StatusC cs = r.getCredit().getStatus();
+            if (cs == StatusC.REJECTED) {
+                throw new IllegalStateException("Impossible de payer une échéance pour un crédit REJECTED.");
+            }
+            if (cs == StatusC.OFFER_PENDING || cs == StatusC.PENDING) {
+                throw new IllegalStateException("Acceptez l'offre sur votre espace avant de régler une échéance.");
+            }
         }
         if (r.getAmount() == null || r.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Montant de remboursement invalide.");

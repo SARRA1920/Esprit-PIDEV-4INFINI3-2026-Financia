@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RemboursementRepository extends JpaRepository<Remboursement, Long>, JpaSpecificationExecutor<Remboursement> {
+    @Query("SELECT DISTINCT r FROM Remboursement r JOIN FETCH r.credit c JOIN FETCH c.user")
+    List<Remboursement> findAllWithCreditAndUser();
+
     List<Remboursement> findByCredit_Id(Long creditId);
 
     @Query("""

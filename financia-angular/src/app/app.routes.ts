@@ -3,6 +3,7 @@ import { clientGuard } from './guards/client.guard';
 import { adminGuard } from './guards/admin.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { EspaceClientComponent } from './pages/espace-client/espace-client.component';
 import { ServicesComponent } from './pages/services/services.component';
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'register', component: RegisterComponent },
   {
     path: 'espace-client',

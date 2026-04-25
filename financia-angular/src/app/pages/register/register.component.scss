@@ -70,3 +70,73 @@ button[type='submit']:disabled {
   padding: 0.1rem 0.25rem;
   border-radius: 4px;
 }
+
+.ve-face-register {
+  margin: 0.5rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.ve-face-register-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.ve-face-register-preview img {
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #cbd5e1;
+}
+
+.ve-face-video {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  max-height: 270px;
+  margin: 0.5rem auto 0;
+  border-radius: 8px;
+  background: #0f172a;
+  object-fit: cover;
+}
+
+.ve-face-camera-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.ve-face-captured-label {
+  width: 100%;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.ve-btn-face-secondary {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #94a3b8;
+  background: #fff;
+  color: #334155;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ve-btn-face-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Au-dessus des iframes Google (zone de clic parfois plus grande que le bouton visible). */
+.ve-register-submit-wrap {
+  position: relative;
+  z-index: 20;
+  margin-top: 0.5rem;
+}
+
+.ve-form-group input.ng-touched.ng-invalid {
+  border-color: #b91c1c;
+}

@@ -34,8 +34,8 @@ public class RemboursementServiceImpl implements RemboursementService {
         if (credit.getStatus() == StatusC.REJECTED) {
             throw new IllegalStateException("Impossible de rembourser un crédit REJECTED.");
         }
-        if (credit.getStatus() == StatusC.PENDING) {
-            throw new IllegalStateException("Impossible de rembourser un crédit PENDING (non approuvé).");
+        if (credit.getStatus() == StatusC.PENDING || credit.getStatus() == StatusC.OFFER_PENDING) {
+            throw new IllegalStateException("Impossible de rembourser un crédit non encore accepté par le client.");
         }
 
         // Workflow: création d'échéance => toujours PENDING (payment via /pay).
@@ -59,7 +59,7 @@ public class RemboursementServiceImpl implements RemboursementService {
     @Override
     @Transactional(readOnly = true)
     public List<Remboursement> getAll() {
-        return remboursementRepository.findAll();
+        return remboursementRepository.findAllWithCreditAndUser();
     }
 
     @Override
@@ -108,8 +108,8 @@ public class RemboursementServiceImpl implements RemboursementService {
         if (credit.getStatus() == StatusC.REJECTED) {
             throw new IllegalStateException("Impossible de modifier un remboursement pour un crédit REJECTED.");
         }
-        if (credit.getStatus() == StatusC.PENDING) {
-            throw new IllegalStateException("Impossible de modifier un remboursement pour un crédit PENDING (non approuvé).");
+        if (credit.getStatus() == StatusC.PENDING || credit.getStatus() == StatusC.OFFER_PENDING) {
+            throw new IllegalStateException("Impossible de modifier un remboursement pour un crédit non encore accepté.");
         }
 
         if (updated.getAmount() != null) existing.setAmount(updated.getAmount());
@@ -138,8 +138,8 @@ public class RemboursementServiceImpl implements RemboursementService {
         if (credit.getStatus() == StatusC.REJECTED) {
             throw new IllegalStateException("Impossible de payer une échéance pour un crédit REJECTED.");
         }
-        if (credit.getStatus() == StatusC.PENDING) {
-            throw new IllegalStateException("Impossible de payer une échéance pour un crédit PENDING (non approuvé).");
+        if (credit.getStatus() == StatusC.PENDING || credit.getStatus() == StatusC.OFFER_PENDING) {
+            throw new IllegalStateException("Impossible de payer une échéance avant acceptation de l’offre.");
         }
         if (existing.getStatus() == PaymentStatus.PAID) {
             throw new IllegalStateException("Ce remboursement est déjà payé.");

@@ -1,0 +1,192 @@
+<div class="remb-page">
+  @if (formMsg() && !createOpen() && !editOpen()) {
+    <div class="remb-banner">{{ formMsg() }}</div>
+  }
+
+  <div class="remb-head">
+    <div>
+      <h1 class="remb-title">Remboursements</h1>
+      <p class="remb-sub">Suivi des échéances par dossier crédit et actions sur les paiements.</p>
+    </div>
+    <div class="remb-head-actions">
+      <button type="button" class="remb-btn remb-btn--outline" [disabled]="loading() || !!error()" (click)="openCreate()">
+        Nouvelle échéance
+      </button>
+    </div>
+  </div>
+
+  @if (!loading() && !error()) {
+    <div class="remb-toolbar">
+      <div class="remb-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="search" placeholder="ID, crédit, client, montant…" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+      </div>
+      <div class="remb-filters">
+        @for (f of filters; track f) {
+          <button type="button" class="remb-chip" [class.remb-chip--on]="activeFilter() === f" (click)="setFilter(f)">
+            {{ f }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="remb-state">Chargement…</p>
+  } @else if (error()) {
+    <div class="remb-err" role="alert">{{ error() }}</div>
+  } @else {
+    <div class="remb-card">
+      @if (rows().length === 0) {
+        <p class="remb-state">Aucune échéance. Créez-en une ou attendez la génération automatique depuis un crédit approuvé/actif.</p>
+      } @else {
+        <div class="remb-table-wrap">
+          <table class="remb-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Crédit</th>
+                <th>Client</th>
+                <th>Montant</th>
+                <th>Échéance</th>
+                <th>Paiement</th>
+                <th>Retard (j)</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of filteredRows(); track r.id) {
+                <tr>
+                  <td class="remb-mono">{{ r.id }}</td>
+                  <td class="remb-mono">{{ r.creditId ?? '—' }}</td>
+                  <td>{{ r.clientName?.trim() || '—' }}</td>
+                  <td class="remb-mono">{{ formatMoney(r.amount) }}</td>
+                  <td class="remb-muted">
+                    @if (r.dueDate) {
+                      {{ r.dueDate | date: 'dd/MM/yyyy' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="remb-muted remb-mono">
+                    @if (r.paymentDate) {
+                      {{ r.paymentDate | date: 'dd/MM/yyyy HH:mm' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="remb-mono">{{ r.lateDays ?? 0 }}</td>
+                  <td>
+                    <app-admin-status-badge [status]="paymentToBadge(r.status)" [label]="r.status || '—'" />
+                  </td>
+                  <td class="remb-actions">
+                    @if ((r.status || '').toUpperCase() === 'PENDING') {
+                      <button type="button" class="remb-link remb-link--ok" (click)="markPaid(r)">Marquer payé</button>
+                    }
+                    <button type="button" class="remb-link" (click)="openEdit(r)">Modifier</button>
+                    <button type="button" class="remb-link remb-link--danger" (click)="confirmDelete(r)">Supprimer</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (filteredRows().length === 0) {
+          <p class="remb-state">Aucun résultat pour ce filtre.</p>
+        }
+      }
+    </div>
+    @if (rows().length > 0) {
+      <p class="remb-count">{{ filteredRows().length }} ligne(s)</p>
+    }
+  }
+</div>
+
+@if (createOpen()) {
+  <div class="remb-modal-root">
+    <div class="remb-modal-bg" (click)="closeCreate()"></div>
+    <div class="remb-modal-panel" (click)="$event.stopPropagation()">
+      <h2 class="remb-modal-title">Nouvelle échéance</h2>
+      <p class="remb-modal-hint">POST <code>/api/remboursements/credit/&lt;id&gt;</code> — crédit APPROVED ou ACTIVE uniquement.</p>
+
+      <label class="remb-field">
+        <span>Crédit</span>
+        <select [ngModel]="createCreditId()" (ngModelChange)="createCreditId.set($event)">
+          <option value="">— Choisir —</option>
+          @for (c of eligibleCredits(); track c.id) {
+            <option [value]="c.id">#{{ c.id }} — {{ c.clientName?.trim() || 'Client' }} ({{ c.status }})</option>
+          }
+        </select>
+      </label>
+      @if (eligibleCredits().length === 0) {
+        <p class="remb-modal-err">Aucun crédit éligible (approuvé ou actif).</p>
+      }
+
+      <div class="remb-field-row">
+        <label class="remb-field">
+          <span>Montant (€)</span>
+          <input type="number" min="0.001" step="0.001" [ngModel]="createAmount()" (ngModelChange)="createAmount.set($event)" />
+        </label>
+        <label class="remb-field">
+          <span>Date d’échéance</span>
+          <input type="date" [ngModel]="createDueDate()" (ngModelChange)="createDueDate.set($event)" />
+        </label>
+      </div>
+
+      @if (formMsg() && createOpen()) {
+        <p class="remb-modal-err">{{ formMsg() }}</p>
+      }
+
+      <div class="remb-modal-actions">
+        <button type="button" class="remb-btn remb-btn--ghost" (click)="closeCreate()" [disabled]="createSaving()">Annuler</button>
+        <button type="button" class="remb-btn remb-btn--primary" (click)="submitCreate()" [disabled]="createSaving() || eligibleCredits().length === 0">
+          {{ createSaving() ? '…' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (editOpen()) {
+  <div class="remb-modal-root">
+    <div class="remb-modal-bg" (click)="closeEdit()"></div>
+    <div class="remb-modal-panel" (click)="$event.stopPropagation()">
+      <h2 class="remb-modal-title">Échéance #{{ editId() }}</h2>
+      <p class="remb-modal-hint">PUT <code>/api/remboursements/&lt;id&gt;</code></p>
+
+      <div class="remb-field-row">
+        <label class="remb-field">
+          <span>Montant (€)</span>
+          <input type="number" min="0.001" step="0.001" [ngModel]="editAmount()" (ngModelChange)="editAmount.set($event)" />
+        </label>
+        <label class="remb-field">
+          <span>Date d’échéance</span>
+          <input type="date" [ngModel]="editDueDate()" (ngModelChange)="editDueDate.set($event)" />
+        </label>
+      </div>
+
+      <label class="remb-field">
+        <span>Statut</span>
+        <select [ngModel]="editStatus()" (ngModelChange)="editStatus.set($event)">
+          <option value="PENDING">PENDING</option>
+          <option value="PAID">PAID</option>
+          <option value="FAILED">FAILED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      </label>
+
+      @if (formMsg() && editOpen()) {
+        <p class="remb-modal-err">{{ formMsg() }}</p>
+      }
+
+      <div class="remb-modal-actions">
+        <button type="button" class="remb-btn remb-btn--ghost" (click)="closeEdit()" [disabled]="editSaving()">Annuler</button>
+        <button type="button" class="remb-btn remb-btn--primary" (click)="submitEdit()" [disabled]="editSaving()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+}

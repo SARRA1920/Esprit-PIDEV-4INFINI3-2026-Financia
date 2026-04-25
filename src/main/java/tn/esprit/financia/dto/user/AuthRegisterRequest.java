@@ -1,5 +1,6 @@
 package tn.esprit.financia.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import tn.esprit.financia.entities.user.Role;
 
 import java.math.BigDecimal;
@@ -12,5 +13,6 @@ public record AuthRegisterRequest(
         String phone,
         String address,
         Role role,
-        BigDecimal monthlyIncome
+        BigDecimal monthlyIncome,
+        @JsonProperty("facePhotoBase64") String facePhotoBase64
 ) {}

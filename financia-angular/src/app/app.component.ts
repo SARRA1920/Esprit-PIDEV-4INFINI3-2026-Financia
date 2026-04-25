@@ -27,6 +27,9 @@ export class AppComponent {
   );
   readonly showPublicChrome = computed(() => !this.url().startsWith('/admin'));
 
+  /** Aligné sur {@link AuthService.isAdmin} (rôle ADMIN après normalisation). */
+  readonly isAdminUser = computed(() => this.auth.isAdmin());
+
   logout(): void {
     this.auth.logout();
   }

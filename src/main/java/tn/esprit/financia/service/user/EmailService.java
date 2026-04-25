@@ -24,19 +24,22 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendPasswordResetEmail(String toEmail, String resetToken, String userName) {
-        String resetLink = resetLinkBase + "?token=" + resetToken;
+    public void sendPasswordResetEmail(String toEmail, String resetToken, String userFirstName) {
+        String resetLink = buildResetLink(resetToken);
+        String prenom = (userFirstName != null && !userFirstName.isBlank()) ? userFirstName.trim() : "";
+        String salutation = prenom.isEmpty() ? "Bonjour," : "Bonjour " + prenom + ",";
+        String body = salutation + "\n\n"
+                + "Vous avez demandé la réinitialisation de votre mot de passe.\n\n"
+                + "Cliquez sur le lien suivant pour définir un nouveau mot de passe :\n"
+                + resetLink + "\n\n"
+                + "Ce lien expire dans 1 heure.\n\n"
+                + "Si vous n'avez pas fait cette demande, ignorez cet email.";
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(toEmail);
             message.setSubject("Réinitialisation de votre mot de passe - Financia");
-            message.setText("Bonjour " + userName + ",\n\n" +
-                    "Vous avez demandé la réinitialisation de votre mot de passe.\n\n" +
-                    "Cliquez sur le lien suivant pour définir un nouveau mot de passe :\n" +
-                    resetLink + "\n\n" +
-                    "Ce lien expire dans 1 heure.\n\n" +
-                    "Si vous n'avez pas fait cette demande, ignorez cet email.");
+            message.setText(body);
             message.setFrom(fromEmail);
 
             mailSender.send(message);
@@ -44,6 +47,15 @@ public class EmailService {
         } catch (Exception e) {
             log.error("Échec envoi email à {} - Erreur: {} - Lien dev: {}", toEmail, e.getMessage(), resetLink, e);
         }
+    }
+
+    /** Concatène la base configurée et le jeton (évite un double « ? » si la base se termine déjà par ?). */
+    private String buildResetLink(String resetToken) {
+        String base = resetLinkBase != null ? resetLinkBase.trim() : "";
+        if (base.contains("?")) {
+            return base + (base.endsWith("?") || base.endsWith("&") ? "" : "&") + "token=" + resetToken;
+        }
+        return base + "?token=" + resetToken;
     }
 
     public void sendSecurityAlertEmail(String toEmail, String userName, String alertMessage) {

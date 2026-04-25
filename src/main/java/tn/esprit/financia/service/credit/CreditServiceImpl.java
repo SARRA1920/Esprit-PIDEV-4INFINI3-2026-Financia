@@ -16,6 +16,8 @@ import tn.esprit.financia.spec.CreditSpecifications;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -39,6 +41,14 @@ public class CreditServiceImpl implements CreditService {
     @Value("${ml.rate-api-base-url:}")
     private String mlRateApiBaseUrl;
 
+    @Value("${app.credit.offer-validity-days:7}")
+    private int offerValidityDays;
+
+    /** Met à jour en base les offres dont la date limite est dépassée (refus d’office). */
+    private void expireStaleOffersGlobally() {
+        creditRepository.expireStaleOffers(StatusC.OFFER_PENDING, StatusC.REJECTED, Instant.now());
+    }
+
     @Override
     public Credit create(Credit credit, Long userId) {
         User user = userRepository.findById(userId)
@@ -60,27 +70,27 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Credit getById(Long id) {
+        expireStaleOffersGlobally();
         return creditRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Credit not found"));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Credit> getAll() {
-        return creditRepository.findAll();
+        expireStaleOffersGlobally();
+        return creditRepository.findAllWithUser();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Credit> getByUser(Long userId) {
+        expireStaleOffersGlobally();
         return creditRepository.findByUser_IdUser(userId);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Credit> findBlockingCreditForUser(Long userId) {
+        expireStaleOffersGlobally();
         return creditRepository.findByUser_IdUser(userId).stream()
                 .filter(CreditServiceImpl::isBlockingCreditForNewRequest)
                 .max(Comparator.comparing(Credit::getId));
@@ -258,19 +268,71 @@ public class CreditServiceImpl implements CreditService {
 
     @Override
     public void ensureInstallmentsForCredit(Long creditId) {
-        Credit credit = creditRepository.findById(creditId)
-                .orElseThrow(() -> new RuntimeException("Credit not found"));
+        Credit credit = getById(creditId);
         ensureInstallmentsIfEligible(credit);
+    }
+
+    @Override
+    public Credit acceptOffer(Long creditId, Long userId) {
+        expireStaleOffersGlobally();
+        Credit credit = getById(creditId);
+        if (credit.getUser() == null || !credit.getUser().getIdUser().equals(userId)) {
+            throw new IllegalStateException("Accès refusé pour ce dossier.");
+        }
+        if (credit.getStatus() != StatusC.OFFER_PENDING) {
+            throw new IllegalStateException("Aucune offre en attente pour ce dossier.");
+        }
+        if (credit.getOfferExpiresAt() != null && Instant.now().isAfter(credit.getOfferExpiresAt())) {
+            throw new IllegalStateException("Le délai de réponse à l’offre est dépassé.");
+        }
+        credit.setStatus(StatusC.APPROVED);
+        credit.setOfferExpiresAt(null);
+        Credit saved = creditRepository.save(credit);
+        ensureInstallmentsIfEligible(saved);
+        return getById(saved.getId());
+    }
+
+    @Override
+    public Credit refuseOffer(Long creditId, Long userId) {
+        expireStaleOffersGlobally();
+        Credit credit = getById(creditId);
+        if (credit.getUser() == null || !credit.getUser().getIdUser().equals(userId)) {
+            throw new IllegalStateException("Accès refusé pour ce dossier.");
+        }
+        if (credit.getStatus() != StatusC.OFFER_PENDING) {
+            throw new IllegalStateException("Aucune offre en attente pour ce dossier.");
+        }
+        credit.setStatus(StatusC.REJECTED);
+        credit.setOfferExpiresAt(null);
+        creditRepository.save(credit);
+        return getById(creditId);
     }
 
     private void applyScoreAndDecision(Credit credit, List<Remboursement> remboursements) {
         BigDecimal score = creditScoringService.calculateRiskScore(credit, remboursements);
         credit.setRiskScore(score);
 
-        // Décision dynamique: tant que le crédit n'est pas dans un état de cycle de vie (ACTIVE/CLOSED),
-        // on ajuste le status (APPROVED/PENDING/REJECTED) selon le score.
-        if (credit.getStatus() != StatusC.ACTIVE && credit.getStatus() != StatusC.CLOSED) {
-            credit.setStatus(creditScoringService.decideStatus(score));
+        if (credit.getStatus() == StatusC.ACTIVE || credit.getStatus() == StatusC.CLOSED) {
+            return;
+        }
+
+        if (credit.getStatus() == StatusC.OFFER_PENDING) {
+            StatusC decided = creditScoringService.decideStatus(score);
+            if (decided == StatusC.REJECTED) {
+                credit.setStatus(StatusC.REJECTED);
+                credit.setOfferExpiresAt(null);
+            }
+            return;
+        }
+
+        StatusC decided = creditScoringService.decideStatus(score);
+        if (decided == StatusC.APPROVED) {
+            credit.setStatus(StatusC.OFFER_PENDING);
+            int days = Math.max(1, offerValidityDays);
+            credit.setOfferExpiresAt(Instant.now().plus(Duration.ofDays(days)));
+        } else {
+            credit.setStatus(decided);
+            credit.setOfferExpiresAt(null);
         }
     }
 

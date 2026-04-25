@@ -9,6 +9,9 @@ public interface IUserService {
 
     User updateUser(User user);
 
+    /** Met à jour uniquement la description d’objectif / projet (recommandations LMS). */
+    User updateProjectGoal(Long idUser, String projectGoal);
+
     User getUser(Long idUser);
 
     User getUserByEmail(String email);

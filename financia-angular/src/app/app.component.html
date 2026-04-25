@@ -19,10 +19,8 @@
           </li>
           <li><a routerLink="/services" routerLinkActive="active" (click)="closeMobileMenu()">Services</a></li>
           <li><a routerLink="/formation" routerLinkActive="active" (click)="closeMobileMenu()">Formation</a></li>
-          @if (user(); as u) {
-            @if (u.role === 'ADMIN') {
-              <li><a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a></li>
-            }
+          @if (isAdminUser()) {
+            <li><a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Administration</a></li>
           }
           <li><a routerLink="/about" routerLinkActive="active" (click)="closeMobileMenu()">À propos</a></li>
           <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMobileMenu()">Contact</a></li>
@@ -31,6 +29,9 @@
 
       <div class="ve-nav-cta">
         @if (user(); as u) {
+          @if (isAdminUser()) {
+            <a routerLink="/admin" class="ve-admin-pill" (click)="closeMobileMenu()">Tableau de bord admin</a>
+          }
           <span style="color:#fff; margin-right:12px;">Bonjour, <strong>{{ u.firstName }}</strong></span>
           <a href="#" class="ve-cta-btn" (click)="$event.preventDefault(); logout(); closeMobileMenu()">Logout</a>
         } @else {
@@ -50,10 +51,8 @@
         <li><a routerLink="/espace-client" (click)="closeMobileMenu()">Demande de crédit</a></li>
         <li><a routerLink="/services" (click)="closeMobileMenu()">Services</a></li>
         <li><a routerLink="/formation" (click)="closeMobileMenu()">Formation</a></li>
-        @if (user(); as mu) {
-          @if (mu.role === 'ADMIN') {
-            <li><a routerLink="/admin" (click)="closeMobileMenu()">Admin</a></li>
-          }
+        @if (isAdminUser()) {
+          <li><a routerLink="/admin" (click)="closeMobileMenu()">Administration</a></li>
         }
         <li><a routerLink="/about" (click)="closeMobileMenu()">À propos</a></li>
         <li><a routerLink="/contact" (click)="closeMobileMenu()">Contact</a></li>

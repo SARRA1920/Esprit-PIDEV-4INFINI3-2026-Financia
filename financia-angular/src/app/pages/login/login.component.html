@@ -42,28 +42,59 @@
               />
             </div>
 
+            <button type="button" class="ve-login-forgot-btn" routerLink="/forgot-password">
+              Mot de passe oublié
+            </button>
+
             <button type="submit" class="ve-btn-primary" [disabled]="loading || faceLoading || form.invalid">
               {{ loading ? 'Connexion…' : 'Login' }} <i class="fa fa-arrow-right"></i>
             </button>
 
-            <div class="ve-login-oauth">
+            <div class="ve-login-oauth ve-face-login">
               <p class="ve-login-oauth-sep">ou</p>
               @if (googleEnabled) {
                 <div id="google-signin-button" class="ve-login-oauth-google"></div>
               }
-              <input
-                id="face-capture-input"
-                type="file"
-                accept="image/*"
-                capture="user"
-                style="display:none"
-                (change)="onFaceFileSelected($event)"
-              />
-              <button type="button" class="ve-btn-face" [disabled]="loading || faceLoading" (click)="triggerFaceCapture()">
-                {{ faceLoading ? 'Vérification…' : 'Connexion Face ID' }}
-              </button>
+              @if (faceCameraActive) {
+                <video
+                  id="face-login-video"
+                  class="ve-face-video"
+                  playsinline
+                  muted
+                  autoplay
+                  aria-label="Aperçu caméra Face ID"
+                ></video>
+                <div class="ve-face-camera-actions">
+                  <button
+                    type="button"
+                    class="ve-btn-face"
+                    [disabled]="loading || faceLoading"
+                    (click)="captureFaceLoginAndAuthenticate()"
+                  >
+                    {{ faceLoading ? 'Vérification…' : 'Capturer et se connecter' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="ve-btn-face-secondary"
+                    [disabled]="loading || faceLoading"
+                    (click)="closeFaceLoginCamera()"
+                  >
+                    Fermer la caméra
+                  </button>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="ve-btn-face"
+                  [disabled]="loading || faceLoading"
+                  (click)="openFaceLoginCamera()"
+                >
+                  Ouvrir la caméra (Face ID)
+                </button>
+              }
               <p class="ve-login-oauth-note">
-                Face ID : renseignez votre e-mail ci-dessus, puis une photo. Nécessite une photo enregistrée sur le compte.
+                Face ID : indiquez votre e-mail, ouvrez la caméra, puis capturez votre visage. Une photo de référence doit
+                exister sur le compte (inscription).
               </p>
             </div>
 

@@ -68,6 +68,14 @@ public class User {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    /**
+     * User's project goal or career objective.
+     * Used to provide personalized course recommendations aligned with user's aspirations.
+     * Examples: "Full Stack Development", "Data Science", "Mobile App Development"
+     */
+    @Column(columnDefinition = "TEXT")
+    private String projectGoal;
+
     @JsonManagedReference("user-credits")
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Credit> credits = new ArrayList<>();

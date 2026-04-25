@@ -2,6 +2,7 @@ package tn.esprit.financia.entities.credit;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.financia.entities.user.User;
@@ -47,8 +48,9 @@ public class Credit {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    /** Longueur suffisante pour les libellés enum (ex. {@code OFFER_PENDING} = 14 car.). */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private StatusC status;
 
     @Column(precision = 5, scale = 2)
@@ -56,6 +58,9 @@ public class Credit {
 
     private Instant createdAt;
     private Instant updatedAt;
+
+    /** Fin du délai pour accepter ou refuser l’offre (statut {@link StatusC#OFFER_PENDING}). */
+    private Instant offerExpiresAt;
 
     @JsonManagedReference("credit-remboursements")
     @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,6 +79,23 @@ public class Credit {
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = Instant.now();
+    }
+
+    /** Exposé JSON pour l’admin (le champ {@code user} reste masqué par {@link JsonBackReference}). */
+    @JsonProperty("userId")
+    public Long getUserId() {
+        return user == null ? null : user.getIdUser();
+    }
+
+    /** Nom affiché côté admin (liste des dossiers). */
+    @JsonProperty("clientName")
+    public String getClientName() {
+        if (user == null) {
+            return null;
+        }
+        String fn = user.getFirstName() != null ? user.getFirstName() : "";
+        String ln = user.getLastName() != null ? user.getLastName() : "";
+        return (fn + " " + ln).trim();
     }
 }
 

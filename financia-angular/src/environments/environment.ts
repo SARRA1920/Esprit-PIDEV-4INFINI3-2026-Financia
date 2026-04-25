@@ -1,6 +1,10 @@
 export const environment = {
   production: false,
-  /** Base API : doit inclure le context-path Spring `server.servlet.context-path=/f`. */
+  /**
+   * En dev, URL absolue vers Spring pour éviter que le proxy ne redirige par erreur des chemins du front
+   * (ex. une URL copiée-collée `…/f/formation` qui ne doit pas partir vers Tomcat).
+   * CORS est déjà ouvert côté Spring pour localhost.
+   */
   apiUrl: 'http://localhost:8083/f',
   /**
    * Client OAuth Web (Google Cloud Console → identifiants → ID client Web).

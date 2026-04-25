@@ -4,15 +4,22 @@ export interface CreditRequest {
   startDate?: string | null;
 }
 
-/** Statuts qui bloquent une nouvelle demande (aligné sur CreditServiceImpl). */
-export const CREDIT_STATUSES_BLOCKING_NEW_REQUEST: ReadonlyArray<string> = [
-  'PENDING',
-  'APPROVED',
-  'ACTIVE',
-];
+/** Corps PUT /api/credits/{id} — champs optionnels (aligné sur CreditServiceImpl#update). */
+export interface CreditUpdateBody {
+  amount?: number;
+  durationMonths?: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  /** Le backend n’accepte que ACTIVE ou CLOSED pour une mise à jour manuelle. */
+  status?: 'ACTIVE' | 'CLOSED';
+}
 
 export interface Credit {
   id: number;
+  /** Présent sur les réponses admin / liste (voir {@code Credit#getUserId} côté Spring). */
+  userId?: number;
+  /** Prénom + nom du client (réponse admin). */
+  clientName?: string | null;
   amount: number;
   durationMonths: number;
   interestRate?: number;
@@ -22,12 +29,10 @@ export interface Credit {
   paidAmount?: number;
   startDate?: string;
   endDate?: string;
-}
-
-export function findBlockingCredit(credits: Credit[]): Credit | undefined {
-  return credits.find((c) =>
-    CREDIT_STATUSES_BLOCKING_NEW_REQUEST.includes(String(c.status ?? '').toUpperCase())
-  );
+  createdAt?: string;
+  updatedAt?: string;
+  /** ISO instant — fin du délai pour répondre à l’offre (statut OFFER_PENDING). */
+  offerExpiresAt?: string | null;
 }
 
 /** Réponse API GET /api/credits/user/{id}/blocking-info */

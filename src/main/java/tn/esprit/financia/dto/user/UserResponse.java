@@ -13,5 +13,7 @@ public record UserResponse(
         String address,
         Role role,
         BigDecimal monthlyIncome,
-        Integer yearsAsClient
+        Integer yearsAsClient,
+        /** Objectif / description de projet pour les recommandations de formations. */
+        String projectGoal
 ) {}

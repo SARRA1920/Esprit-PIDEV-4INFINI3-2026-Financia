@@ -1,4 +1,4 @@
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,7 +12,7 @@ import { Remboursement } from '../../models/remboursement.model';
 @Component({
   selector: 'app-espace-client',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe, RouterLink],
+  imports: [ReactiveFormsModule, DecimalPipe, DatePipe, RouterLink],
   templateUrl: './espace-client.component.html',
   styleUrl: './espace-client.component.scss',
 })
@@ -40,6 +40,12 @@ export class EspaceClientComponent implements OnInit {
   /** Aligné sur l’API (`blocking`) : masque le formulaire même si le détail du crédit est absent. */
   hasBlockingCreditFlag = false;
 
+  /**
+   * Réponse automatique défavorable (score insuffisant). Non « bloquant » côté API :
+   * affiché après envoi du formulaire jusqu’à ce que le client clique « Compris » ou refasse une demande.
+   */
+  rejectedApplication: Credit | null = null;
+
   remboursements: Remboursement[] = [];
   remboursementsLoading = false;
   remboursementsError = '';
@@ -48,6 +54,10 @@ export class EspaceClientComponent implements OnInit {
 
   error = '';
   loading = false;
+
+  /** Actions Accepter / Refuser sur une offre automatique (OFFER_PENDING). */
+  offerActionLoading = false;
+  offerActionError = '';
 
   /** Montant estimé de la tranche mensuelle (si aucune échéance n’est encore générée). */
   get estimatedMonthlyAmount(): number | null {
@@ -126,6 +136,34 @@ export class EspaceClientComponent implements OnInit {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  /** Offre automatique en attente de réponse client. */
+  isOfferPending(c: Credit | null | undefined): boolean {
+    return String(c?.status ?? '').toUpperCase() === 'OFFER_PENDING';
+  }
+
+  /** Demande refusée automatiquement (score sous le seuil minimal). */
+  isRejected(c: Credit | null | undefined): boolean {
+    return String(c?.status ?? '').toUpperCase() === 'REJECTED';
+  }
+
+  /** Dossier en zone intermédiaire : pas d’offre immédiate, étude complémentaire possible. */
+  isPendingDecision(c: Credit | null | undefined): boolean {
+    return String(c?.status ?? '').toUpperCase() === 'PENDING';
+  }
+
+  /** Texte synthétique pour le délai de réponse à l’offre. */
+  get offerDeadlineHint(): string | null {
+    const iso = this.blockingCredit?.offerExpiresAt;
+    if (!iso) return null;
+    const end = new Date(iso);
+    if (Number.isNaN(end.getTime())) return null;
+    const ms = end.getTime() - Date.now();
+    if (ms <= 0) return 'Le délai est dépassé — le dossier sera traité comme refusé.';
+    const days = Math.ceil(ms / 86400000);
+    if (days <= 1) return 'Répondez avant la fin du délai indiqué (moins de 24 h).';
+    return `Réponse attendue sous ${days} jour(s) au plus tard.`;
+  }
+
   /** Échéances non encore payées, triées par date croissante. */
   get unpaidSorted(): Remboursement[] {
     return (this.remboursements ?? [])
@@ -196,7 +234,11 @@ export class EspaceClientComponent implements OnInit {
         this.hasBlockingCreditFlag = info.blocking === true;
         this.blockingCredit = info.credit ?? null;
         this.initialLoading = false;
-        if (this.blockingCredit?.id) {
+        if (
+          this.blockingCredit?.id &&
+          !this.isOfferPending(this.blockingCredit) &&
+          !this.isPendingDecision(this.blockingCredit)
+        ) {
           this.loadRemboursements(this.blockingCredit.id);
         } else if (this.wantsStripeCheckoutFromUrl()) {
           this.remboursementsError =
@@ -303,8 +345,57 @@ export class EspaceClientComponent implements OnInit {
 
   refreshRemboursements(): void {
     const id = this.blockingCredit?.id;
-    if (!id) return;
+    const c = this.blockingCredit;
+    if (!id || !c || this.isOfferPending(c) || this.isPendingDecision(c)) return;
     this.loadRemboursements(id);
+  }
+
+  dismissRejection(): void {
+    this.rejectedApplication = null;
+  }
+
+  acceptOffer(): void {
+    const u = this.auth.user();
+    const c = this.blockingCredit;
+    if (!u || !c?.id || !this.isOfferPending(c)) return;
+    this.offerActionLoading = true;
+    this.offerActionError = '';
+    this.credits.acceptOffer(c.id, u.idUser).subscribe({
+      next: (cred) => {
+        this.blockingCredit = cred;
+        this.offerActionLoading = false;
+        this.hasBlockingCreditFlag = true;
+        if (cred.id) {
+          this.loadRemboursements(cred.id);
+        }
+        this.refreshBlockingCredit();
+      },
+      error: (e: Error) => {
+        this.offerActionError = e.message;
+        this.offerActionLoading = false;
+        this.refreshBlockingCredit();
+      },
+    });
+  }
+
+  refuseOffer(): void {
+    const u = this.auth.user();
+    const c = this.blockingCredit;
+    if (!u || !c?.id || !this.isOfferPending(c)) return;
+    this.offerActionLoading = true;
+    this.offerActionError = '';
+    this.credits.refuseOffer(c.id, u.idUser).subscribe({
+      next: () => {
+        this.offerActionLoading = false;
+        this.offerActionError = '';
+        this.refreshBlockingCredit();
+      },
+      error: (e: Error) => {
+        this.offerActionError = e.message;
+        this.offerActionLoading = false;
+        this.refreshBlockingCredit();
+      },
+    });
   }
 
   /** Recharge le résumé crédit (remainingAmount, paidAmount, progression) après un paiement. */
@@ -327,6 +418,7 @@ export class EspaceClientComponent implements OnInit {
     const s = String(status ?? '').toUpperCase();
     const labels: Record<string, string> = {
       PENDING: 'En attente de décision',
+      OFFER_PENDING: 'Offre en attente de votre réponse',
       APPROVED: 'Approuvé',
       ACTIVE: 'En cours de remboursement',
       REJECTED: 'Refusé',
@@ -426,14 +518,27 @@ export class EspaceClientComponent implements OnInit {
 
     this.loading = true;
     this.error = '';
+    this.rejectedApplication = null;
 
     this.credits.create(u.idUser, payload).subscribe({
       next: (c) => {
-        this.hasBlockingCreditFlag = true;
-        this.blockingCredit = c;
         this.loading = false;
         this.form.reset({ amount: 10000, durationMonths: 24, startDate: '' });
-        if (c?.id) {
+
+        const st = String(c.status ?? '').toUpperCase();
+
+        if (st === 'REJECTED') {
+          this.hasBlockingCreditFlag = false;
+          this.blockingCredit = null;
+          this.rejectedApplication = c;
+          return;
+        }
+
+        this.hasBlockingCreditFlag = true;
+        this.blockingCredit = c;
+        this.rejectedApplication = null;
+
+        if (c?.id && !this.isOfferPending(c) && !this.isPendingDecision(c)) {
           this.loadRemboursements(c.id);
         }
       },

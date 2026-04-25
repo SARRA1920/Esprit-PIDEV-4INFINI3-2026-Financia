@@ -18,7 +18,7 @@ public interface CreditService {
     List<Credit> getByUser(Long userId);
 
     /**
-     * Crédit en cours empêchant une nouvelle demande (PENDING / APPROVED / ACTIVE), s'il existe.
+     * Crédit en cours empêchant une nouvelle demande (ex. PENDING / OFFER_PENDING / APPROVED / ACTIVE).
      */
     Optional<Credit> findBlockingCreditForUser(Long userId);
 
@@ -48,5 +48,9 @@ public interface CreditService {
      * À appeler depuis la lecture des remboursements pour “réparer” les dossiers anciens.
      */
     void ensureInstallmentsForCredit(Long creditId);
+
+    Credit acceptOffer(Long creditId, Long userId);
+
+    Credit refuseOffer(Long creditId, Long userId);
 }
 

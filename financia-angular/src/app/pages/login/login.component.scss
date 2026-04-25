@@ -110,3 +110,54 @@ button[type='submit']:disabled {
   white-space: nowrap;
   border: 0;
 }
+
+.ve-face-login .ve-face-video {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  max-height: 270px;
+  margin: 0.75rem auto 0;
+  border-radius: 8px;
+  background: #0f172a;
+  object-fit: cover;
+}
+
+.ve-face-login .ve-face-camera-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.ve-face-login .ve-btn-face-secondary {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #94a3b8;
+  background: #fff;
+  color: #334155;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ve-face-login .ve-btn-face-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/** Bouton secondaire : réinitialisation du mot de passe */
+.ve-login-forgot-btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d4af37;
+  background: transparent;
+  color: #c9a227;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.ve-login-forgot-btn:hover {
+  background: rgba(212, 175, 55, 0.12);
+  color: #a88620;
+}

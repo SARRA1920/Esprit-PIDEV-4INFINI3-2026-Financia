@@ -53,9 +53,9 @@ public class ResetPasswordPageController {
                     
                     <form id="form" style="display:none">
                         <label for="password">Nouveau mot de passe</label>
-                        <input type="password" id="password" name="password" minlength="4" required placeholder="••••••••">
+                        <input type="password" id="password" name="password" minlength="6" required placeholder="••••••••">
                         <label for="confirm">Confirmer le mot de passe</label>
-                        <input type="password" id="confirm" name="confirm" minlength="4" required placeholder="••••••••">
+                        <input type="password" id="confirm" name="confirm" minlength="6" required placeholder="••••••••">
                         <button type="submit" id="btn">Réinitialiser</button>
                     </form>
                 </div>
@@ -79,6 +79,12 @@ public class ResetPasswordPageController {
                         const confirm = document.getElementById('confirm').value;
                         const btn = document.getElementById('btn');
                         
+                        if (password.length < 6) {
+                            errorDiv.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+                            errorDiv.style.display = 'block';
+                            successDiv.style.display = 'none';
+                            return;
+                        }
                         if (password !== confirm) {
                             errorDiv.textContent = 'Les mots de passe ne correspondent pas.';
                             errorDiv.style.display = 'block';
@@ -90,19 +96,23 @@ public class ResetPasswordPageController {
                         errorDiv.style.display = 'none';
                         
                         try {
-                            const base = window.location.origin;
-                            const res = await fetch(base + '/api/auth/reset-password', {
+                            const path = window.location.pathname || '';
+                            const m = path.match(/^(\\/[^/]+)\\/reset-password/);
+                            const ctx = m ? m[1] : '/f';
+                            const apiUrl = window.location.origin + ctx + '/api/auth/reset-password';
+                            const res = await fetch(apiUrl, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ token: token, newPassword: password })
                             });
-                            const data = await res.json();
+                            let data = {};
+                            try { data = await res.json(); } catch (_) {}
                             if (res.ok) {
-                                successDiv.textContent = 'Mot de passe mis à jour ! Vous pouvez vous connecter.';
+                                successDiv.textContent = (data && data.message) ? data.message : 'Mot de passe mis à jour ! Vous pouvez vous connecter.';
                                 successDiv.style.display = 'block';
                                 form.style.display = 'none';
                             } else {
-                                errorDiv.textContent = data.error || 'Erreur lors de la réinitialisation.';
+                                errorDiv.textContent = (data && data.message) ? data.message : 'Erreur lors de la réinitialisation.';
                                 errorDiv.style.display = 'block';
                                 btn.disabled = false;
                             }

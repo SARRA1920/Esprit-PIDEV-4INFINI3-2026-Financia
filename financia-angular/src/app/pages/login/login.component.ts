@@ -8,6 +8,12 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import {
+  cameraAccessErrorMessage,
+  captureVideoFrameAsJpegDataUrl,
+  startUserFacingCamera,
+  stopMediaStream,
+} from '../../core/face-capture';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -33,6 +39,10 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   loading = false;
   faceLoading = false;
 
+  /** Caméra pour connexion Face ID */
+  faceCameraActive = false;
+  private faceLoginStream: MediaStream | null = null;
+
   /** Même Client ID que `google.oauth.client-id` dans Spring (Console Google Cloud). */
   readonly googleClientId = environment.googleClientId?.trim() ?? '';
   readonly googleEnabled = !!this.googleClientId;
@@ -48,6 +58,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       clearInterval(this.googleInitTimer);
       this.googleInitTimer = null;
     }
+    this.closeFaceLoginCamera();
   }
 
   /** Attend le chargement du script GSI puis affiche le bouton Google. */
@@ -135,49 +146,80 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  triggerFaceCapture(): void {
+  async openFaceLoginCamera(): Promise<void> {
     const email = this.form.controls.email.value?.trim();
     if (!email) {
       this.error = 'Indiquez d’abord votre e-mail pour la connexion Face ID.';
       this.form.controls.email.markAsTouched();
       return;
     }
-    document.getElementById('face-capture-input')?.click();
+    this.error = '';
+    this.closeFaceLoginCamera();
+    this.faceCameraActive = true;
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 0));
+    const video = document.getElementById(
+      'face-login-video'
+    ) as HTMLVideoElement | null;
+    if (!video) {
+      this.faceCameraActive = false;
+      this.error = 'Élément vidéo introuvable.';
+      return;
+    }
+    try {
+      this.faceLoginStream = await startUserFacingCamera(video);
+    } catch (e) {
+      this.faceCameraActive = false;
+      this.faceLoginStream = null;
+      video.srcObject = null;
+      this.error = cameraAccessErrorMessage(e);
+    }
   }
 
-  onFaceFileSelected(ev: Event): void {
-    const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-
+  captureFaceLoginAndAuthenticate(): void {
     const email = this.form.controls.email.value?.trim();
     if (!email) {
       this.error = 'E-mail requis.';
       return;
     }
+    const video = document.getElementById(
+      'face-login-video'
+    ) as HTMLVideoElement | null;
+    if (!video) {
+      this.error = 'Caméra non disponible.';
+      return;
+    }
+    const data = captureVideoFrameAsJpegDataUrl(video);
+    if (!data) {
+      this.error =
+        'Image pas encore prête. Attendez que l’aperçu caméra s’affiche, puis réessayez.';
+      return;
+    }
 
     this.faceLoading = true;
     this.error = '';
-    const reader = new FileReader();
-    reader.onload = () => {
-      const data = reader.result as string;
-      this.auth.loginWithFace(email, data).subscribe({
-        next: () => {
-          this.faceLoading = false;
-          this.postLoginNavigate();
-        },
-        error: (e: Error) => {
-          this.error = e.message;
-          this.faceLoading = false;
-        },
-      });
-    };
-    reader.onerror = () => {
-      this.faceLoading = false;
-      this.error = 'Lecture du fichier impossible.';
-    };
-    reader.readAsDataURL(file);
+    this.auth.loginWithFace(email, data).subscribe({
+      next: () => {
+        this.faceLoading = false;
+        this.closeFaceLoginCamera();
+        this.postLoginNavigate();
+      },
+      error: (e: Error) => {
+        this.error = e.message;
+        this.faceLoading = false;
+      },
+    });
+  }
+
+  closeFaceLoginCamera(): void {
+    stopMediaStream(this.faceLoginStream);
+    this.faceLoginStream = null;
+    this.faceCameraActive = false;
+    const video = document.getElementById(
+      'face-login-video'
+    ) as HTMLVideoElement | null;
+    if (video) {
+      video.srcObject = null;
+    }
   }
 }
 

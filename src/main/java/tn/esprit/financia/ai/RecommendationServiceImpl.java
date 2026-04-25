@@ -21,7 +21,9 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.springframework.stereotype.Service;
 import tn.esprit.financia.entities.formation.Course;
+import tn.esprit.financia.entities.user.User;
 import tn.esprit.financia.repository.formation.CourseRepository;
+import tn.esprit.financia.repository.user.UserRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 public class RecommendationServiceImpl implements RecommendationService {
 
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     @Override
     @SuppressWarnings("deprecation")
@@ -80,7 +83,10 @@ public class RecommendationServiceImpl implements RecommendationService {
                     Document d = reader.document(sd.doc);
                     String id = d.get("id");
                     if (id != null && !id.equals(String.valueOf(idCourse))) {
-                        try { ids.add(Long.parseLong(id)); } catch (NumberFormatException ex) { }
+                        try {
+                            ids.add(Long.parseLong(id));
+                        } catch (NumberFormatException ex) {
+                        }
                     }
                 }
 
@@ -101,7 +107,10 @@ public class RecommendationServiceImpl implements RecommendationService {
                         Document d = reader.document(sd.doc);
                         String id = d.get("id");
                         if (id != null && !id.equals(String.valueOf(idCourse))) {
-                            try { ids.add(Long.parseLong(id)); } catch (NumberFormatException ex) { }
+                            try {
+                                ids.add(Long.parseLong(id));
+                            } catch (NumberFormatException ex) {
+                            }
                         }
                     }
                 }
@@ -115,5 +124,133 @@ public class RecommendationServiceImpl implements RecommendationService {
             e.printStackTrace();
             return List.of();
         }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public List<Course> recommendForProjectGoal(long userId, int limit) {
+        // Fetch user and validate project goal exists
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) return List.of();
+
+        User user = userOpt.get();
+        String projectGoal = user.getProjectGoal();
+
+        if (projectGoal == null || projectGoal.trim().isEmpty()) {
+            return List.of();
+        }
+
+        List<Course> all = new ArrayList<>();
+        courseRepository.findAll().forEach(all::add);
+
+        if (all.isEmpty()) return List.of();
+
+        // Build an in-memory Lucene index for course content
+        try (ByteBuffersDirectory dir = new ByteBuffersDirectory()) {
+            Analyzer analyzer = new StandardAnalyzer();
+            IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+
+            try (IndexWriter writer = new IndexWriter(dir, iwc)) {
+                for (Course course : all) {
+                    String courseContent = buildCourseContent(course);
+                    Document doc = new Document();
+                    doc.add(new StringField("id", String.valueOf(course.getIdCourse()), Field.Store.YES));
+                    doc.add(new TextField("content", courseContent, Field.Store.NO));
+                    writer.addDocument(doc);
+                }
+            }
+
+            try (DirectoryReader reader = DirectoryReader.open(dir)) {
+                IndexSearcher searcher = new IndexSearcher(reader);
+
+                // Search using the user's project goal
+                MoreLikeThis mlt = new MoreLikeThis(reader);
+                mlt.setAnalyzer(analyzer);
+                mlt.setFieldNames(new String[]{"content"});
+                mlt.setMinTermFreq(1);
+                mlt.setMinDocFreq(1);
+
+                org.apache.lucene.search.Query query = mlt.like("content", new java.io.StringReader(projectGoal));
+                TopDocs top = searcher.search(query, limit + 1);
+
+                List<Long> courseIds = new ArrayList<>();
+                for (ScoreDoc scoreDoc : top.scoreDocs) {
+                    Document doc = reader.document(scoreDoc.doc);
+                    String courseId = doc.get("id");
+                    if (courseId != null) {
+                        try {
+                            courseIds.add(Long.parseLong(courseId));
+                        } catch (NumberFormatException ex) {
+                            // Skip malformed IDs
+                        }
+                    }
+                }
+
+                // Fallback: Token-based search if MoreLikeThis returns no results
+                if (courseIds.isEmpty()) {
+                    String[] tokens = projectGoal.toLowerCase().split("\\W+");
+                    BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
+                    int tokenCount = 0;
+
+                    for (String token : tokens) {
+                        if (token == null || token.trim().length() < 3) {
+                            continue;
+                        }
+                        queryBuilder.add(
+                                new BooleanClause(
+                                        new TermQuery(new Term("content", token.trim())),
+                                        BooleanClause.Occur.SHOULD
+                                )
+                        );
+                        if (++tokenCount >= 20) break;
+                    }
+
+                    TopDocs fallbackResults = searcher.search(queryBuilder.build(), limit + 1);
+                    for (ScoreDoc scoreDoc : fallbackResults.scoreDocs) {
+                        Document doc = reader.document(scoreDoc.doc);
+                        String courseId = doc.get("id");
+                        if (courseId != null) {
+                            try {
+                                courseIds.add(Long.parseLong(courseId));
+                            } catch (NumberFormatException ex) {
+                                // Skip malformed IDs
+                            }
+                        }
+                    }
+                }
+
+                // Convert IDs back to Course objects and remove duplicates
+                return courseIds.stream()
+                        .distinct()
+                        .map(id -> all.stream()
+                                .filter(c -> c.getIdCourse() == id)
+                                .findFirst()
+                                .orElse(null))
+                        .filter(c -> c != null)
+                        .limit(limit)
+                        .collect(Collectors.toList());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
+    /**
+     * Helper method to build course content for indexing.
+     * Combines course title and description into a searchable string.
+     *
+     * @param course the course to extract content from
+     * @return combined course content
+     */
+    private String buildCourseContent(Course course) {
+        StringBuilder content = new StringBuilder();
+        if (course.getTitle() != null && !course.getTitle().isEmpty()) {
+            content.append(course.getTitle()).append(" ");
+        }
+        if (course.getDescription() != null && !course.getDescription().isEmpty()) {
+            content.append(course.getDescription()).append(" ");
+        }
+        return content.toString().trim();
     }
 }

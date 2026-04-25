@@ -1,6 +1,8 @@
 package tn.esprit.financia.entities.credit;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import tn.esprit.financia.entities.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -104,6 +106,26 @@ public class Remboursement {
         if (this.status == null) {
             this.status = PaymentStatus.PENDING;
         }
+    }
+
+    /** Exposé JSON pour l’admin (le champ {@code credit} reste masqué par {@link JsonBackReference}). */
+    @JsonProperty("creditId")
+    public Long getCreditId() {
+        return credit == null ? null : credit.getId();
+    }
+
+    @JsonProperty("clientName")
+    public String getClientName() {
+        if (credit == null) {
+            return null;
+        }
+        User u = credit.getUser();
+        if (u == null) {
+            return null;
+        }
+        String fn = u.getFirstName() != null ? u.getFirstName() : "";
+        String ln = u.getLastName() != null ? u.getLastName() : "";
+        return (fn + " " + ln).trim();
     }
 }
 

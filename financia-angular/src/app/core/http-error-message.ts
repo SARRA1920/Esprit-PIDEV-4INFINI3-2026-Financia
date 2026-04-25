@@ -6,7 +6,7 @@ export function httpErrorMessage(err: HttpErrorResponse, fallback: string): stri
     return 'Impossible de joindre le serveur. Démarrez le backend Spring Boot (port 8083) et vérifiez l’URL de l’API.';
   }
   if (err.status === 404) {
-    return 'API introuvable (404). Vérifiez que l’URL inclut le préfixe /f (context-path Spring : …/f/api/…).';
+    return 'API introuvable (404). Vérifiez que l’URL utilise le préfixe /f (ex. /f/api/…), que le backend Spring tourne sur le port 8083, et que `ng serve` utilise bien `proxy.conf.json` (redirection /f → Spring).';
   }
   const e = err.error;
   if (typeof e === 'string' && e.length) {

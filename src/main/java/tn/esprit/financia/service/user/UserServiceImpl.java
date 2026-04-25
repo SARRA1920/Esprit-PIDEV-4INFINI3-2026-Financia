@@ -35,6 +35,7 @@ public class UserServiceImpl implements IUserService {
         existingUser.setAddress(user.getAddress());
         existingUser.setRole(user.getRole());
         existingUser.setMonthlyIncome(user.getMonthlyIncome());
+        existingUser.setProjectGoal(user.getProjectGoal());
 
         // 🔐 update password ONLY if provided
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
@@ -42,6 +43,14 @@ public class UserServiceImpl implements IUserService {
         }
 
         return userRepository.save(existingUser);
+    }
+
+    @Override
+    public User updateProjectGoal(Long idUser, String projectGoal) {
+        User existing = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        existing.setProjectGoal(projectGoal);
+        return userRepository.save(existing);
     }
 
     @Override

@@ -18,43 +18,98 @@
 <section class="ve-section ve-formation-api">
   <div class="container">
     <div class="ve-section-header text-center">
-      <span class="ve-section-tag">Données Spring Boot</span>
-      <h2>Parcours <span>disponibles</span></h2>
+      <span class="ve-section-tag">Recommandations</span>
+      <h2>Formations <span>personnalisées</span></h2>
       <p>
-        Liste issue de l’API REST (<code>/f/course</code>) — même module que la gestion des cours côté backend.
+        Aucun catalogue n’est affiché par défaut : décrivez votre projet ou votre objectif professionnel pour obtenir
+        les parcours les plus adaptés (analyse côté serveur).
       </p>
     </div>
 
-    @if (loading()) {
-      <p class="ve-muted text-center">Chargement des parcours…</p>
-    } @else if (loadError()) {
-      <div class="ve-alert ve-alert--danger ve-formation-alert">{{ loadError() }}</div>
-      <p class="ve-muted text-center">
-        Vérifiez que le serveur Spring tourne sur le port configuré et que le préfixe d’API inclut <code>/f</code>.
-      </p>
-    } @else if (!courses().length) {
-      <div class="ve-empty-formation text-center">
-        <p class="ve-muted">Aucun cours en base pour le moment. Créez-en via l’API ou Swagger.</p>
+    @if (auth.user()) {
+      <div class="ve-formation-reco">
+        <div class="ve-formation-reco-inner">
+          <span class="ve-section-tag">Pour vous</span>
+          <h3 class="ve-formation-reco-title">Description de votre projet</h3>
+          <p class="ve-muted ve-formation-reco-lead">
+            Décrivez votre objectif ou le domaine visé (obligatoire pour afficher des formations). Le moteur compare ce
+            texte aux parcours disponibles et ne propose que des suggestions pertinentes.
+          </p>
+          <label class="ve-formation-reco-label" for="fd-project-desc">Votre description</label>
+          <textarea
+            id="fd-project-desc"
+            class="ve-formation-reco-textarea"
+            name="projectDescription"
+            rows="5"
+            [(ngModel)]="projectDescription"
+            placeholder="Ex. : reconversion développement full stack Spring Boot / Angular ; besoin de sécurité des applications web et APIs REST…"
+          ></textarea>
+          <p class="ve-formation-reco-hint">
+            Minimum <strong>{{ minDescLength }}</strong> caractères pour lancer les recommandations.
+          </p>
+          <div class="ve-formation-reco-actions">
+            <button type="button" class="ve-btn-secondary" (click)="saveProjectDescription()" [disabled]="savingProject()">
+              {{ savingProject() ? 'Enregistrement…' : 'Enregistrer la description' }}
+            </button>
+            <button
+              type="button"
+              class="ve-btn-primary"
+              (click)="loadRecommendations()"
+              [disabled]="recoLoading() || !projectDescriptionReady()"
+              [attr.title]="
+                projectDescriptionReady() ? '' : 'Complétez votre description pour au moins ' + minDescLength + ' caractères'
+              "
+            >
+              {{ recoLoading() ? 'Analyse…' : 'Voir les formations recommandées' }}
+            </button>
+          </div>
+          @if (saveProjectError() || recoError()) {
+            <p class="ve-alert ve-alert--danger ve-formation-alert">{{ saveProjectError() || recoError() }}</p>
+          }
+          @if (recoAttempted() && !recoLoading() && !recoCourses().length) {
+            <p class="ve-muted ve-formation-reco-empty">
+              Aucun parcours ne ressort pour l’instant — enrichissez votre description ou vérifiez que des cours existent
+              en base.
+            </p>
+          }
+          @if (recoCourses().length) {
+            <div class="ve-formation-reco-results">
+              <h4 class="ve-formation-reco-results-title">Formations suggérées pour vous</h4>
+              <div class="ve-formation-catalog">
+                @for (r of recoCourses(); track courseLinkId(r)) {
+                  <article class="ve-formation-course-card">
+                    <div class="ve-formation-course-icon"><i class="icon-idea"></i></div>
+                    <h3>{{ r.title }}</h3>
+                    <p>{{ excerpt(r.description) }}</p>
+                    <div class="ve-formation-course-meta">
+                      @if (r.lessons?.length) {
+                        <span>{{ r.lessons!.length }} leçon(s)</span>
+                      } @else {
+                        <span class="ve-muted">Programme à venir</span>
+                      }
+                    </div>
+                    @if (courseLinkId(r)) {
+                      <a [routerLink]="['/formation/course', courseLinkId(r)]" class="ve-card-link"
+                        >Voir le parcours <i class="fa fa-long-arrow-right"></i
+                      ></a>
+                    }
+                  </article>
+                }
+              </div>
+            </div>
+          }
+        </div>
       </div>
     } @else {
-      <div class="ve-formation-catalog">
-        @for (c of courses(); track c.courseId) {
-          <article class="ve-formation-course-card">
-            <div class="ve-formation-course-icon"><i class="icon-idea"></i></div>
-            <h3>{{ c.title }}</h3>
-            <p>{{ excerpt(c.description) }}</p>
-            <div class="ve-formation-course-meta">
-              @if (c.lessons?.length) {
-                <span>{{ c.lessons!.length }} leçon(s)</span>
-              } @else {
-                <span class="ve-muted">Programme à venir</span>
-              }
-            </div>
-            <a [routerLink]="['/formation/course', c.courseId]" class="ve-card-link"
-              >Voir le parcours <i class="fa fa-long-arrow-right"></i
-            ></a>
-          </article>
-        }
+      <div class="ve-formation-guest">
+        <p class="ve-muted text-center">
+          Les parcours ne sont pas listés pour tout le monde : connectez-vous, puis décrivez votre projet pour obtenir des
+          formations suggérées selon vos objectifs.
+        </p>
+        <div class="text-center">
+          <a routerLink="/login" class="ve-btn-primary">Se connecter</a>
+          <a routerLink="/register" class="ve-btn-secondary ve-formation-guest-register">Créer un compte</a>
+        </div>
       </div>
     }
   </div>

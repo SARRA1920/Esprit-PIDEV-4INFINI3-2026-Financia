@@ -1,0 +1,205 @@
+.ago {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.ago__head {
+  margin-bottom: 1.25rem;
+}
+
+.ago__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 650;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.ago__sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  max-width: 60ch;
+}
+
+.ago__filters {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.ago__filters-text {
+  font-size: 0.82rem;
+  color: #fcd34d;
+}
+
+.ago__filters-clear {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6ee7b7;
+  text-decoration: none;
+}
+
+.ago__filters-clear:hover {
+  text-decoration: underline;
+}
+
+.ago__card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.35);
+}
+
+.ago__card-head {
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid #334155;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(79, 70, 229, 0.08));
+}
+
+.ago__card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  color: #e2e8f0;
+}
+
+.ago__body {
+  padding: 1.25rem 1.35rem 1.5rem;
+}
+
+.ago__loading {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+.ago__alert {
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fecdd3;
+  font-size: 0.875rem;
+}
+
+.ago__table-wrap {
+  overflow-x: auto;
+}
+
+.ago-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ago-table thead {
+  background: #111827;
+}
+
+.ago-table th {
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+}
+
+.ago-table__num {
+  text-align: right;
+}
+
+.ago-table td {
+  padding: 0.75rem 0.85rem;
+  border-top: 1px solid #334155;
+  color: #e2e8f0;
+  vertical-align: middle;
+}
+
+.ago-table__row:hover {
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.ago-table__mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.ago-table__desc {
+  max-width: 220px;
+  color: #cbd5e1;
+}
+
+.ago-table__accent {
+  color: #c4b5fd;
+  font-weight: 650;
+}
+
+.ago-table__muted {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+}
+
+.ago-bar {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #111827;
+  overflow: hidden;
+  border: 1px solid #334155;
+  max-width: 140px;
+}
+
+.ago-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #a78bfa 55%, #34d399);
+  transition: width 0.2s ease;
+}
+
+.ago-bar__label {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.ago-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+}
+
+.ago-pill--progress {
+  color: #bae6fd;
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.ago-pill--done {
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+}
+
+.ago-pill--fail {
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.16);
+  border: 1px solid rgba(252, 165, 165, 0.45);
+}

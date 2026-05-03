@@ -1,5 +1,33 @@
 (() => {
-  const API_BASE = `${window.location.origin}/api`;
+  /** Aligné sur server.servlet.context-path=/f (voir application.properties). Surcharge : window.FINANCIA_API_CONTEXT = '/f' */
+  function financiaServletContext() {
+    if (typeof window.FINANCIA_API_CONTEXT === "string" && window.FINANCIA_API_CONTEXT.trim() !== "") {
+      const c = window.FINANCIA_API_CONTEXT.trim();
+      return c.startsWith("/") ? c : "/" + c;
+    }
+    const p = window.location.pathname || "";
+    if (p.startsWith("/f/") || p === "/f") return "/f";
+    return "/f";
+  }
+
+  const API_BASE = `${window.location.origin}${financiaServletContext()}/api`;
+  const TOKEN_KEY = "financia.authToken";
+
+  /** Spring renvoie AuthResponse { token, user } pour login/register/Google/face. */
+  function unwrapUser(payload) {
+    if (payload && typeof payload === "object" && payload.user) {
+      return payload.user;
+    }
+    return payload;
+  }
+
+  function setAuthToken(token) {
+    if (token && String(token).trim()) {
+      localStorage.setItem(TOKEN_KEY, String(token).trim());
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }
 
   function getCurrentUser() {
     try {
@@ -16,6 +44,24 @@
 
   function clearCurrentUser() {
     localStorage.removeItem("financia.currentUser");
+    localStorage.removeItem(TOKEN_KEY);
+  }
+
+  /** Enregistre user + JWT (même clés que l’app Angular), puis redirige. */
+  function applyAuthPayload(raw) {
+    const user = unwrapUser(raw);
+    if (raw && typeof raw === "object" && raw.token) {
+      setAuthToken(raw.token);
+    } else {
+      setAuthToken(null);
+    }
+    setCurrentUser(user);
+    const role = user && user.role;
+    if (role === "CLIENT" || role == null) {
+      window.location.href = "espace-client.html";
+    } else {
+      window.location.href = "index.html";
+    }
   }
 
   async function apiJson(path, options = {}) {
@@ -26,20 +72,14 @@
     const text = await res.text();
     const data = text ? (() => { try { return JSON.parse(text); } catch { return text; } })() : null;
     if (!res.ok) {
-      const msg = typeof data === "string" ? data : (data?.message || "Request failed");
+      let msg = "Échec de la requête";
+      if (typeof data === "string") msg = data;
+      else if (data && typeof data === "object") {
+        msg = data.error || data.message || data.detail || msg;
+      }
       throw new Error(msg);
     }
     return data;
-  }
-
-  function afterAuthSuccess(user) {
-    setCurrentUser(user);
-    const role = user && user.role;
-    if (role === "CLIENT" || role == null) {
-      window.location.href = "espace-client.html";
-    } else {
-      window.location.href = "index.html";
-    }
   }
 
   function updateHeroAuthButtons() {
@@ -116,13 +156,13 @@
       const password = form.querySelector("input[name='password']").value;
 
       try {
-        const user = await apiJson("/auth/login", {
+        const raw = await apiJson("/auth/login", {
           method: "POST",
           body: JSON.stringify({ email, password }),
         });
-        afterAuthSuccess(user);
+        applyAuthPayload(raw);
       } catch (err) {
-        if (msg) msg.textContent = err.message || "Login failed";
+        if (msg) msg.textContent = err.message || "Connexion impossible";
       }
     });
 
@@ -151,9 +191,9 @@
                 method: "POST",
                 body: JSON.stringify({ idToken: res.credential }),
               })
-                .then(afterAuthSuccess)
+                .then((raw) => applyAuthPayload(raw))
                 .catch((err) => {
-                  if (msg) msg.textContent = err.message || "Google sign-in failed";
+                  if (msg) msg.textContent = err.message || "Connexion Google impossible";
                 });
             },
           });
@@ -195,9 +235,9 @@
             method: "POST",
             body: JSON.stringify({ email, imageBase64: reader.result }),
           })
-            .then(afterAuthSuccess)
+            .then((raw) => applyAuthPayload(raw))
             .catch((err) => {
-              if (msg) msg.textContent = err.message || "Face login failed";
+              if (msg) msg.textContent = err.message || "Connexion Face ID impossible";
             });
         };
         reader.readAsDataURL(f);
@@ -236,13 +276,13 @@
       };
 
       try {
-        const user = await apiJson("/auth/register", {
+        const raw = await apiJson("/auth/register", {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        afterAuthSuccess(user);
+        applyAuthPayload(raw);
       } catch (err) {
-        if (msg) msg.textContent = err.message || "Register failed";
+        if (msg) msg.textContent = err.message || "Inscription impossible";
       }
     });
 
@@ -262,6 +302,14 @@
     getCurrentUser,
     setCurrentUser,
     clearCurrentUser,
+    clearSession: clearCurrentUser,
+    getAuthToken: () => {
+      try {
+        return localStorage.getItem(TOKEN_KEY);
+      } catch {
+        return null;
+      }
+    },
     apiJson,
     renderAuthArea,
     updateHeroAuthButtons,

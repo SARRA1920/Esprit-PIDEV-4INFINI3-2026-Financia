@@ -7,7 +7,9 @@ export type AdminBadgeStatus =
   | 'PAID'
   | 'OVERDUE'
   | 'CLOSED'
-  | 'FAILED';
+  | 'FAILED'
+  | 'SUCCESS'
+  | 'CANCELLED';
 
 @Component({
   selector: 'app-admin-status-badge',
@@ -70,6 +72,8 @@ export class AdminStatusBadgeComponent {
       OVERDUE: 'adm-badge--overdue',
       CLOSED: 'adm-badge--closed',
       FAILED: 'adm-badge--failed',
+      SUCCESS: 'adm-badge--active',   // Reuse active colors
+      CANCELLED: 'adm-badge--closed', // Reuse closed colors
     };
     return map[this.status] ?? 'adm-badge--closed';
   }

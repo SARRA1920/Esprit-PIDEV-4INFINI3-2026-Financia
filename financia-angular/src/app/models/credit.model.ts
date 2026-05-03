@@ -1,3 +1,5 @@
+import type { UserResponse } from './user.model';
+
 export interface CreditRequest {
   amount: number;
   durationMonths: number;
@@ -13,6 +15,8 @@ export const CREDIT_STATUSES_BLOCKING_NEW_REQUEST: ReadonlyArray<string> = [
 
 export interface Credit {
   id: number;
+  /** Nested owner returned by Jackson serialization when credits list loads eager-ish relation graphs */
+  user?: Pick<UserResponse, 'idUser' | 'firstName' | 'lastName' | 'email'> | null;
   amount: number;
   durationMonths: number;
   interestRate?: number;
@@ -22,6 +26,7 @@ export interface Credit {
   paidAmount?: number;
   startDate?: string;
   endDate?: string;
+  createdAt?: string;
 }
 
 export function findBlockingCredit(credits: Credit[]): Credit | undefined {

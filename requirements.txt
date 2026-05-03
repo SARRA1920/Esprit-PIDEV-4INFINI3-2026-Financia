@@ -1,0 +1,22 @@
+# ── Face Recognition (your existing micro-service) ─────────────────────
+facenet-pytorch>=2.5.3
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+
+# ── Web & API ─────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# ── Agentic AI (LangChain + Ollama) ───────────────────────────────────
+langgraph
+langchain-ollama
+langchain-community
+requests
+numpy
+pydantic
+
+# ── Optional but useful ───────────────────────────────────────────────
+scikit-learn==1.3.0

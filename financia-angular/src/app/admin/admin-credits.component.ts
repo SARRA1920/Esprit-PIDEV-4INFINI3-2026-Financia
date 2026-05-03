@@ -1,130 +1,225 @@
-import { Component, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged, of, switchMap, takeUntil } from 'rxjs';
 import { AdminStatusBadgeComponent, AdminBadgeStatus } from './admin-status-badge.component';
+import { CreditService } from '../core/credit.service';
+import type { Credit } from '../models/credit.model';
 
-interface CreditRow {
-  id: string;
-  client: string;
-  amount: number;
-  rate: number;
-  duration: number;
-  status: AdminBadgeStatus;
-  riskScore: string;
-  remaining: number;
-  created: string;
-  approved: string | null;
-}
+type StatusFilter = 'Tous' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'ACTIVE' | 'CLOSED';
 
 @Component({
   selector: 'app-admin-credits',
   standalone: true,
-  imports: [AdminStatusBadgeComponent],
+  imports: [CommonModule, AdminStatusBadgeComponent],
   templateUrl: './admin-credits.component.html',
   styleUrl: './admin-credits.component.scss',
 })
-export class AdminCreditsComponent {
-  readonly filters = ['Tous', 'PENDING', 'APPROVED', 'ACTIVE', 'CLOSED'] as const;
+export class AdminCreditsComponent implements OnInit, OnDestroy {
+  private readonly creditService = inject(CreditService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroy$ = new Subject<void>();
+  private readonly search$ = new Subject<string>();
 
-  readonly credits: CreditRow[] = [
-    {
-      id: 'CR-2026-0482',
-      client: 'Sophie Martin',
-      amount: 25000,
-      rate: 3.5,
-      duration: 60,
-      status: 'ACTIVE',
-      riskScore: 'A',
-      remaining: 21500,
-      created: '2024-01-15',
-      approved: '2024-01-18',
-    },
-    {
-      id: 'CR-2026-0481',
-      client: 'Marc Dubois',
-      amount: 50000,
-      rate: 4.2,
-      duration: 84,
-      status: 'ACTIVE',
-      riskScore: 'B+',
-      remaining: 48200,
-      created: '2024-01-12',
-      approved: '2024-01-16',
-    },
-    {
-      id: 'CR-2026-0480',
-      client: 'Claire Bernard',
-      amount: 15000,
-      rate: 3.8,
-      duration: 48,
-      status: 'PENDING',
-      riskScore: 'A-',
-      remaining: 15000,
-      created: '2024-01-20',
-      approved: null,
-    },
-    {
-      id: 'CR-2026-0479',
-      client: 'Jean Dupont',
-      amount: 35000,
-      rate: 4.5,
-      duration: 72,
-      status: 'APPROVED',
-      riskScore: 'B',
-      remaining: 35000,
-      created: '2024-01-18',
-      approved: '2024-01-20',
-    },
-    {
-      id: 'CR-2026-0478',
-      client: 'Marie Laurent',
-      amount: 8000,
-      rate: 3.2,
-      duration: 36,
-      status: 'ACTIVE',
-      riskScore: 'A+',
-      remaining: 5200,
-      created: '2023-12-05',
-      approved: '2023-12-08',
-    },
-    {
-      id: 'CR-2026-0477',
-      client: 'Pierre Moreau',
-      amount: 42000,
-      rate: 4.8,
-      duration: 96,
-      status: 'ACTIVE',
-      riskScore: 'B-',
-      remaining: 40100,
-      created: '2024-01-08',
-      approved: '2024-01-12',
-    },
-    {
-      id: 'CR-2026-0476',
-      client: 'Anne Petit',
-      amount: 12000,
-      rate: 3.6,
-      duration: 48,
-      status: 'CLOSED',
-      riskScore: 'A',
-      remaining: 0,
-      created: '2023-06-10',
-      approved: '2023-06-12',
-    },
-  ];
+  readonly filters: readonly StatusFilter[] = [
+    'Tous',
+    'PENDING',
+    'APPROVED',
+    'REJECTED',
+    'ACTIVE',
+    'CLOSED',
+  ] as const;
 
-  readonly activeFilter = signal<string>('Tous');
-  readonly selectedRow = signal<string | null>(null);
+  readonly activeFilter = signal<StatusFilter>('Tous');
+  readonly searchText = signal('');
+  readonly selectedRow = signal<number | null>(null);
 
-  readonly filteredCredits = computed(() => {
+  readonly rawCredits = signal<Credit[]>([]);
+  readonly loading = signal(false);
+  readonly listError = signal('');
+
+  readonly recalculatingId = signal<number | null>(null);
+  readonly actionMessage = signal('');
+
+  private readonly searchResults = signal<Credit[] | null>(null);
+  readonly searchLoading = signal(false);
+  readonly searchError = signal('');
+
+  readonly displayCredits = computed(() => {
+    const q = this.searchText().trim().toLowerCase();
+    const fromSearch = this.searchResults();
+    const base = fromSearch != null ? fromSearch : this.rawCredits();
     const f = this.activeFilter();
-    if (f === 'Tous') return this.credits;
-    return this.credits.filter((c) => c.status === f);
+
+    let list = base;
+    if (f !== 'Tous') {
+      list = list.filter((c) => String(c.status ?? '').toUpperCase() === f);
+    }
+    if (!q) {
+      return list;
+    }
+    return list.filter((c) => this.matchesClientQuery(c, q));
   });
 
-  setFilter(f: string): void {
+  ngOnInit(): void {
+    this.loadAll();
+
+    this.search$
+      .pipe(
+        debounceTime(350),
+        distinctUntilChanged(),
+        switchMap((q) => {
+          const t = q.trim();
+          if (t.length < 2) {
+            this.searchResults.set(null);
+            this.searchLoading.set(false);
+            this.searchError.set('');
+            return of<Credit[] | null>(null);
+          }
+          this.searchLoading.set(true);
+          this.searchError.set('');
+          return this.creditService.search({});
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (all) => {
+          this.searchLoading.set(false);
+          if (all == null) {
+            return;
+          }
+          const t = this.searchText().trim().toLowerCase();
+          if (t.length < 2) {
+            this.searchResults.set(null);
+            return;
+          }
+          const filtered = (all ?? []).filter((c) => this.matchesClientQuery(c, t));
+          this.searchResults.set(filtered);
+        },
+        error: (err: Error) => {
+          this.searchLoading.set(false);
+          this.searchError.set(err?.message ?? 'Recherche impossible');
+        },
+      });
+
+    const qp = this.route.snapshot.queryParamMap.get('q');
+    if (qp) {
+      this.searchText.set(qp);
+      this.search$.next(qp);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  setFilter(f: StatusFilter): void {
     this.activeFilter.set(f);
   }
 
-  toggleRow(id: string): void {
+  onSearchInput(value: string): void {
+    this.searchText.set(value);
+    this.search$.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchText.set('');
+    this.searchResults.set(null);
+    this.searchError.set('');
+  }
+
+  toggleRow(id: number): void {
     this.selectedRow.update((cur) => (cur === id ? null : id));
+  }
+
+  recalculate(creditId: number, event: Event): void {
+    event.stopPropagation();
+    this.actionMessage.set('');
+    this.recalculatingId.set(creditId);
+    this.creditService.recalculate(creditId).subscribe({
+      next: (updated) => {
+        this.recalculatingId.set(null);
+        this.actionMessage.set('Risque recalculé pour le crédit #' + creditId);
+        this.rawCredits.update((list) =>
+          list.map((c) => (c.id === creditId ? { ...c, ...updated } : c))
+        );
+        this.searchResults.update((cur) =>
+          cur ? cur.map((c) => (c.id === creditId ? { ...c, ...updated } : c)) : cur
+        );
+      },
+      error: (err: Error) => {
+        this.recalculatingId.set(null);
+        this.actionMessage.set(err?.message ?? 'Recalcul impossible');
+      },
+    });
+  }
+
+  clientLabel(c: Credit): string {
+    const u = c.user;
+    if (!u) return '—';
+    return `${u.firstName} ${u.lastName}`.trim() || u.email || `User #${u.idUser}`;
+  }
+
+  toBadgeStatus(status: string | undefined): AdminBadgeStatus {
+    const s = String(status ?? '').toUpperCase();
+    if (s === 'REJECTED') return 'FAILED';
+    if (s === 'PENDING' || s === 'APPROVED' || s === 'ACTIVE' || s === 'CLOSED') {
+      return s;
+    }
+    return 'PENDING';
+  }
+
+  formatMoney(n: number | undefined | null): string {
+    const v = Number(n ?? 0);
+    return v.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  formatDate(iso: string | undefined): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (!Number.isFinite(d.getTime())) return iso.slice(0, 10);
+    return d.toLocaleDateString('fr-FR');
+  }
+
+  riskLabel(score: number | undefined | null): string {
+    if (score == null || !Number.isFinite(Number(score))) return '—';
+    const s = Number(score);
+    if (s >= 80) return 'A';
+    if (s >= 65) return 'B+';
+    if (s >= 50) return 'B';
+    if (s >= 35) return 'B-';
+    if (s >= 20) return 'C';
+    return 'D';
+  }
+
+  private loadAll(): void {
+    this.loading.set(true);
+    this.listError.set('');
+    this.creditService.listAll().subscribe({
+      next: (list) => {
+        this.rawCredits.set(list ?? []);
+        this.loading.set(false);
+      },
+      error: (err: Error) => {
+        this.listError.set(err?.message ?? 'Impossible de charger les crédits');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private matchesClientQuery(c: Credit, q: string): boolean {
+    const idStr = String(c.id);
+    const amountStr = this.formatMoney(c.amount);
+    const remStr = this.formatMoney(c.remainingAmount);
+    const client = this.clientLabel(c).toLowerCase();
+    const email = c.user?.email?.toLowerCase() ?? '';
+    return (
+      idStr.includes(q) ||
+      client.includes(q) ||
+      email.includes(q) ||
+      amountStr.replace(/\s/g, '').includes(q.replace(/\s/g, '')) ||
+      remStr.replace(/\s/g, '').includes(q.replace(/\s/g, ''))
+    );
   }
 }

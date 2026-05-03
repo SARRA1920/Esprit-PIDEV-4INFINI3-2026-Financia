@@ -1,0 +1,72 @@
+<div class="ago">
+  <header class="ago__head">
+    <h1 class="ago__title">Objectifs d’épargne</h1>
+    <p class="ago__sub">Suivi des objectifs clients : montants, progression et échéances.</p>
+    @if (filterBanner(); as fb) {
+      <div class="ago__filters" role="status">
+        <span class="ago__filters-text">{{ fb }}</span>
+        <a routerLink="/admin/savings/goals" class="ago__filters-clear">Tous les objectifs</a>
+      </div>
+    }
+  </header>
+
+  <section class="ago__card">
+    <div class="ago__card-head">
+      <h2 class="ago__card-title">Liste des objectifs</h2>
+    </div>
+    <div class="ago__body">
+      @if (loading()) {
+        <div class="ago__loading">Chargement…</div>
+      }
+      @if (error()) {
+        <div class="ago__alert" role="alert">{{ error() }}</div>
+      }
+
+      @if (!loading() && !error()) {
+        <div class="ago__table-wrap">
+          <table class="ago-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Compte</th>
+                <th>Description</th>
+                <th class="ago-table__num">Cible</th>
+                <th class="ago-table__num">Collecté</th>
+                <th>Progression</th>
+                <th>Échéance</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (goal of displayedGoals(); track goal.id) {
+                <tr class="ago-table__row">
+                  <td class="ago-table__mono">{{ goal.id }}</td>
+                  <td class="ago-table__mono">#{{ goal.savingsAccount?.id }}</td>
+                  <td class="ago-table__desc">{{ goal.description || '—' }}</td>
+                  <td class="ago-table__num ago-table__mono">{{ goal.targetAmount | number: '1.2-2' }} TND</td>
+                  <td class="ago-table__num ago-table__mono ago-table__accent">{{ goal.currentAmount | number: '1.2-2' }} TND</td>
+                  <td>
+                    <div class="ago-bar" [attr.aria-valuenow]="goalProgress(goal)" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                      <div class="ago-bar__fill" [style.width.%]="goalProgress(goal)"></div>
+                    </div>
+                    <span class="ago-bar__label">{{ goalProgress(goal) | number: '1.0-0' }} %</span>
+                  </td>
+                  <td class="ago-table__muted">{{ goal.deadline | date: 'longDate' }}</td>
+                  <td>
+                    <span
+                      class="ago-pill"
+                      [class.ago-pill--progress]="goal.status === 'IN_PROGRESS'"
+                      [class.ago-pill--done]="goal.status === 'COMPLETED'"
+                      [class.ago-pill--fail]="goal.status === 'FAILED'"
+                      >{{ goal.status }}</span
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+</div>

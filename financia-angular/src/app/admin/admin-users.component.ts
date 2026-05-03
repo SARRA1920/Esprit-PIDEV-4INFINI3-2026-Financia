@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AdminUsersService } from '../core/admin-users.service';
 import { AdminUserListItem } from '../models/admin-user.model';
 import { UserRole } from '../models/user.model';
@@ -14,6 +15,7 @@ import { UserRole } from '../models/user.model';
 })
 export class AdminUsersComponent implements OnInit {
   private readonly usersApi = inject(AdminUsersService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -41,6 +43,10 @@ export class AdminUsersComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const q = this.route.snapshot.queryParamMap.get('q');
+    if (q) {
+      this.query.set(q);
+    }
     this.usersApi.getAllUsers().subscribe({
       next: (data) => {
         this.users.set(data ?? []);
@@ -73,6 +79,6 @@ export class AdminUsersComponent implements OnInit {
 
   formatIncome(v: number | null | undefined): string {
     if (v == null || Number.isNaN(Number(v))) return '—';
-    return `${Number(v).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €`;
+    return `${Number(v).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} TND`;
   }
 }

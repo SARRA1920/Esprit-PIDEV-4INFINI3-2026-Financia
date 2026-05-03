@@ -2,18 +2,33 @@
   <div class="adm-head-row">
     <div>
       <h1 class="adm-page-title">Crédits & dossiers</h1>
-      <p class="adm-page-sub">Gestion du portefeuille crédit</p>
+      <p class="adm-page-sub">Portefeuille connecté à l’API Spring (`GET /api/credits`, recherche avancée, recalcul risque)</p>
     </div>
-    <button type="button" class="adm-btn-primary" disabled title="Export à brancher sur l'API">
+    <button type="button" class="adm-btn-primary" disabled title="Export CSV à ajouter si besoin">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
       Exporter CSV
     </button>
   </div>
 
+  @if (listError()) {
+    <div class="adm-card" style="border-color: #ef4444; color: #ef4444">{{ listError() }}</div>
+  }
+  @if (actionMessage()) {
+    <p class="adm-text-muted" style="margin: 0; font-size: 0.875rem">{{ actionMessage() }}</p>
+  }
+
   <div class="adm-toolbar">
     <div class="adm-toolbar__search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
-      <input type="search" placeholder="Rechercher par ID, client, montant..." disabled title="Recherche à brancher sur l'API" />
+      <input
+        type="search"
+        placeholder="Rechercher (id, client, email, montant) — 2+ caractères déclenche l’API search"
+        [value]="searchText()"
+        (input)="onSearchInput($any($event.target).value)"
+      />
+      @if (searchText()) {
+        <button type="button" class="adm-btn-ghost" (click)="clearSearch()" style="padding: 0.25rem 0.5rem">Effacer</button>
+      }
     </div>
     <div class="adm-filters">
       <span class="adm-filters__label">
@@ -26,70 +41,91 @@
     </div>
   </div>
 
-  <div class="adm-table-card" style="border-radius: 0.75rem">
-    <div class="adm-table-wrap">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Montant</th>
-            <th>Taux</th>
-            <th>Durée</th>
-            <th>Reste à payer</th>
-            <th>Score</th>
-            <th>Statut</th>
-            <th>Créé le</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (credit of filteredCredits(); track credit.id) {
-            <tr
-              (click)="toggleRow(credit.id)"
-              [class.adm-row--sel]="selectedRow() === credit.id"
-              class="adm-row-click"
-            >
-              <td class="adm-mono adm-text-bright">{{ credit.id }}</td>
-              <td class="adm-text-bright" style="font-weight: 500">{{ credit.client }}</td>
-              <td class="adm-mono adm-text-bright">{{ credit.amount.toLocaleString('fr-FR') }} €</td>
-              <td class="adm-mono adm-text-muted">{{ credit.rate }}%</td>
-              <td class="adm-text-muted">{{ credit.duration }} mois</td>
-              <td class="adm-mono adm-text-bright">{{ credit.remaining.toLocaleString('fr-FR') }} €</td>
-              <td>
-                <span
-                  class="adm-risk"
-                  [class.adm-risk--a]="credit.riskScore.startsWith('A')"
-                  [class.adm-risk--b]="credit.riskScore.startsWith('B')"
-                  [class.adm-risk--c]="!credit.riskScore.startsWith('A') && !credit.riskScore.startsWith('B')"
-                  >{{ credit.riskScore }}</span
-                >
-              </td>
-              <td><app-admin-status-badge [status]="credit.status" /></td>
-              <td class="adm-mono adm-text-muted">{{ credit.created }}</td>
-              <td class="adm-actions">
-                <button type="button" class="adm-icon-btn" (click)="$event.stopPropagation()" aria-label="Plus">⋮</button>
-                <span class="adm-chevron" [class.adm-chevron--open]="selectedRow() === credit.id">›</span>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      @if (filteredCredits().length === 0) {
-        <p class="adm-empty">Aucun crédit trouvé pour ce filtre</p>
-      }
-    </div>
-  </div>
+  @if (searchError()) {
+    <p class="adm-text-muted" style="margin: 0 0 0.5rem; color: #ef4444; font-size: 0.875rem">{{ searchError() }}</p>
+  }
 
-  <div class="adm-pager">
-    <p class="adm-text-muted" style="margin: 0; font-size: 0.875rem">
-      Affichage de {{ filteredCredits().length }} résultat{{ filteredCredits().length > 1 ? 's' : '' }}
-    </p>
-    <div class="adm-pager__btns">
-      <button type="button" class="adm-btn-ghost" disabled>Précédent</button>
-      <button type="button" class="adm-btn-page-on">1</button>
-      <button type="button" class="adm-btn-ghost">2</button>
-      <button type="button" class="adm-btn-ghost">Suivant</button>
+  @if (loading()) {
+    <div class="adm-card">Chargement des crédits...</div>
+  }
+
+  @if (!loading()) {
+    <div class="adm-table-card" style="border-radius: 0.75rem">
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Montant</th>
+              <th>Taux</th>
+              <th>Durée</th>
+              <th>Reste à payer</th>
+              <th>Score</th>
+              <th>Statut</th>
+              <th>Créé le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (credit of displayCredits(); track credit.id) {
+              <tr
+                (click)="toggleRow(credit.id)"
+                [class.adm-row--sel]="selectedRow() === credit.id"
+                class="adm-row-click"
+              >
+                <td class="adm-mono adm-text-bright">{{ credit.id }}</td>
+                <td class="adm-text-bright" style="font-weight: 500">{{ clientLabel(credit) }}</td>
+                <td class="adm-mono adm-text-bright">{{ formatMoney(credit.amount) }} TND</td>
+                <td class="adm-mono adm-text-muted">{{ credit.interestRate != null ? (credit.interestRate | number:'1.0-2') + '%' : '—' }}</td>
+                <td class="adm-text-muted">{{ credit.durationMonths }} mois</td>
+                <td class="adm-mono adm-text-bright">{{ formatMoney(credit.remainingAmount) }} TND</td>
+                <td>
+                  <span
+                    class="adm-risk"
+                    [class.adm-risk--a]="riskLabel(credit.riskScore).startsWith('A')"
+                    [class.adm-risk--b]="riskLabel(credit.riskScore).startsWith('B')"
+                    [class.adm-risk--c]="riskLabel(credit.riskScore) === '—' || riskLabel(credit.riskScore).startsWith('C') || riskLabel(credit.riskScore).startsWith('D')"
+                    >{{ riskLabel(credit.riskScore) }}</span
+                  >
+                </td>
+                <td><app-admin-status-badge [status]="toBadgeStatus(credit.status)" /></td>
+                <td class="adm-mono adm-text-muted">{{ formatDate(credit.createdAt) }}</td>
+                <td class="adm-actions">
+                  <button
+                    type="button"
+                    class="adm-icon-btn"
+                    [disabled]="recalculatingId() === credit.id"
+                    (click)="recalculate(credit.id, $event)"
+                    [attr.aria-label]="'Recalculer risque #' + credit.id"
+                    title="Recalculer risque (PUT /api/credits/{id}/recalculate)"
+                  >
+                    {{ recalculatingId() === credit.id ? '…' : '↻' }}
+                  </button>
+                  <span class="adm-chevron" [class.adm-chevron--open]="selectedRow() === credit.id">›</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (displayCredits().length === 0) {
+          <p class="adm-empty">Aucun crédit trouvé pour ce filtre / cette recherche</p>
+        }
+      </div>
     </div>
-  </div>
+
+    <div class="adm-pager">
+      <p class="adm-text-muted" style="margin: 0; font-size: 0.875rem">
+        Affichage de {{ displayCredits().length }} résultat{{ displayCredits().length > 1 ? 's' : '' }}
+        @if (searchLoading()) {
+          <span> — recherche API…</span>
+        }
+      </p>
+      <div class="adm-pager__btns">
+        <button type="button" class="adm-btn-ghost" disabled>Précédent</button>
+        <button type="button" class="adm-btn-page-on">1</button>
+        <button type="button" class="adm-btn-ghost" disabled>Suivant</button>
+      </div>
+    </div>
+  }
 </div>

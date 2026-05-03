@@ -1,0 +1,315 @@
+<section class="savings-page">
+  <div class="savings-hero">
+    <div>
+      <div class="savings-hero__eyebrow">Administration</div>
+      <h1>Outils épargne (technique)</h1>
+      <p>
+        Page de test pour comptes, objectifs et transactions : création, mise à jour et suppression côté API. À utiliser
+        plutôt pour le debug que pour la consultation métier (voir le tableau de bord ou « Gestion de l’épargne »).
+      </p>
+    </div>
+    <div class="savings-hero__meta">
+      <div class="savings-hero__pill">Token: {{ token() ? 'connected' : 'missing' }}</div>
+      <div class="savings-hero__pill">User: {{ user()?.email ?? 'guest' }}</div>
+      <a routerLink="/admin" class="savings-hero__link">Back to dashboard</a>
+    </div>
+  </div>
+
+  @if (panelMessage(); as message) {
+    @if (message) {
+      <div class="savings-alert savings-alert--ok">{{ message }}</div>
+    }
+  }
+
+  <div class="savings-grid">
+    <article class="savings-card">
+      <div class="savings-card__head">
+        <div>
+          <h2>Accounts</h2>
+          <p>Create, edit and close savings accounts.</p>
+        </div>
+        <button type="button" class="savings-btn savings-btn--ghost" (click)="loadAccounts()">Refresh</button>
+      </div>
+
+      @if (accountError(); as err) {
+        @if (err) { <div class="savings-alert">{{ err }}</div> }
+      }
+
+      <form class="savings-form" [formGroup]="accountCreateForm" (ngSubmit)="createAccount()">
+        <label>
+          <span>Type</span>
+          <select formControlName="type">
+            @for (type of accountTypes(); track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Initial balance</span>
+          <input type="number" step="0.01" formControlName="balance" />
+        </label>
+        <button type="submit" class="savings-btn">Create account</button>
+      </form>
+
+      @if (selectedAccountId(); as selectedId) {
+        <div class="savings-edit">
+          <div class="savings-edit__title">Edit account #{{ selectedId }}</div>
+          <form class="savings-form savings-form--inline" [formGroup]="accountEditForm" (ngSubmit)="updateAccount()">
+            <label>
+              <span>Type</span>
+              <select formControlName="type">
+                @for (type of accountTypes(); track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+            </label>
+            <div class="savings-actions">
+              <button type="submit" class="savings-btn">Update</button>
+              <button type="button" class="savings-btn savings-btn--ghost" (click)="selectedAccountId.set(null)">Cancel</button>
+            </div>
+          </form>
+          @if (selectedAccountStats(); as stats) {
+            <pre class="savings-pre">{{ stats | json }}</pre>
+          }
+          @if (selectedReport(); as report) {
+            @if (report) { <pre class="savings-pre">{{ report }}</pre> }
+          }
+        </div>
+      }
+
+      <div class="savings-list">
+        @if (accountsLoading()) {
+          <div class="savings-empty">Loading accounts...</div>
+        } @else if (accounts().length === 0) {
+          <div class="savings-empty">No accounts yet.</div>
+        } @else {
+          @for (account of accounts(); track account.id) {
+            <div class="savings-row">
+              <div>
+                <div class="savings-row__title">{{ account.accountNumber }}</div>
+                <div class="savings-row__meta">
+                  {{ account.type }} · {{ asCurrency(account.balance) }} · {{ formatStatus(account.status) }}
+                </div>
+              </div>
+              <div class="savings-actions">
+                <button type="button" class="savings-btn savings-btn--ghost" (click)="selectAccount(account)">Edit</button>
+                <button type="button" class="savings-btn savings-btn--ghost" (click)="loadAccountStats(account.id)">Stats</button>
+                <button type="button" class="savings-btn savings-btn--danger" (click)="deleteAccount(account.id)">Delete</button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </article>
+
+    <article class="savings-card">
+      <div class="savings-card__head">
+        <div>
+          <h2>Goals</h2>
+          <p>Manage savings goals and test forecast/advice endpoints.</p>
+        </div>
+        <button type="button" class="savings-btn savings-btn--ghost" (click)="loadGoals()">Refresh</button>
+      </div>
+
+      @if (goalError(); as err) {
+        @if (err) { <div class="savings-alert">{{ err }}</div> }
+      }
+
+      <form class="savings-form" [formGroup]="goalCreateForm" (ngSubmit)="createGoal()">
+        <label>
+          <span>Account</span>
+          <select id="goal-account-id" class="form-control" formControlName="savingsAccountId">
+            <option [value]="0" disabled>-- Select an account --</option>
+            @for (a of accounts(); track a.id) {
+              <option [value]="a.id">#{{ a.id }} ({{ a.accountNumber }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Target amount</span>
+          <input type="number" step="0.01" formControlName="targetAmount" />
+        </label>
+        <label>
+          <span>Current amount</span>
+          <input type="number" step="0.01" formControlName="currentAmount" />
+        </label>
+        <label>
+          <span>Deadline</span>
+          <input type="date" formControlName="deadline" />
+        </label>
+        <label class="savings-form__full">
+          <span>Description</span>
+          <input type="text" formControlName="description" />
+        </label>
+        <button type="submit" class="savings-btn savings-form__full">Create goal</button>
+      </form>
+
+      @if (selectedGoalId(); as selectedId) {
+        <div class="savings-edit">
+          <div class="savings-edit__title">Edit goal #{{ selectedId }}</div>
+          <form class="savings-form savings-form--inline" [formGroup]="goalEditForm" (ngSubmit)="updateGoal()">
+            <label>
+              <span>Current amount</span>
+              <input type="number" step="0.01" formControlName="currentAmount" />
+            </label>
+            <div class="savings-actions">
+              <button type="submit" class="savings-btn">Update</button>
+              <button type="button" class="savings-btn savings-btn--ghost" (click)="selectedGoalId.set(null)">Cancel</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="savings-list">
+        @if (goalsLoading()) {
+          <div class="savings-empty">Loading goals...</div>
+        } @else if (goals().length === 0) {
+          <div class="savings-empty">No goals yet.</div>
+        } @else {
+          @for (goal of goals(); track goal.id) {
+            <div class="savings-row savings-row--stacked">
+              <div>
+                <div class="savings-row__title">Goal #{{ goal.id }} · {{ asCurrency(goal.targetAmount) }}</div>
+                <div class="savings-row__meta">
+                  {{ goal.currentAmount | number:'1.2-2' }} / {{ goal.targetAmount | number:'1.2-2' }} · {{ goal.deadline }} · {{ formatStatus(goal.status) }}
+                </div>
+                <div class="savings-row__meta">{{ goal.description || 'No description' }}</div>
+              </div>
+              <div class="savings-actions">
+                <button type="button" class="savings-btn savings-btn--ghost" (click)="selectGoal(goal)">Edit</button>
+                <button type="button" class="savings-btn savings-btn--ghost" (click)="forecastGoal(goal.id)">Forecast</button>
+                <button type="button" class="savings-btn savings-btn--ghost" (click)="adviceGoal(goal.id)">AI advice</button>
+                <button type="button" class="savings-btn savings-btn--danger" (click)="deleteGoal(goal.id)">Delete</button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </article>
+
+    <article class="savings-card savings-card--wide">
+      <div class="savings-card__head">
+        <div>
+          <h2>Transactions</h2>
+          <p>Create deposits and withdrawals, update status, and remove rows.</p>
+        </div>
+        <button type="button" class="savings-btn savings-btn--ghost" (click)="loadTransactions()">Refresh</button>
+      </div>
+
+      @if (transactionError(); as err) {
+        @if (err) { <div class="savings-alert">{{ err }}</div> }
+      }
+
+      <form class="savings-form savings-form--wide" [formGroup]="transactionCreateForm" (ngSubmit)="createTransaction()">
+        <label>
+          <span>Account</span>
+          <select id="tx-account-id" class="form-control" formControlName="savingsAccountId">
+            <option [value]="0" disabled>-- Select an account --</option>
+            @for (a of accounts(); track a.id) {
+              <option [value]="a.id">#{{ a.id }} ({{ a.accountNumber }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Type</span>
+          <select formControlName="type">
+            @for (type of transactionTypes(); track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Amount</span>
+          <input type="number" step="0.01" formControlName="amount" />
+        </label>
+        <label>
+          <span>Status</span>
+          <select formControlName="status">
+            @for (status of transactionStatuses(); track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+        <label class="savings-form__full">
+          <span>Description</span>
+          <input type="text" formControlName="description" />
+        </label>
+        <button type="submit" class="savings-btn savings-form__full">Create transaction</button>
+      </form>
+
+      @if (selectedTransactionId(); as selectedId) {
+        <div class="savings-edit">
+          <div class="savings-edit__title">Edit transaction #{{ selectedId }}</div>
+          <form class="savings-form savings-form--inline" [formGroup]="transactionEditForm" (ngSubmit)="updateTransaction()">
+            <label>
+              <span>Status</span>
+              <select formControlName="status">
+                @for (status of transactionStatuses(); track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+            </label>
+            <div class="savings-actions">
+              <button type="submit" class="savings-btn">Update</button>
+              <button type="button" class="savings-btn savings-btn--ghost" (click)="selectedTransactionId.set(null)">Cancel</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="savings-grid__split">
+        <div>
+          <div class="savings-list">
+            @if (transactionsLoading()) {
+              <div class="savings-empty">Loading transactions...</div>
+            } @else if (transactions().length === 0) {
+              <div class="savings-empty">No transactions yet.</div>
+            } @else {
+              @for (transaction of transactions(); track transaction.id) {
+                <div class="savings-row savings-row--stacked">
+                  <div>
+                    <div class="savings-row__title">#{{ transaction.id }} · {{ transaction.type }} · {{ asCurrency(transaction.amount) }}</div>
+                    <div class="savings-row__meta">
+                      {{ transaction.transactionDate ? (transaction.transactionDate | date:'yyyy-MM-dd HH:mm') : 'No date' }} ·
+                      {{ formatStatus(transaction.status) }} · Account {{ transaction.savingsAccount?.id ?? 'N/A' }}
+                    </div>
+                    <div class="savings-row__meta">{{ transaction.description || 'No description' }}</div>
+                  </div>
+                  <div class="savings-actions">
+                    <button type="button" class="savings-btn savings-btn--ghost" (click)="selectTransaction(transaction)">Edit</button>
+                    <button type="button" class="savings-btn savings-btn--danger" (click)="deleteTransaction(transaction.id)">Delete</button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <aside class="savings-side">
+          <div class="savings-side__panel">
+            <h3>Flagged</h3>
+            @if (flaggedTransactions().length === 0) {
+              <div class="savings-empty savings-empty--compact">No flagged transactions.</div>
+            } @else {
+              @for (transaction of flaggedTransactions(); track transaction.id) {
+                <div class="savings-mini">
+                  <strong>#{{ transaction.id }}</strong>
+                  <span>{{ transaction.type }} · {{ asCurrency(transaction.amount) }}</span>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="savings-side__panel">
+            <h3>System statistics</h3>
+            @if (systemStats(); as stats) {
+              <pre class="savings-pre savings-pre--compact">{{ stats | json }}</pre>
+            } @else {
+              <div class="savings-empty savings-empty--compact">No stats loaded.</div>
+            }
+          </div>
+        </aside>
+      </div>
+    </article>
+  </div>
+</section>

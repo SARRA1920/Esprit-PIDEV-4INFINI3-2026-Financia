@@ -90,6 +90,27 @@
               <span>Formation (LMS)</span>
             }
           </a>
+          <a routerLink="/admin/epargnes" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Épargnes & Objectifs' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 10v1a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9a5 5 0 0 1 5-5h4" />
+              <path d="M18 8h2v4" />
+              <path d="m22 8-3 3-1-1" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Épargnes & Objectifs</span>
+            }
+          </a>
+          <a routerLink="/admin/savings/stats" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Statistiques épargne' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 7h16v10H4z" />
+              <path d="M8 7V5h8v2" />
+              <path d="M12 11v4" />
+              <path d="M9 13h6" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Statistiques épargne</span>
+            }
+          </a>
           <a routerLink="/admin/paiements" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Paiements' : ''">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="1" x2="12" y2="23" />
@@ -141,15 +162,86 @@
     </nav>
   </aside>
 
-  <header class="admin-topbar">
-    <div class="admin-topbar__search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8" />
-        <path d="M21 21l-4.35-4.35" />
+  <header class="admin-topbar" (click)="closeSearchPanel()">
+    <a
+      routerLink="/services/epargneobjectif"
+      class="admin-topbar__client-link"
+      title="Ouvrir la vue client épargne / objectifs"
+      (click)="$event.stopPropagation()"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        <polyline points="15 3 21 3 21 9" />
+        <line x1="10" y1="14" x2="21" y2="3" />
       </svg>
-      <input type="search" placeholder="Rechercher clients, crédits, ID..." autocomplete="off" />
+      <span>Vue client épargne</span>
+    </a>
+
+    <div class="admin-topbar__search-wrap" (click)="$event.stopPropagation()">
+      <div class="admin-topbar__search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input
+          type="search"
+          placeholder="Comptes, utilisateurs, crédits (min. 2 car.)"
+          autocomplete="off"
+          [value]="searchQuery()"
+          (input)="onSearchInput($any($event.target).value)"
+          (focus)="onSearchFocus()"
+        />
+        @if (searchQuery().trim().length) {
+          <button type="button" class="admin-topbar__search-clear" (click)="clearSearch()" aria-label="Effacer la recherche">×</button>
+        }
+      </div>
+
+      @if (searchPanelOpen() && searchResults(); as res) {
+        <div class="admin-search-panel" role="listbox" aria-label="Résultats de recherche">
+          @if (searchLoading()) {
+            <div class="admin-search-panel__loading">Recherche…</div>
+          } @else if (!searchHasHits()) {
+            <div class="admin-search-panel__empty">Aucun résultat pour « {{ searchQuery().trim() }} ».</div>
+          } @else {
+            @if (res.accounts.length) {
+              <div class="admin-search-panel__section">
+                <div class="admin-search-panel__label">Comptes épargne</div>
+                @for (h of res.accounts; track h.id) {
+                  <a [routerLink]="h.link" class="admin-search-panel__hit" (click)="closeSearchPanel()">
+                    <span class="admin-search-panel__hit-title">{{ h.label }}</span>
+                    <span class="admin-search-panel__hit-sub">{{ h.sub }}</span>
+                  </a>
+                }
+              </div>
+            }
+            @if (res.users.length) {
+              <div class="admin-search-panel__section">
+                <div class="admin-search-panel__label">Utilisateurs</div>
+                @for (h of res.users; track h.id) {
+                  <a [routerLink]="h.link" class="admin-search-panel__hit" (click)="closeSearchPanel()">
+                    <span class="admin-search-panel__hit-title">{{ h.label }}</span>
+                    <span class="admin-search-panel__hit-sub">{{ h.sub }}</span>
+                  </a>
+                }
+              </div>
+            }
+            @if (res.credits.length) {
+              <div class="admin-search-panel__section">
+                <div class="admin-search-panel__label">Crédits</div>
+                @for (h of res.credits; track h.id) {
+                  <a [routerLink]="h.link" class="admin-search-panel__hit" (click)="closeSearchPanel()">
+                    <span class="admin-search-panel__hit-title">{{ h.label }}</span>
+                    <span class="admin-search-panel__hit-sub">{{ h.sub }}</span>
+                  </a>
+                }
+              </div>
+            }
+          }
+        </div>
+      }
     </div>
-    <div class="admin-topbar__right">
+
+    <div class="admin-topbar__right" (click)="$event.stopPropagation()">
       <span class="admin-topbar__sandbox">SANDBOX</span>
       <button type="button" class="admin-topbar__bell" aria-label="Notifications">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -171,7 +263,21 @@
     </div>
   </header>
 
-  <main class="admin-main">
+  <main class="admin-main" (click)="closeSearchPanel()">
+    <div class="admin-context">
+      <nav class="admin-breadcrumb" aria-label="Fil d’Ariane">
+        @for (c of routeContext().crumbs; track $index) {
+          @if (c.link) {
+            <a [routerLink]="c.link" class="admin-breadcrumb__link">{{ c.label }}</a>
+          } @else {
+            <span class="admin-breadcrumb__current" [attr.aria-current]="'page'">{{ c.label }}</span>
+          }
+          @if ($index < routeContext().crumbs.length - 1) {
+            <span class="admin-breadcrumb__sep" aria-hidden="true">/</span>
+          }
+        }
+      </nav>
+    </div>
     <router-outlet />
   </main>
 </div>

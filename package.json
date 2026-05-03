@@ -7,5 +7,10 @@
     "start:angular": "npm --prefix financia-angular run start",
     "build:angular": "npm --prefix financia-angular run build",
     "install:angular": "npm --prefix financia-angular install"
+  },
+  "dependencies": {
+    "@swimlane/ngx-charts": "^23.1.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7"
   }
 }

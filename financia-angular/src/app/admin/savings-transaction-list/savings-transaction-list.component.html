@@ -1,0 +1,100 @@
+<div class="asv">
+  <header class="asv__head">
+    <h1 class="asv__title">Transactions d’épargne</h1>
+    <p class="asv__sub">
+      Vue opérations : liste globale, filtre par compte (API
+      <code class="asv__code">/transactions/account/:id</code>
+      ) ou transactions signalées (
+      <code class="asv__code">/transactions/flagged</code>
+      ).
+    </p>
+    @if (filterSummary(); as sum) {
+      <div class="asv__filters" role="status">
+        <span class="asv__filters-text">{{ sum }}</span>
+        <a routerLink="/admin/savings/transactions" class="asv__filters-clear">Tout afficher</a>
+      </div>
+    }
+  </header>
+
+  <section class="asv__card">
+    <div class="asv__card-head">
+      <h2 class="asv__card-title">Historique des mouvements</h2>
+    </div>
+    <div class="asv__body">
+      @if (loading()) {
+        <div class="asv__loading">Chargement…</div>
+      }
+      @if (error()) {
+        <div class="asv__alert" role="alert">{{ error() }}</div>
+      }
+
+      @if (!loading() && !error()) {
+        <div class="asv__table-wrap">
+          <table class="asv-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Compte</th>
+                <th>Type</th>
+                <th class="asv-table__num">Montant</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th class="asv-table__narrow">Risque</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of displayedTransactions(); track tx.id) {
+                <tr
+                  class="asv-table__row"
+                  [class.asv-table__row--depot]="tx.type === 'DEPOSIT'"
+                  [class.asv-table__row--retrait]="tx.type === 'WITHDRAWAL'"
+                  [class.asv-table__row--flagged]="tx.flagged"
+                >
+                  <td class="asv-table__mono asv-table__cell-lead">{{ tx.id }}</td>
+                  <td class="asv-table__mono">#{{ tx.savingsAccount?.id }}</td>
+                  <td>
+                    <span
+                      class="asv-pill"
+                      [class.asv-pill--depot]="tx.type === 'DEPOSIT'"
+                      [class.asv-pill--retrait]="tx.type === 'WITHDRAWAL'"
+                      >{{ tx.type }}</span
+                    >
+                  </td>
+                  <td class="asv-table__num asv-table__mono asv-table__amount">
+                    @if (tx.type === 'DEPOSIT') {
+                      <span class="asv-amt asv-amt--plus">+{{ tx.amount | number: '1.2-2' }} TND</span>
+                    } @else {
+                      <span class="asv-amt asv-amt--minus">-{{ tx.amount | number: '1.2-2' }} TND</span>
+                    }
+                  </td>
+                  <td>
+                    <span
+                      class="asv-pill asv-pill--muted"
+                      [class.asv-pill--pending]="tx.status === 'PENDING'"
+                      [class.asv-pill--ok]="tx.status === 'SUCCESS'"
+                      [class.asv-pill--ko]="tx.status === 'FAILED'"
+                      [class.asv-pill--cancel]="tx.status === 'CANCELLED'"
+                      >{{ tx.status }}</span
+                    >
+                  </td>
+                  <td class="asv-table__muted">{{ tx.transactionDate | date: 'medium' }}</td>
+                  <td>{{ tx.description }}</td>
+                  <td class="asv-table__risk">
+                    @if (tx.flagged) {
+                      <span class="asv-flag" title="Signalée">Signalée</span>
+                    } @else if (tx.anomalyScore != null && +tx.anomalyScore > 0) {
+                      <span class="asv-anom" title="Score d’anomalie">{{ tx.anomalyScore | number: '1.1-1' }}</span>
+                    } @else {
+                      <span class="asv-table__muted">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+</div>

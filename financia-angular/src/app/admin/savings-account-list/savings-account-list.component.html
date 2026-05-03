@@ -1,0 +1,66 @@
+<div class="container-fluid">
+  <h1 class="h3 mb-2 text-gray-800">Savings Accounts</h1>
+  <p class="mb-4">A list of all savings accounts in the system.</p>
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">All Accounts</h6>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading()" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <div *ngIf="error()" class="alert alert-danger">{{ error() }}</div>
+
+      <div *ngIf="!loading() && !error()" class="table-responsive">
+        <table class="table table-bordered" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Account Number</th>
+              <th>Owner</th>
+              <th>Type</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Pilotage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let acc of displayedAccounts()" [class.sacc-row--highlight]="highlightAccountId() === acc.id">
+              <td>{{ acc.id }}</td>
+              <td>{{ acc.accountNumber }}</td>
+              <td>{{ acc.user?.email || 'N/A' }}</td>
+              <td><span class="badge badge-info">{{ acc.type }}</span></td>
+              <td>{{ acc.balance | number:'1.2-2' }} TND</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': acc.status === 'ACTIVE',
+                  'badge-warning': acc.status === 'SUSPENDED',
+                  'badge-danger': acc.status === 'CLOSED'
+                }">{{ acc.status }}</span>
+              </td>
+              <td>{{ acc.createdAt | date:'medium' }}</td>
+              <td class="sacc-ops">
+                <a class="sacc-ops__link" [routerLink]="['/admin/savings/transactions']" [queryParams]="{ accountId: acc.id }">Mouvements</a>
+                <span class="sacc-ops__sep">·</span>
+                <a class="sacc-ops__link" [routerLink]="['/admin/savings/goals']" [queryParams]="{ accountId: acc.id }">Objectifs</a>
+                <span class="sacc-ops__sep">·</span>
+                <button
+                  type="button"
+                  class="sacc-ops__btn"
+                  (click)="openServerReport(acc.id)"
+                  [disabled]="reportLoadingId() === acc.id"
+                >
+                  {{ reportLoadingId() === acc.id ? '…' : 'Rapport' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -31,6 +31,57 @@
 
       <div class="ve-nav-cta">
         @if (user(); as u) {
+          <div class="ve-inbox-wrap">
+            <button
+              type="button"
+              class="ve-inbox-bell"
+              (click)="toggleInbox(); closeMobileMenu()"
+              [attr.aria-expanded]="inboxOpen"
+              aria-label="Centre de notifications"
+            >
+              <span class="ve-inbox-bell__icon" aria-hidden="true">🔔</span>
+              @if (briefing.items().length > 0) {
+                <span class="ve-inbox-badge">{{ briefing.items().length }}</span>
+              }
+            </button>
+            @if (inboxOpen) {
+              <div class="ve-inbox-panel" role="dialog" aria-label="Notifications">
+                <div class="ve-inbox-panel__head">
+                  <strong>Rappels</strong>
+                  <button type="button" class="ve-inbox-close" (click)="closeInbox()">Fermer</button>
+                </div>
+                @if (briefing.items().length === 0) {
+                  <p class="ve-inbox-empty">Aucun rappel pour le moment.</p>
+                } @else {
+                  <ul class="ve-inbox-list">
+                    @for (n of briefing.items(); track n.id) {
+                      <li
+                        class="ve-inbox-item"
+                        [class.ve-inbox-item--danger]="n.severity === 'danger'"
+                        [class.ve-inbox-item--warn]="n.severity === 'warn'"
+                        [class.ve-inbox-item--info]="n.severity === 'info'"
+                      >
+                        <div class="ve-inbox-item__title">{{ n.title }}</div>
+                        <p class="ve-inbox-item__detail">{{ n.detail }}</p>
+                        <div class="ve-inbox-item__actions">
+                          @if (n.id.startsWith('rem-')) {
+                            <button type="button" class="ve-inbox-link" (click)="goRemboursementsFromBrief()">Échéances</button>
+                          }
+                          @if (n.id.startsWith('goal-')) {
+                            <button type="button" class="ve-inbox-link" (click)="goGoalsFromBrief()">Objectifs</button>
+                          }
+                          @if (n.id === 'suggest-deposit-month') {
+                            <button type="button" class="ve-inbox-link" (click)="goEpargneFromBrief()">Épargne</button>
+                          }
+                          <button type="button" class="ve-inbox-dismiss" (click)="dismissBrief(n.id)">Masquer</button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </div>
           <span style="color:#fff; margin-right:12px;">Bonjour, <strong>{{ u.firstName }}</strong></span>
           <a href="#" class="ve-cta-btn" (click)="$event.preventDefault(); logout(); closeMobileMenu()">Logout</a>
         } @else {
@@ -65,4 +116,6 @@
   <main class="main">
     <router-outlet />
   </main>
+
+  <app-toast-stack />
 </div>

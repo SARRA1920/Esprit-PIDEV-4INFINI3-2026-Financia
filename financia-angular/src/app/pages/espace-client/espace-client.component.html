@@ -3,20 +3,20 @@
   <div class="container ve-page-hero-content">
     <span class="ve-section-tag">Espace client</span>
     @if (!initialLoading && hasBlockingCreditFlag && blockingCredit) {
-      <h1>Mon <span>crédit</span></h1>
+      <h1>Mon <span>credit</span></h1>
       <p class="ve-hero-sub">
-        Suivi du dossier, progression du remboursement et paiement des échéances.
+        Suivi du dossier, progression du remboursement et paiement des echeances.
       </p>
     } @else {
-      <h1>Demande de <span>crédit</span></h1>
+      <h1>Demande de <span>credit</span></h1>
       <p class="ve-hero-sub">
-        Déposez une demande et suivez ensuite votre dossier depuis cet espace.
+        Deposez une demande et suivez ensuite votre dossier depuis cet espace.
       </p>
     }
     <nav aria-label="breadcrumb">
       <ol class="ve-breadcrumb">
         <li><a routerLink="/">Accueil</a></li>
-        <li class="active">Crédit</li>
+        <li class="active">Credit</li>
       </ol>
     </nav>
   </div>
@@ -30,8 +30,32 @@
           <p id="ve-client-greet" class="ve-greet">Bonjour, {{ u.firstName }}</p>
         }
 
+        @if (!initialLoading && user()) {
+          @let snap = financialSnapshot();
+          <div id="tableau-de-bord-client" class="ve-fin-snapshot ve-epargne-anchor">
+            <article class="ve-fin-snapshot__card">
+              <span class="ve-fin-snapshot__tag">Epargne</span>
+              <div class="ve-fin-snapshot__value">{{ snap.savingsLine }}</div>
+              <p class="ve-fin-snapshot__hint">Solde total des comptes</p>
+            </article>
+            <article class="ve-fin-snapshot__card">
+              <span class="ve-fin-snapshot__tag">Credit &amp; echeances</span>
+              <p class="ve-fin-snapshot__text">{{ snap.creditLine }}</p>
+            </article>
+            <article
+              class="ve-fin-snapshot__card ve-fin-snapshot__card--alert"
+              [class.ve-fin-snapshot__card--ok]="snap.alertLevel === 'ok'"
+              [class.ve-fin-snapshot__card--warn]="snap.alertLevel === 'warn'"
+              [class.ve-fin-snapshot__card--danger]="snap.alertLevel === 'danger'"
+            >
+              <span class="ve-fin-snapshot__tag">Sante financiere</span>
+              <p class="ve-fin-snapshot__text">{{ snap.alertText }}</p>
+            </article>
+          </div>
+        }
+
         @if (initialLoading) {
-          <p id="ve-credit-loading" class="ve-muted">Chargement de vos dossiers…</p>
+          <p id="ve-credit-loading" class="ve-muted">Chargement de vos dossiers...</p>
         }
 
         @if (!initialLoading && hasBlockingCreditFlag) {
@@ -39,10 +63,10 @@
             @if (blockingCredit) {
               <div class="ve-credit-summary">
                 <span class="ve-section-tag">Dossier en cours</span>
-                <h2 class="ve-credit-title">Votre crédit</h2>
+                <h2 class="ve-credit-title">Votre credit</h2>
                 <p class="ve-credit-lead">
-                  Vous avez déjà un dossier ouvert. Une nouvelle demande sera possible lorsque celui-ci sera
-                  <strong>soldé</strong> ou <strong>clôturé</strong>.
+                  Vous avez deja un dossier ouvert. Une nouvelle demande sera possible lorsque celui-ci sera
+                  <strong>solde</strong> ou <strong>cloture</strong>.
                 </p>
 
                 <div class="ve-credit-status-row">
@@ -62,7 +86,7 @@
                     >
                   }
                   @if (blockingCredit.startDate) {
-                    <span class="ve-chip">Début <strong>{{ blockingCredit.startDate }}</strong></span>
+                    <span class="ve-chip">Debut <strong>{{ blockingCredit.startDate }}</strong></span>
                   }
                   @if (blockingCredit.endDate) {
                     <span class="ve-chip">Fin <strong>{{ blockingCredit.endDate }}</strong></span>
@@ -80,12 +104,12 @@
                     </div>
                     <div class="ve-progress-foot">
                       <span class="mono">
-                        Payé&nbsp;
+                        Paye&nbsp;
                         <strong>{{ paidSoFarAmount | number: '1.0-2' }}</strong>
-                        &nbsp;€
+                        &nbsp;TND
                       </span>
                       <span class="mono">
-                        Restant&nbsp;<strong>{{ blockingCredit.remainingAmount | number: '1.0-2' }}</strong>&nbsp;€
+                        Restant&nbsp;<strong>{{ blockingCredit.remainingAmount | number: '1.0-2' }}</strong>&nbsp;TND
                       </span>
                     </div>
                   </div>
@@ -93,29 +117,29 @@
 
                 <div class="ve-credit-metrics">
                   <div class="ve-credit-metric">
-                    <span class="ve-credit-metric-lbl">Montant emprunté</span>
+                    <span class="ve-credit-metric-lbl">Montant emprunte</span>
                     <span class="ve-credit-metric-val">
-                      {{ blockingCredit.amount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;€</span>
+                      {{ blockingCredit.amount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;TND</span>
                     </span>
                   </div>
                   <div class="ve-credit-metric">
-                    <span class="ve-credit-metric-lbl">Durée</span>
+                    <span class="ve-credit-metric-lbl">Duree</span>
                     <span class="ve-credit-metric-val">
                       {{ blockingCredit.durationMonths }}<span class="ve-credit-metric-unit">&nbsp;mois</span>
                     </span>
                   </div>
                   <div class="ve-credit-metric ve-credit-metric--primary">
-                    <span class="ve-credit-metric-lbl">Reste à payer</span>
+                    <span class="ve-credit-metric-lbl">Reste a payer</span>
                     <span class="ve-credit-metric-val">
-                      {{ blockingCredit.remainingAmount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;€</span>
+                      {{ blockingCredit.remainingAmount | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;TND</span>
                     </span>
                   </div>
                 </div>
               </div>
             } @else {
               <span class="ve-section-tag">Dossier en cours</span>
-              <h2>Crédit existant</h2>
-              <p>Nouvelle demande indisponible jusqu’à clôture ou rejet du dossier.</p>
+              <h2>Credit existant</h2>
+              <p>Nouvelle demande indisponible jusqu a cloture ou rejet du dossier.</p>
             }
           </div>
 
@@ -125,11 +149,11 @@
                 <span class="ve-section-tag">Remboursements</span>
                 <h2>Mon <span>paiement</span></h2>
                 @if (repaymentScheduleProgress; as sp) {
-                  <p class="ve-pay-progress-hint">{{ sp.paid }}/{{ sp.total }} échéances réglées</p>
+                  <p class="ve-pay-progress-hint">{{ sp.paid }}/{{ sp.total }} echeances reglees</p>
                 }
               </div>
               @if (repaymentScheduleProgress; as sp) {
-                <div class="ve-mini-ring" [attr.title]="sp.paid + '/' + sp.total + ' échéances payées'">
+                <div class="ve-mini-ring" [attr.title]="sp.paid + '/' + sp.total + ' echeances payees'">
                   <svg viewBox="0 0 36 36" aria-hidden="true">
                     <path class="ve-mini-ring-bg" d="M18 2a16 16 0 1 1 0 32 16 16 0 1 1 0-32z" />
                     <path
@@ -159,57 +183,57 @@
               <div class="ve-empty">
                 <div class="ve-empty-art" aria-hidden="true"></div>
                 <div class="ve-empty-copy">
-                  <div class="ve-empty-title">Échéancier en préparation</div>
+                  <div class="ve-empty-title">Echeancier en preparation</div>
                   <p class="ve-muted">
-                    Le serveur n’a pas encore publié les lignes d’échéances pour ce crédit. Voici néanmoins une estimation utile pour anticiper votre budget.
+                    Le serveur n a pas encore publie les lignes d echeances pour ce credit. Voici neanmoins une estimation utile pour anticiper votre budget.
                   </p>
                   @if (estimatedMonthlyAmount !== null) {
                     <div class="ve-repay-estimate">
                       <div class="ve-repay-estimate-grid">
                         <div class="ve-repay-estimate-item">
-                          <div class="ve-repay-estimate-lbl">Remboursement estimé / mois</div>
-                          <div class="ve-repay-estimate-val">{{ estimatedMonthlyAmount | number: '1.0-2' }} €</div>
+                          <div class="ve-repay-estimate-lbl">Remboursement estime / mois</div>
+                          <div class="ve-repay-estimate-val">{{ estimatedMonthlyAmount | number: '1.0-2' }} TND</div>
                         </div>
                         @if (estimatedNextDueDate) {
                           <div class="ve-repay-estimate-item">
-                            <div class="ve-repay-estimate-lbl">Prochaine date limite estimée</div>
+                            <div class="ve-repay-estimate-lbl">Prochaine date limite estimee</div>
                             <div class="ve-repay-estimate-val">{{ estimatedNextDueDate }}</div>
                           </div>
                         }
                       </div>
                       <p class="ve-repay-estimate-note">
-                        Estimation basée sur le montant, la durée et le taux. Les échéances réelles apparaîtront dès qu’elles seront générées côté serveur.
+                        Estimation basee sur le montant, la duree et le taux. Les echeances reelles apparaitront des qu elles seront generees cote serveur.
                       </p>
                     </div>
                   }
                   <button type="button" class="ve-btn-primary ve-empty-cta" (click)="refreshRemboursements()">
-                    Rafraîchir l’affichage
+                    Rafraichir l affichage
                   </button>
                 </div>
               </div>
             } @else {
               @if (allRemboursementsPaid) {
                 <div class="ve-stripe-done" role="status">
-                  <div class="ve-stripe-done-title">Tout est payé</div>
-                  <p class="ve-muted">Toutes vos échéances sont marquées comme payées.</p>
+                  <div class="ve-stripe-done-title">Tout est paye</div>
+                  <p class="ve-muted">Toutes vos echeances sont marquees comme payees.</p>
                 </div>
               } @else if (nextPayableRemboursement) {
                 <div class="ve-pay-now-card">
-                  <div class="ve-pay-now-kicker">À régler maintenant — Stripe sécurisé</div>
+                  <div class="ve-pay-now-kicker">A regler maintenant - Stripe securise</div>
                   <div class="ve-pay-now-row">
                     <div class="ve-pay-now-main">
                       <div class="ve-pay-now-label">{{ primaryDueCaption }}</div>
-                      <div class="ve-pay-now-amount mono">{{ amountDueNow | number: '1.0-2' }} €</div>
+                      <div class="ve-pay-now-amount mono">{{ amountDueNow | number: '1.0-2' }} TND</div>
                       @if (overduePayable.length > 1) {
                         <ul class="ve-pay-now-breakdown">
                           @for (r of overduePayable; track r.id) {
-                            <li><span>{{ r.dueDate }}</span><span class="mono">{{ r.amount | number: '1.0-2' }} €</span></li>
+                            <li><span>{{ r.dueDate }}</span><span class="mono">{{ r.amount | number: '1.0-2' }} TND</span></li>
                           }
                         </ul>
                       }
                       @if (overduePayable.length > 1) {
                         <p class="ve-pay-now-note">
-                          Le paiement en ligne règle la tranche la plus ancienne en premier ; vous pourrez enchaîner après chaque validation pour solder les autres retards.
+                          Le paiement en ligne regle la tranche la plus ancienne en premier ; vous pourrez enchainer apres chaque validation pour solder les autres retards.
                         </p>
                       }
                     </div>
@@ -229,7 +253,7 @@
                         (click)="payNow(nextPayableRemboursement)"
                         [disabled]="remboursementsLoading || (nextPayableRemboursement.status || '') === 'PAID'"
                       >
-                        Marquer payé (hors ligne)
+                        Marquer paye (hors ligne)
                       </button>
                     </div>
                   </div>
@@ -242,7 +266,7 @@
         @if (!initialLoading && !hasBlockingCreditFlag) {
           <div class="ve-contact-form-wrap ve-stack">
             <p class="ve-muted ve-intro">
-              Renseignez le montant souhaité et la durée. Le taux d’intérêt et le score de risque sont calculés automatiquement.
+              Renseignez le montant souhaite et la duree. Le taux d interet et le score de risque sont calcules automatiquement.
             </p>
             <span class="ve-section-tag">Nouvelle demande</span>
             <h2>Formulaire de <span>demande</span></h2>
@@ -253,21 +277,676 @@
 
             <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
               <div class="ve-form-group">
-                <label>Montant demandé (principal)</label>
+                <label>Montant demande (principal)</label>
                 <input name="amount" type="number" formControlName="amount" min="1" step="0.001" placeholder="Ex. 10000" />
               </div>
               <div class="ve-form-group">
-                <label>Durée (en mois)</label>
+                <label>Duree (en mois)</label>
                 <input name="durationMonths" type="number" formControlName="durationMonths" min="1" max="360" step="1" placeholder="Ex. 24" />
               </div>
               <div class="ve-form-group">
-                <label>Date de début souhaitée (optionnel)</label>
+                <label>Date de debut souhaitee (optionnel)</label>
                 <input name="startDate" type="date" formControlName="startDate" />
               </div>
               <button type="submit" class="ve-btn-primary" [disabled]="loading || form.invalid">
-                {{ loading ? 'Envoi…' : 'Envoyer la demande' }} <i class="fa fa-arrow-right"></i>
+                {{ loading ? 'Envoi...' : 'Envoyer la demande' }} <i class="fa fa-arrow-right"></i>
               </button>
             </form>
+          </div>
+        }
+
+        @if (!initialLoading) {
+          <div id="epargne" class="ve-contact-form-wrap ve-block ve-stack ve-epargne-hub">
+            <div class="ve-epargne-hero">
+              <div class="ve-epargne-hero__text">
+                <span class="ve-section-tag">Mes comptes d epargne</span>
+                <h2>Mon <span>epargne</span></h2>
+                <p class="ve-pay-progress-hint ve-epargne-hero__lead">
+                  Consultez vos soldes, effectuez vos versements et suivez vos objectifs — tout en un seul espace.
+                </p>
+              </div>
+              <div class="ve-epargne-hero__viz" aria-hidden="true">
+                <div class="ve-epargne-glow"></div>
+                <div class="ve-epargne-stack">
+                  <span class="ve-epargne-stack__disc ve-epargne-stack__disc--c"></span>
+                  <span class="ve-epargne-stack__disc ve-epargne-stack__disc--b"></span>
+                  <span class="ve-epargne-stack__disc ve-epargne-stack__disc--a"></span>
+                </div>
+              </div>
+            </div>
+
+            <nav class="ve-epargne-nav" aria-label="Sections epargne">
+              <button type="button" class="ve-epargne-nav__link" (click)="navigateEpargneSection('tableau-de-bord-client')">
+                Tableau de bord
+              </button>
+              <button type="button" class="ve-epargne-nav__link" (click)="navigateEpargneSection('epargne-resume')">
+                Vue d ensemble
+              </button>
+              <button type="button" class="ve-epargne-nav__link" (click)="navigateEpargneSection('epargne-actions')">
+                Operations
+              </button>
+              <button type="button" class="ve-epargne-nav__link" (click)="navigateEpargneSection('epargne-insights')">
+                Analyse &amp; historique
+              </button>
+              <button type="button" class="ve-epargne-nav__link" (click)="navigateEpargneSection('epargne-goals')">
+                Coach &amp; objectifs
+              </button>
+            </nav>
+
+            @if (showEpargneOnboarding()) {
+              <section class="ve-epargne-onboarding" aria-label="Demarrage epargne">
+                <div class="ve-epargne-onboarding__head">
+                  <strong>Demarrez votre epargne en 3 etapes</strong>
+                  <span class="ve-muted ve-epargne-onboarding__hint">Chaque etape debloque les outils suivants (versements, coach, projections).</span>
+                </div>
+                <ol class="ve-epargne-steps">
+                  <li class="ve-epargne-step" [class.ve-epargne-step--done]="onboardingStep1Done()">
+                    <span class="ve-epargne-step__badge">{{ onboardingStep1Done() ? 'OK' : '1' }}</span>
+                    <div class="ve-epargne-step__body">
+                      <span class="ve-epargne-step__title">Ouvrir un compte d epargne</span>
+                      <p class="ve-epargne-step__desc">Choisissez un produit (classique, bloque ou objectif).</p>
+                      <button type="button" class="ve-epargne-step__btn" (click)="scrollToAnchor('epargne-ouvrir-compte')">
+                        Aller au formulaire
+                      </button>
+                    </div>
+                  </li>
+                  <li class="ve-epargne-step" [class.ve-epargne-step--done]="onboardingStep2Done()">
+                    <span class="ve-epargne-step__badge">{{ onboardingStep2Done() ? 'OK' : '2' }}</span>
+                    <div class="ve-epargne-step__body">
+                      <span class="ve-epargne-step__title">Premier versement</span>
+                      <p class="ve-epargne-step__desc">Effectuez un depot sur votre compte actif.</p>
+                      <button type="button" class="ve-epargne-step__btn" [disabled]="!onboardingStep1Done()" (click)="scrollToAnchor('epargne-actions')">
+                        Vers les operations
+                      </button>
+                    </div>
+                  </li>
+                  <li class="ve-epargne-step" [class.ve-epargne-step--done]="onboardingStep3Done()">
+                    <span class="ve-epargne-step__badge">{{ onboardingStep3Done() ? 'OK' : '3' }}</span>
+                    <div class="ve-epargne-step__body">
+                      <span class="ve-epargne-step__title">Creer un objectif d epargne</span>
+                      <p class="ve-epargne-step__desc">Fixez un montant et une date pour suivre votre progression.</p>
+                      <button type="button" class="ve-epargne-step__btn" [disabled]="!onboardingStep1Done()" (click)="scrollToAnchor('goalAccount')">
+                        Creer un objectif
+                      </button>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+            }
+
+            <div class="ve-epargne-exports">
+              <span class="ve-epargne-exports__label">Exports</span>
+              <button type="button" class="ve-epargne-export-btn" (click)="exportTransactionsCsv()">CSV mouvements</button>
+              <button type="button" class="ve-epargne-export-btn" (click)="exportGoalsCsv()">CSV objectifs</button>
+              <button type="button" class="ve-epargne-export-btn ve-epargne-export-btn--primary" (click)="openEpargnePrintReport()">
+                Imprimer / PDF
+              </button>
+            </div>
+
+            <div id="epargne-resume" class="ve-epargne-anchor">
+            @if (savingsLoading && !savingsAccounts.length) {
+              <div class="ve-skel" aria-busy="true">
+                <div class="ve-skel-line"></div>
+              </div>
+            } @else if (savingsError) {
+              <div class="ve-alert ve-alert--danger">{{ savingsError }}</div>
+            } @else if (!savingsAccounts.length) {
+              <div class="ve-empty">
+                <div class="ve-empty-art" aria-hidden="true"></div>
+                <div class="ve-empty-copy">
+                  <div class="ve-empty-title">Aucun compte d epargne</div>
+                  <p class="ve-muted">Vous n avez pas encore de compte d epargne avec nous. Ouvrez-en un des maintenant.</p>
+                </div>
+              </div>
+            } @else {
+              <div class="ve-credit-metrics">
+                @for (acc of savingsAccounts; track acc.id) {
+                  <div class="ve-credit-metric" [class.ve-credit-metric--primary]="acc.status === 'ACTIVE'">
+                    <span class="ve-credit-metric-lbl">
+                      {{ acc.accountNumber || ('Compte #' + acc.id) }} ({{ acc.type }})
+                      <span class="ve-credit-status-pill">{{ acc.status }}</span>
+                    </span>
+                    <span class="ve-credit-metric-val">
+                      {{ acc.balance | number: '1.0-2' }}<span class="ve-credit-metric-unit">&nbsp;TND</span>
+                    </span>
+                    @if (acc.interestRate) {
+                      <span class="ve-muted ve-savings-meta">Taux: {{ acc.interestRate }}% | Rendement: {{ (acc.accumulatedInterest || 0) | number: '1.0-2' }} TND</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="ve-savings-summary">
+              <article class="ve-summary-card ve-summary-card--balance">
+                <div class="ve-summary-card__icon">+</div>
+                <div class="ve-summary-card__label">Solde total</div>
+                <div class="ve-summary-card__value">{{ totalSavingsBalance | number: '1.0-2' }} TND</div>
+                <div class="ve-summary-card__hint">{{ activeSavingsAccounts.length }} compte(s) actif(s)</div>
+              </article>
+              <article class="ve-summary-card">
+                <div class="ve-summary-card__label">Objectifs actifs</div>
+                <div class="ve-summary-card__value">{{ activeGoalsCount }}</div>
+                <div class="ve-summary-card__hint">Suivis par le coach intelligent</div>
+              </article>
+              <article class="ve-summary-card ve-summary-card--cta">
+                <div class="ve-summary-card__label">Que faire maintenant ?</div>
+                <div class="ve-quick-actions">
+                  <button type="button" class="ve-quick-action ve-quick-action--primary" (click)="prepareDeposit(50)">
+                    Déposer 50 TND
+                  </button>
+                  <button type="button" class="ve-quick-action" (click)="requestCoachAdvice()">
+                    Demander un conseil
+                  </button>
+                  <button type="button" class="ve-quick-action" (click)="reviewFeaturedGoal()">
+                    Revoir mon objectif
+                  </button>
+                  <button type="button" class="ve-quick-action" (click)="openGoalCreator()">
+                    Creer un objectif
+                  </button>
+                </div>
+              </article>
+            </div>
+            </div>
+
+            <div id="epargne-actions" class="ve-savings-grid ve-epargne-anchor">
+              <div class="ve-savings-panel">
+                <h4>Effectuer une transaction</h4>
+                @if (transactionSuccess) {
+                  <div class="ve-alert ve-alert--success">{{ transactionSuccess }}</div>
+                }
+                @if (transactionError) {
+                  <div class="ve-alert ve-alert--danger">{{ transactionError }}</div>
+                }
+
+                <form class="ve-contact-form" [formGroup]="transactionForm" (ngSubmit)="submitTransaction()">
+                  <div class="ve-form-group">
+                    <label for="accountId" class="ve-form-label">Compte</label>
+                    <select id="accountId" class="ve-form-control" formControlName="accountId">
+                      @for (acc of savingsAccounts; track acc.id) {
+                        <option [value]="acc.id" [disabled]="acc.status !== 'ACTIVE'">
+                          {{ acc.accountNumber || ('Compte #' + acc.id) }} - {{ acc.balance | number: '1.0-2' }} TND
+                        </option>
+                      }
+                    </select>
+                  </div>
+                  <div class="ve-form-group">
+                    <label for="action" class="ve-form-label">Type de transaction</label>
+                    <select id="action" class="ve-form-control" formControlName="action">
+                      <option value="deposit">Depot (+)</option>
+                      <option value="withdraw">Retrait (-)</option>
+                    </select>
+                  </div>
+                  <div class="ve-form-group">
+                    <label for="transAmount" class="ve-form-label">Montant (TND)</label>
+                    <input type="number" id="transAmount" class="ve-form-control" formControlName="amount" placeholder="ex: 100" />
+                  </div>
+                  <div class="ve-form-group">
+                    <label for="transDesc" class="ve-form-label">Libelle (Optionnel)</label>
+                    <input type="text" id="transDesc" class="ve-form-control" formControlName="description" placeholder="ex: Versement mensuel" />
+                  </div>
+                  <button type="submit" class="ve-btn ve-btn-primary w-100" [disabled]="transactionLoading || transactionForm.invalid || !activeSavingsAccounts.length">
+                    @if (transactionLoading) {
+                      Traitement...
+                    } @else {
+                      Confirmer la transaction
+                    }
+                  </button>
+                </form>
+              </div>
+
+              <div id="epargne-ouvrir-compte" class="ve-savings-panel">
+                <h4>Ouvrir un nouveau compte</h4>
+                <form class="ve-contact-form" [formGroup]="savingsForm" (ngSubmit)="createSavingsAccount()">
+                  <div class="ve-form-group">
+                    <label for="savType" class="ve-form-label">Type de produit</label>
+                    <select id="savType" class="ve-form-control" formControlName="type">
+                      <option value="CLASSIC">Classique (Disponibilite immediate)</option>
+                      <option value="LOCKED">Bloque (Meilleur rendement)</option>
+                      <option value="GOAL_BASED">Objectif cible</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="ve-btn ve-btn-primary w-100" [disabled]="savingsLoading || savingsForm.invalid">
+                    Ouvrir
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div id="epargne-insights" class="ve-ai-dashboard ve-epargne-anchor">
+              <article class="ve-ai-panel">
+                <div class="ve-ai-panel__head">
+                  <div>
+                    <h4>Analyse comportementale</h4>
+                    <p class="ve-muted">Vos habitudes d epargne ce mois-ci</p>
+                  </div>
+                </div>
+                <div class="ve-ai-metrics">
+                  <div class="ve-ai-metric">
+                    <span class="ve-ai-metric__label">Regularite</span>
+                    <strong>{{ behaviorInsights.regularityScore }}/100</strong>
+                    <div class="ve-ai-meter">
+                      <div class="ve-ai-meter__fill" [style.width.%]="behaviorInsights.regularityScore"></div>
+                    </div>
+                  </div>
+                  <div class="ve-ai-metric">
+                    <span class="ve-ai-metric__label">Depot moyen</span>
+                    <strong>{{ behaviorInsights.avgDeposit }} TND</strong>
+                    <span>{{ behaviorInsights.depositFrequency }}</span>
+                  </div>
+                </div>
+                <div class="ve-ai-comparison">
+                  <div class="ve-ai-comparison__row">
+                    <span>Depots</span>
+                    <strong>{{ behaviorInsights.monthComparison.deposits.current }}</strong>
+                    <em>
+                      {{ behaviorInsights.monthComparison.deposits.current - behaviorInsights.monthComparison.deposits.previous >= 0 ? '+' : '' }}{{ behaviorInsights.monthComparison.deposits.current - behaviorInsights.monthComparison.deposits.previous }}
+                    </em>
+                  </div>
+                  <div class="ve-ai-comparison__row">
+                    <span>Retraits</span>
+                    <strong>{{ behaviorInsights.monthComparison.withdrawals.current }}</strong>
+                    <em>
+                      {{ behaviorInsights.monthComparison.withdrawals.current - behaviorInsights.monthComparison.withdrawals.previous >= 0 ? '+' : '' }}{{ behaviorInsights.monthComparison.withdrawals.current - behaviorInsights.monthComparison.withdrawals.previous }}
+                    </em>
+                  </div>
+                </div>
+                <div class="ve-ai-alert">
+                  {{ behaviorInsights.alert }}
+                </div>
+              </article>
+
+              <article class="ve-ai-panel">
+                <div class="ve-ai-panel__head">
+                  <div>
+                    <h4>Historique intelligent</h4>
+                    <p class="ve-muted">
+                      @if (selectedHistoryAccount) {
+                        {{ selectedHistoryAccount.accountNumber || ('Compte #' + selectedHistoryAccount.id) }}
+                      } @else {
+                        Aucune transaction
+                      }
+                    </p>
+                  </div>
+                  <div class="ve-filter-pills">
+                    <button type="button" class="ve-filter-pill" [class.is-active]="transactionFilter === 'ALL'" (click)="setTransactionFilter('ALL')">Tout</button>
+                    <button type="button" class="ve-filter-pill" [class.is-active]="transactionFilter === 'DEPOSIT'" (click)="setTransactionFilter('DEPOSIT')">Depots</button>
+                    <button type="button" class="ve-filter-pill" [class.is-active]="transactionFilter === 'WITHDRAWAL'" (click)="setTransactionFilter('WITHDRAWAL')">Retraits</button>
+                  </div>
+                </div>
+
+                @if (monthSummary.bestMonth) {
+                  <div class="ve-best-month">
+                    Meilleur mois recent : {{ monthSummary.totalDeposits | number: '1.0-2' }} TND de depots.
+                  </div>
+                }
+
+                <div class="ve-month-summary">
+                  <div>
+                    <span>Depots</span>
+                    <strong>+{{ monthSummary.totalDeposits | number: '1.0-2' }} TND</strong>
+                  </div>
+                  <div>
+                    <span>Retraits</span>
+                    <strong>-{{ monthSummary.totalWithdrawals | number: '1.0-2' }} TND</strong>
+                  </div>
+                  <div>
+                    <span>Variation nette</span>
+                    <strong>{{ monthSummary.netChange >= 0 ? '+' : '' }}{{ monthSummary.netChange | number: '1.0-2' }} TND</strong>
+                  </div>
+                </div>
+
+                @if (historyLoading) {
+                  <div class="ve-skel" aria-busy="true">
+                    <div class="ve-skel-line"></div>
+                    <div class="ve-skel-line ve-skel-line--short"></div>
+                  </div>
+                } @else if (historyError) {
+                  <div class="ve-alert ve-alert--danger">{{ historyError }}</div>
+                } @else if (!filteredHistoryTransactions.length) {
+                  <div class="ve-empty ve-empty--compact">
+                    <div class="ve-empty-copy">
+                      <div class="ve-empty-title">Aucune transaction pour ce filtre</div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="ve-history-list">
+                    @for (transaction of filteredHistoryTransactions; track transaction.id) {
+                      <div class="ve-history-item">
+                        <div class="ve-history-item__icon" [class.is-withdrawal]="transaction.type === 'WITHDRAWAL'">
+                          {{ transaction.type === 'DEPOSIT' ? '+' : '-' }}
+                        </div>
+                        <div class="ve-history-item__body">
+                          <strong>{{ transaction.description || transaction.reference || transaction.type }}</strong>
+                          <span>{{ transaction.transactionDate || 'Date inconnue' }}</span>
+                        </div>
+                        <div class="ve-history-item__amount" [class.is-withdrawal]="transaction.type === 'WITHDRAWAL'">
+                          {{ transaction.type === 'DEPOSIT' ? '+' : '-' }}{{ transaction.amount | number: '1.0-2' }} TND
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </article>
+            </div>
+
+            <div id="epargne-goals" class="ve-savings-goals ve-epargne-anchor">
+              <div class="ve-section-head">
+                <div>
+                  <span class="ve-section-tag">Mes objectifs</span>
+                  <h3>Mes <span>goals</span></h3>
+                </div>
+              </div>
+
+              @if (whatIfDisplayGoals().length && whatIfInsight(); as wi) {
+                <div id="what-if-objectif" class="ve-whatif">
+                  <div class="ve-whatif__head">
+                    <h4>Simulateur what-if</h4>
+                    <p class="ve-muted">
+                      Si je verse <strong>{{ whatIfMonthly }} TND</strong> par mois, quand atteignais-je l objectif ? (estimation
+                      lineaire — complementaire de la prevision ML.)
+                    </p>
+                  </div>
+                  <div class="ve-whatif__controls">
+                    <div class="ve-whatif__field">
+                      <label for="whatIfGoalPick">Objectif</label>
+                      <select
+                        id="whatIfGoalPick"
+                        class="ve-form-control"
+                        (change)="onWhatIfGoalChange($event)"
+                      >
+                        @for (g of whatIfDisplayGoals(); track g.id) {
+                          <option [value]="g.id" [selected]="whatIfSelectedGoal()?.id === g.id">
+                            {{ g.description || ('Objectif #' + g.id) }} — avant {{ g.deadline }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="ve-whatif__field">
+                      <label for="whatIfSlider">Versement mensuel (TND)</label>
+                      <input
+                        id="whatIfSlider"
+                        type="range"
+                        min="0"
+                        max="2500"
+                        step="10"
+                        [value]="whatIfMonthly"
+                        (input)="whatIfMonthly = +($any($event.target).value)"
+                      />
+                      <div class="ve-whatif__slider-val">{{ whatIfMonthly }} TND / mois</div>
+                    </div>
+                  </div>
+                  <div class="ve-whatif__result" [class.ve-whatif__result--bad]="!wi.meetsDeadline">
+                    <p>
+                      <strong>Reste a epargner :</strong>
+                      {{ wi.remaining | number: '1.0-2' }} TND
+                    </p>
+                    <p>
+                      <strong>Date estimee (ce rythme) :</strong>
+                      {{ wi.estimatedLabel }}
+                      @if (wi.monthsNeeded > 0) {
+                        <span class="ve-muted"> (~{{ wi.monthsNeeded }} mois)</span>
+                      }
+                    </p>
+                    <p>
+                      <strong>Pour tenir l echeance {{ wi.deadlineLabel }} :</strong>
+                      env.
+                      {{ wi.requiredMonthlyToDeadline | number: '1.0-2' }} TND / mois
+                    </p>
+                    @if (!wi.meetsDeadline && whatIfMonthly > 0) {
+                      <p class="ve-whatif__warn">A ce rythme, l objectif serait atteint apres l echeance.</p>
+                    }
+                    @if (whatIfMonthly <= 0) {
+                      <p class="ve-muted">Augmentez le curseur pour voir une date d aboutissement.</p>
+                    }
+                  </div>
+                </div>
+              }
+
+              <section
+                id="ve-coach-panel"
+                class="ve-coach-card ve-coach-panel"
+                [class.is-good]="coachTone === 'good'"
+                [class.is-risk]="coachTone === 'risk'"
+              >
+                <header class="ve-coach-panel__header">
+                  <div class="ve-coach-panel__identity">
+                    <div class="ve-coach-panel__avatar" [class.is-speaking]="coachLoading">
+                      <img
+                        class="ve-coach-panel__avatar-img"
+                        [src]="coachAvatarUrl"
+                        width="104"
+                        height="104"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span class="ve-coach-panel__avatar-ring" aria-hidden="true"></span>
+                    </div>
+                    <div class="ve-coach-panel__intro">
+                      <div class="ve-coach-copy__kicker">Mon coach epargne</div>
+                      <h4>Marc — conseiller Financia</h4>
+                      <p class="ve-coach-panel__hint">
+                        Posez vos questions comme a un conseiller : elles sont liees a l objectif choisi ci-contre et
+                        declenchent une reponse personnalisee.
+                      </p>
+                      <p class="ve-coach-panel__status" aria-live="polite">{{ coachMessage }}</p>
+                      @if (speechSynthesisSupported) {
+                        <div class="ve-coach-voice">
+                          <label class="ve-coach-voice__label">
+                            <input
+                              type="checkbox"
+                              class="ve-coach-voice__check"
+                              [(ngModel)]="coachVoiceEnabled"
+                              name="coachVoice"
+                            />
+                            <span>Lire les reponses a voix haute (voix FR, ton neutre / masculin si disponible)</span>
+                          </label>
+                          @if (coachVoiceEnabled) {
+                            <button type="button" class="ve-coach-voice__stop" (click)="stopCoachSpeech()">
+                              Couper la voix
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  @if (savingsGoals.length) {
+                    <div class="ve-coach-panel__goal">
+                      <label class="ve-coach-panel__label" for="coach-goal-select">Objectif pour le dialogue</label>
+                      <select
+                        id="coach-goal-select"
+                        class="ve-coach-panel__select"
+                        [ngModel]="coachGoalId"
+                        (ngModelChange)="onCoachGoalSelect($event)"
+                      >
+                        @for (g of savingsGoals; track g.id) {
+                          <option [ngValue]="g.id">{{ g.description || ('Objectif #' + g.id) }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+                </header>
+
+                <div id="ve-coach-chat-log" class="ve-coach-chat-log" role="log" aria-live="polite" aria-relevant="additions">
+                  @for (m of coachChatMessages; track m.id) {
+                    <div
+                      class="ve-coach-bubble"
+                      [class.ve-coach-bubble--user]="m.role === 'user'"
+                      [class.ve-coach-bubble--assistant]="m.role === 'assistant'"
+                    >
+                      <span class="ve-coach-bubble__meta">{{ m.role === 'user' ? 'Vous' : 'Marc' }}</span>
+                      <p class="ve-coach-bubble__text">{{ m.text }}</p>
+                    </div>
+                  }
+                  @if (coachLoading) {
+                    <div class="ve-coach-typing">
+                      <span class="ve-coach-typing__dot"></span>
+                      <span class="ve-coach-typing__dot"></span>
+                      <span class="ve-coach-typing__dot"></span>
+                      <span class="ve-coach-typing__label">Marc prepare une reponse...</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="ve-coach-composer">
+                  <textarea
+                    class="ve-coach-composer__input"
+                    [(ngModel)]="coachPromptInput"
+                    rows="2"
+                    maxlength="2000"
+                    placeholder="Ex. : combien dois-je epargner par mois pour tenir ma deadline ?"
+                    [disabled]="coachLoading || !savingsGoals.length"
+                    (keydown)="onCoachPromptKeydown($event)"
+                  ></textarea>
+                  <button
+                    type="button"
+                    class="ve-coach-composer__send"
+                    (click)="submitCoachQuestion()"
+                    [disabled]="coachLoading || !savingsGoals.length"
+                  >
+                    Envoyer
+                  </button>
+                </div>
+
+                <div class="ve-coach-copy__chips">
+                  @if (coachGoalId) {
+                    <span class="ve-chip">Focus: objectif #{{ coachGoalId }}</span>
+                  }
+                  <span class="ve-chip">{{ coachLoading ? 'Analyse en cours' : 'Pret a repondre' }}</span>
+                </div>
+              </section>
+
+              @if (goalSuccess) {
+                <div class="ve-alert ve-alert--success">{{ goalSuccess }}</div>
+              }
+              @if (goalsError) {
+                <div class="ve-alert ve-alert--danger">{{ goalsError }}</div>
+              }
+
+              @if (goalsLoading && !savingsGoals.length) {
+                <div class="ve-skel" aria-busy="true">
+                  <div class="ve-skel-line"></div>
+                  <div class="ve-skel-line ve-skel-line--short"></div>
+                </div>
+              } @else if (savingsGoals.length) {
+                <div class="ve-goal-grid">
+                  @for (goal of savingsGoals; track goal.id) {
+                    <article class="ve-goal-card" (mouseenter)="focusGoal(goal)">
+                      <div class="ve-goal-card__top">
+                        <div>
+                          <div class="ve-goal-card__title">{{ goal.description || ('Objectif #' + goal.id) }}</div>
+                          <div class="ve-goal-card__meta">
+                            {{ goal.savingsAccount?.accountNumber || ('Compte #' + goal.savingsAccount?.id) }} · avant le {{ goal.deadline }}
+                          </div>
+                        </div>
+                        <span class="ve-credit-status-pill">{{ goalStatusLabel(goal.status) }}</span>
+                      </div>
+                      <div class="ve-progress ve-progress--goal">
+                        <div class="ve-progress-head">
+                          <span class="ve-progress-lbl">Progression</span>
+                          <span class="ve-progress-val">{{ goalProgress(goal) | number: '1.0-0' }}%</span>
+                        </div>
+                        <div class="ve-progress-bar" role="progressbar" [attr.aria-valuenow]="goalProgress(goal)" aria-valuemin="0" aria-valuemax="100">
+                          <div class="ve-progress-fill" [style.width.%]="goalProgress(goal)"></div>
+                        </div>
+                        <div class="ve-progress-foot">
+                          <span class="mono">{{ goal.currentAmount | number: '1.0-2' }} TND</span>
+                          <span class="mono">{{ goal.targetAmount | number: '1.0-2' }} TND</span>
+                        </div>
+                      </div>
+                      <div class="ve-goal-insight">
+                        <div class="ve-goal-insight__row">
+                          <span class="ve-goal-insight__label">Forecast</span>
+                          <strong>{{ goalVerdictLabel(goal.id) }}</strong>
+                        </div>
+                        <div class="ve-goal-insight__row">
+                          <span class="ve-goal-insight__label">Date estimee</span>
+                          <strong>{{ goalPredictionDate(goal.id) }}</strong>
+                        </div>
+                        <p class="ve-goal-insight__text">{{ goalPredictionMessage(goal.id) }}</p>
+                        <p class="ve-goal-insight__text ve-goal-insight__text--advice">{{ goalAdvicePreview(goal.id) }}</p>
+                        @if (goalInsight(goal.id).error) {
+                          <div class="ve-alert ve-alert--danger">{{ goalInsight(goal.id).error }}</div>
+                        }
+                        <div class="ve-goal-actions">
+                          <button
+                            type="button"
+                            class="ve-btn-primary ve-goal-actions__btn"
+                            (click)="loadGoalForecast(goal)"
+                            [disabled]="goalInsight(goal.id).forecastLoading"
+                          >
+                            {{ goalInsight(goal.id).forecastLoading ? 'Forecast...' : 'Forecast' }}
+                          </button>
+                          <button
+                            type="button"
+                            class="ve-btn-ghost ve-goal-actions__btn"
+                            (click)="loadGoalAdvice(goal)"
+                            [disabled]="goalInsight(goal.id).adviceLoading"
+                          >
+                            {{ goalInsight(goal.id).adviceLoading ? 'Advice...' : 'Advice IA' }}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  }
+                </div>
+              } @else {
+                <div class="ve-empty ve-empty--compact">
+                  <div class="ve-empty-copy">
+                    <div class="ve-empty-title">Aucun objectif pour le moment</div>
+                    <p class="ve-muted">Creez un objectif pour suivre visuellement votre progression d epargne.</p>
+                  </div>
+                </div>
+              }
+
+              <div class="ve-savings-panel ve-savings-panel--goal-form">
+                <h4>Creer un objectif d epargne</h4>
+                @if (!availableGoalAccounts.length && savingsAccounts.length) {
+                  <p class="ve-muted">Tous vos comptes actifs ont deja un objectif associe.</p>
+                }
+                <form class="ve-contact-form" [formGroup]="goalForm" (ngSubmit)="createGoal()">
+                  <div class="row">
+                    <div class="col-12 col-lg-6">
+                      <div class="ve-form-group">
+                        <label for="goalAccount" class="ve-form-label">Compte lie</label>
+                        <select id="goalAccount" class="ve-form-control" formControlName="savingsAccountId">
+                          <option [value]="0">Choisir un compte</option>
+                          @for (acc of availableGoalAccounts; track acc.id) {
+                            <option [value]="acc.id">
+                              {{ acc.accountNumber || ('Compte #' + acc.id) }} - {{ acc.balance | number: '1.0-2' }} TND
+                            </option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="ve-form-group">
+                        <label for="goalTarget" class="ve-form-label">Montant cible (TND)</label>
+                        <input type="number" id="goalTarget" class="ve-form-control" formControlName="targetAmount" placeholder="ex: 5000" />
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="ve-form-group">
+                        <label for="goalDeadline" class="ve-form-label">Date limite</label>
+                        <input type="date" id="goalDeadline" class="ve-form-control" formControlName="deadline" />
+                      </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <div class="ve-form-group">
+                        <label for="goalDesc" class="ve-form-label">Description</label>
+                        <input type="text" id="goalDesc" class="ve-form-control" formControlName="description" placeholder="ex: Voyage, voiture, fonds d urgence" />
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <button type="submit" class="ve-btn ve-btn-primary w-100" [disabled]="goalsLoading || goalForm.invalid || !availableGoalAccounts.length">
+                        Creer mon objectif
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         }
       </div>

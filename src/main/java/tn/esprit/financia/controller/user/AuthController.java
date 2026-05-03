@@ -15,6 +15,7 @@ import tn.esprit.financia.dto.user.GoogleLoginRequest;
 import tn.esprit.financia.dto.user.UserResponse;
 import tn.esprit.financia.entities.user.User;
 import tn.esprit.financia.repository.user.UserRepository;
+import tn.esprit.financia.security.JwtService;
 import tn.esprit.financia.service.user.AuthService;
 import tn.esprit.financia.service.user.IUserService;
 
@@ -28,9 +29,10 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody AuthRegisterRequest req) {
+    public ResponseEntity<AuthResponse> register(@RequestBody AuthRegisterRequest req) {
         User user = new User();
         user.setFirstName(req.firstName());
         user.setLastName(req.lastName());
@@ -42,7 +44,7 @@ public class AuthController {
         user.setMonthlyIncome(req.monthlyIncome());
 
         User saved = userService.addUser(user);
-        return ResponseEntity.ok(toResponse(saved));
+        return ResponseEntity.ok(toAuthResponse(saved));
     }
 
     @PostMapping("/login")
@@ -66,23 +68,29 @@ public class AuthController {
                     }
 
                     if (!ok) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
-                    return ResponseEntity.ok(toResponse(user));
+                    return ResponseEntity.ok(toAuthResponse(user));
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials."));
     }
 
     /** Connexion avec Google (id_token JWT côté client, validé via tokeninfo Google). */
     @PostMapping("/google")
-    public ResponseEntity<UserResponse> loginWithGoogle(@RequestBody GoogleLoginRequest req) {
+    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody GoogleLoginRequest req) {
         AuthResponse ar = authService.googleLogin(req.idToken());
-        return ResponseEntity.ok(toResponse(ar.user()));
+        return ResponseEntity.ok(ar);
     }
 
     /** Connexion par reconnaissance faciale (photo live vs photo enregistrée ; service Python DeepFace). */
     @PostMapping("/face-login")
-    public ResponseEntity<UserResponse> loginWithFace(@RequestBody FaceVerifyRequest req) {
+    public ResponseEntity<AuthResponse> loginWithFace(@RequestBody FaceVerifyRequest req) {
         AuthResponse ar = authService.faceLogin(req.email(), req.imageBase64());
-        return ResponseEntity.ok(toResponse(ar.user()));
+        return ResponseEntity.ok(ar);
+    }
+
+    private AuthResponse toAuthResponse(User u) {
+        String role = u.getRole() != null ? u.getRole().name() : "CLIENT";
+        String token = jwtService.generateToken(u.getEmail(), u.getIdUser(), role);
+        return new AuthResponse(token, u);
     }
 
     private static UserResponse toResponse(User u) {

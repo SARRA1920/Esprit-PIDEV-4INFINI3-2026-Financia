@@ -1,0 +1,45 @@
+.sacc-row--highlight {
+  outline: 2px solid rgba(234, 179, 8, 0.85);
+  background: rgba(254, 243, 199, 0.15) !important;
+}
+
+.sacc-ops {
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+
+.sacc-ops__link {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sacc-ops__link:hover {
+  text-decoration: underline;
+}
+
+.sacc-ops__sep {
+  color: #94a3b8;
+  margin: 0 0.15rem;
+}
+
+.sacc-ops__btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #0d9488;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.sacc-ops__btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.sacc-ops__btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+

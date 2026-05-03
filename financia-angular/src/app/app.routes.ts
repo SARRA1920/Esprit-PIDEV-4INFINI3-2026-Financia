@@ -14,6 +14,11 @@ import { FormationCourseDetailComponent } from './pages/formation/formation-cour
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'services', component: ServicesComponent },
+  {
+    path: 'services/epargneobjectif',
+    loadComponent: () =>
+      import('./pages/redirect-epargne-front.component').then((m) => m.RedirectEpargneFrontComponent),
+  },
   { path: 'formation/course/:id', component: FormationCourseDetailComponent },
   { path: 'formation', component: FormationComponent },
   { path: 'about', component: AboutComponent },
@@ -37,6 +42,11 @@ export const routes: Routes = [
           import('./admin/admin-overview.component').then((m) => m.AdminOverviewComponent),
       },
       {
+        path: 'overview',
+        loadComponent: () =>
+          import('./admin/admin-overview.component').then((m) => m.AdminOverviewComponent),
+      },
+      {
         path: 'credits',
         loadComponent: () =>
           import('./admin/admin-credits.component').then((m) => m.AdminCreditsComponent),
@@ -45,6 +55,40 @@ export const routes: Routes = [
         path: 'formation',
         loadComponent: () =>
           import('./admin/admin-formation.component').then((m) => m.AdminFormationComponent),
+      },
+      {
+        path: 'epargnes',
+        loadComponent: () =>
+          import('./admin/pages/admin-savings/admin-savings.component').then((m) => m.AdminSavingsComponent),
+      },
+      {
+        path: 'savings',
+        loadComponent: () =>
+          import('./admin/savings-crud.component').then((m) => m.SavingsCrudComponent),
+      },
+      {
+        path: 'savings/stats',
+        loadComponent: () =>
+          import('./admin/admin-dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent),
+      },
+      {
+        path: 'savings/accounts',
+        loadComponent: () =>
+          import('./admin/savings-account-list/savings-account-list.component').then(
+            (m) => m.SavingsAccountListComponent
+          ),
+      },
+      {
+        path: 'savings/goals',
+        loadComponent: () =>
+          import('./admin/savings-goal-list/savings-goal-list.component').then((m) => m.SavingsGoalListComponent),
+      },
+      {
+        path: 'savings/transactions',
+        loadComponent: () =>
+          import('./admin/savings-transaction-list/savings-transaction-list.component').then(
+            (m) => m.SavingsTransactionListComponent
+          ),
       },
       {
         path: 'clients',
@@ -71,9 +115,11 @@ export const routes: Routes = [
       },
       {
         path: 'audit',
-        data: { title: 'Audit' },
+        data: { title: 'Audit épargne' },
         loadComponent: () =>
-          import('./admin/admin-placeholder.component').then((m) => m.AdminPlaceholderComponent),
+          import('./admin/pages/admin-savings-audit/admin-savings-audit.component').then(
+            (m) => m.AdminSavingsAuditComponent
+          ),
       },
       {
         path: 'ui-kit',

@@ -1,0 +1,505 @@
+﻿<main class="adm-dash">
+  <div class="adm-dash__stack">
+  <header class="adm-dash-intro">
+    <h1 class="adm-page-title">Tableau de bord — épargne</h1>
+    <p class="adm-page-sub">Indicateurs clés, graphiques, exports et raccourcis vers la gestion des comptes et des objectifs.</p>
+
+    <div class="adm-dashboard-toolbar">
+      <div class="adm-dashboard-toolbar__exports">
+        <span class="adm-dashboard-toolbar__label">Exports</span>
+        <button
+          type="button"
+          class="adm-dashboard-btn adm-dashboard-btn--ghost"
+          (click)="openExportPreview('kpi')"
+          [disabled]="loading || !!error"
+        >
+          CSV / Excel — synthèse KPI
+        </button>
+        <button
+          type="button"
+          class="adm-dashboard-btn adm-dashboard-btn--ghost"
+          (click)="openExportPreview('tx')"
+          [disabled]="loading || !!error"
+        >
+          CSV / Excel — transactions
+        </button>
+        <button
+          type="button"
+          class="adm-dashboard-btn adm-dashboard-btn--accent"
+          (click)="openDashboardPrintReport()"
+          [disabled]="loading || !!error"
+        >
+          Imprimer / PDF
+        </button>
+      </div>
+      <div class="adm-dashboard-toolbar__quick">
+        <span class="adm-dashboard-toolbar__label">Accès rapide</span>
+        <nav class="adm-dashboard-toolbar__nav" aria-label="Raccourcis épargne">
+          <a routerLink="/admin/epargnes" class="adm-dashboard-link adm-dashboard-link--manage">Gestion de l’épargne</a>
+          <a routerLink="/admin/savings/transactions" class="adm-dashboard-link adm-dashboard-link--tx">Liste des transactions</a>
+          <a routerLink="/admin/savings/goals" class="adm-dashboard-link adm-dashboard-link--goals">Objectifs clients</a>
+        </nav>
+      </div>
+    </div>
+
+    @if (!loading && !error && (suspendedAccounts > 0 || flaggedCount > 0)) {
+      <div class="adm-dashboard-strip" role="status">
+        @if (suspendedAccounts > 0) {
+          <a
+            routerLink="/admin/savings/accounts"
+            [queryParams]="{ status: 'SUSPENDED' }"
+            class="adm-dashboard-strip__item adm-dashboard-strip__item--warn adm-dashboard-strip__link"
+          >
+            <strong>{{ suspendedAccounts }}</strong> compte(s) suspendu(s) — ouvrir la liste filtrée.
+          </a>
+        }
+        @if (flaggedCount > 0) {
+          <a
+            routerLink="/admin/savings/transactions"
+            [queryParams]="{ flagged: '1' }"
+            class="adm-dashboard-strip__item adm-dashboard-strip__item--danger adm-dashboard-strip__link"
+          >
+            <strong>{{ flaggedCount }}</strong> transaction(s) signalée(s) — ouvrir la liste filtrée.
+          </a>
+        }
+      </div>
+    }
+  </header>
+
+  <section class="adm-dash-panel adm-dash-panel--sms" aria-label="Test SMS Twilio">
+    <div class="adm-toolbar adm-toolbar--sms">
+      <p class="adm-toolbar__hint">
+        Test Twilio (numéro configuré côté serveur) — utile pour valider l’envoi SMS avant la mise en production.
+      </p>
+      <button type="button" class="adm-btn-primary" (click)="testSms()" [disabled]="smsTesting">
+        {{ smsTesting ? 'Envoi…' : 'Envoyer un SMS test' }}
+      </button>
+    </div>
+    @if (smsMessage) {
+      <p class="adm-dash-sms-msg">{{ smsMessage }}</p>
+    }
+  </section>
+
+  @if (loading) {
+    <div class="adm-dash-state adm-dash-state--loading" role="status">
+      <span class="adm-dash-state__spinner" aria-hidden="true"></span>
+      <span>Chargement des statistiques d’épargne…</span>
+    </div>
+  }
+
+  @if (error) {
+    <div class="adm-dash-state adm-dash-state--error" role="alert">{{ error }}</div>
+  }
+
+  @if (!loading && !error) {
+    <div class="adm-kpi-grid adm-kpi-grid--dash">
+      <div class="adm-kpi adm-kpi--stripe adm-kpi--stripe-emerald">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Épargne totale</p>
+            <p class="adm-kpi__value">{{ stats.totalSystemSavings | currency:'TND':'symbol':'1.2-2' }}</p>
+          </div>
+          <div class="adm-kpi__icon adm-kpi__icon--emerald" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-kpi adm-kpi--stripe adm-kpi--stripe-sky">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Comptes ouverts</p>
+            <p class="adm-kpi__value">{{ stats.activeAccounts }}</p>
+          </div>
+          <div class="adm-kpi__icon adm-kpi__icon--sky" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>
+          </div>
+        </div>
+      </div>
+
+      <a
+        routerLink="/admin/savings/accounts"
+        [queryParams]="{ status: 'SUSPENDED' }"
+        class="adm-kpi adm-kpi--stripe adm-kpi--stripe-amber adm-kpi--as-link"
+        title="Voir les comptes suspendus"
+      >
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Comptes suspendus</p>
+            <p class="adm-kpi__value">{{ suspendedAccounts }}</p>
+          </div>
+          <div class="adm-kpi__icon adm-kpi__icon--amber" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+          </div>
+        </div>
+      </a>
+
+      <div class="adm-kpi adm-kpi--stripe adm-kpi--stripe-violet">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Objectifs fixés</p>
+            <p class="adm-kpi__value">{{ stats.totalGoals }}</p>
+          </div>
+          <div class="adm-kpi__icon adm-kpi__icon--violet" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-kpi adm-kpi--stripe adm-kpi--stripe-gold">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Complétion moyenne</p>
+            <p class="adm-kpi__value">{{ (stats.averageGoalCompletionRate / 100) | percent:'1.0-2' }}</p>
+          </div>
+          <div class="adm-kpi__icon adm-kpi__icon--gold" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-grid-2 adm-grid-2--charts">
+      <div class="adm-card adm-card--chart">
+        <div class="adm-card__headband adm-card__headband--teal"></div>
+        <h3 class="adm-card__title">Répartition des comptes</h3>
+        <p class="adm-card__sub">Statuts : actifs, fermés et suspendus (les suspendus sont dérivés du total).</p>
+        <div class="adm-chart-wrap adm-chart-wrap--pie">
+          <ngx-charts-pie-chart
+            [view]="[500, 300]"
+            [scheme]="colorScheme"
+            [results]="accountStatusChartData"
+            [gradient]="gradient"
+            [legend]="showLegend"
+            [labels]="false"
+            [doughnut]="isDoughnut"
+            (select)="onSelect($event)">
+          </ngx-charts-pie-chart>
+        </div>
+      </div>
+
+      <div class="adm-card adm-card--chart">
+        <div class="adm-card__headband adm-card__headband--indigo"></div>
+        <h3 class="adm-card__title">Volume des entités</h3>
+        <p class="adm-card__sub">Répartition globale : comptes d’épargne, objectifs et transactions enregistrées.</p>
+        <div class="adm-chart-wrap adm-chart-wrap--pie">
+          <ngx-charts-pie-chart
+            [view]="[500, 300]"
+            [scheme]="donutColorScheme"
+            [results]="entityTotalsChartData.length ? entityTotalsChartData : basicStatsPieData"
+            [gradient]="gradient"
+            [legend]="showLegend"
+            [labels]="false"
+            [doughnut]="true"
+            (select)="onSelect($event)">
+          </ngx-charts-pie-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-grid-2 adm-grid-2--equal adm-grid-2--charts">
+      <div class="adm-card adm-card--chart">
+        <div class="adm-card__headband adm-card__headband--emerald"></div>
+        <div class="adm-card__headrow">
+          <div>
+            <h3 class="adm-card__title">Dépôts et retraits</h3>
+            <p class="adm-card__sub">Somme des montants — période affichée : {{ volumePeriodLabel() }}.</p>
+          </div>
+
+          <div class="adm-seg" role="tablist" aria-label="Période volume">
+            <button
+              type="button"
+              class="adm-seg__btn"
+              [class.adm-seg__btn--active]="volumePeriod() === '7d'"
+              (click)="setVolumePeriod('7d')"
+            >
+              7j
+            </button>
+            <button
+              type="button"
+              class="adm-seg__btn"
+              [class.adm-seg__btn--active]="volumePeriod() === '30d'"
+              (click)="setVolumePeriod('30d')"
+            >
+              30j
+            </button>
+            <button
+              type="button"
+              class="adm-seg__btn"
+              [class.adm-seg__btn--active]="volumePeriod() === 'all'"
+              (click)="setVolumePeriod('all')"
+            >
+              Total
+            </button>
+          </div>
+        </div>
+
+        @if (volumeExcludedMissingDates > 0 && volumePeriod() !== 'all') {
+          <div class="adm-hint">
+            {{ volumeExcludedMissingDates }} transaction(s) sans date ignorée(s) pour le filtre temporel.
+          </div>
+        }
+
+        <div class="adm-chart-wrap adm-chart-wrap--bar">
+          <ngx-charts-bar-vertical
+            [view]="[500, 260]"
+            [scheme]="barColorScheme"
+            [results]="depositWithdrawChartData"
+            [gradient]="false"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [roundDomains]="true">
+          </ngx-charts-bar-vertical>
+        </div>
+        <div class="adm-card__foot adm-card__foot--split">
+          <span
+            >Dépôts :
+            <span class="adm-mono adm-stat-txt adm-stat-txt--pos">{{ depositsTotal | number: '1.0-2' }} TND</span></span
+          >
+          <span
+            >Retraits :
+            <span class="adm-mono adm-stat-txt adm-stat-txt--neg">{{ withdrawalsTotal | number: '1.0-2' }} TND</span></span
+          >
+        </div>
+      </div>
+
+      <div class="adm-card adm-card--chart">
+        <div class="adm-card__headband adm-card__headband--rose"></div>
+        <h3 class="adm-card__title">Anomalies et fraude</h3>
+        <p class="adm-card__sub">Transactions signalées et scores d’anomalie lorsque le moteur les fournit.</p>
+        <div class="adm-kpi-grid adm-kpi-grid--inline-2">
+          <a
+            routerLink="/admin/savings/transactions"
+            [queryParams]="{ flagged: '1' }"
+            class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-rose adm-kpi--as-link"
+            title="Voir les transactions signalées"
+          >
+            <p class="adm-kpi__label">Transactions signalées</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ flaggedCount }}</p>
+          </a>
+          <div class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-slate">
+            <p class="adm-kpi__label">Score anomalie moyen</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ avgAnomalyScore | number: '1.0-1' }}</p>
+          </div>
+        </div>
+
+        <div class="adm-chart-wrap adm-chart-wrap--donut">
+          <ngx-charts-pie-chart
+            [view]="[500, 220]"
+            [scheme]="donutColorScheme"
+            [results]="anomalyChartData"
+            [gradient]="false"
+            [legend]="true"
+            [labels]="false"
+            [doughnut]="true">
+          </ngx-charts-pie-chart>
+        </div>
+
+        @if (topAnomalyChartData.length) {
+          <div class="adm-chart-wrap adm-chart-wrap--bar-sm">
+            <ngx-charts-bar-vertical
+              [view]="[500, 220]"
+              [scheme]="barColorScheme"
+              [results]="topAnomalyChartData"
+              [gradient]="false"
+              [xAxis]="true"
+              [yAxis]="true"
+              [legend]="false">
+            </ngx-charts-bar-vertical>
+          </div>
+        } @else {
+          <div class="adm-card__sub">Aucun score d’anomalie disponible pour l’instant.</div>
+        }
+      </div>
+    </div>
+
+    <div class="adm-card adm-card--section">
+      <div class="adm-card__headband adm-card__headband--cyan"></div>
+      <div class="adm-card__headrow">
+        <div>
+          <h3 class="adm-card__title">Analyse détaillée d’un compte</h3>
+          <p class="adm-card__sub">Liquidité, croissance, activité et flux (dépôts / retraits) pour le compte sélectionné.</p>
+        </div>
+
+        <div class="adm-select">
+          <label class="adm-sr-only" for="admAccountSelect">Compte</label>
+          <select
+            id="admAccountSelect"
+            class="adm-select__control"
+            [value]="selectedAccountId() ?? ''"
+            (change)="onAccountChange($event)"
+          >
+            <option value="" disabled>Sélectionner un compte…</option>
+            @for (a of accounts(); track a.id) {
+              <option [value]="a.id" [selected]="selectedAccountId() === a.id">
+                #{{ a.id }} — {{ a.accountNumber }} — {{ a.user?.firstName }} {{ a.user?.lastName }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (accountStatsLoading()) {
+        <div class="adm-hint">Chargement des statistiques du compte…</div>
+      }
+
+      @if (accountStatsError()) {
+        <div class="adm-hint adm-hint--error">{{ accountStatsError() }}</div>
+      }
+
+      @if (!accountStatsLoading() && accountStats()) {
+        <div class="adm-kpi-grid adm-kpi-grid--4 adm-kpi-grid--account">
+          <div class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-emerald">
+            <p class="adm-kpi__label">Solde actuel</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ accountStats()!.currentBalance | number: '1.2-2' }} TND</p>
+          </div>
+          <div class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-sky">
+            <p class="adm-kpi__label">Dépôt moyen</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ accountStats()!.averageDeposit | number: '1.2-2' }} TND</p>
+          </div>
+          <div class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-violet">
+            <p class="adm-kpi__label">Transactions / mois</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ accountStats()!.monthlyTransactionCount }}</p>
+          </div>
+          <div class="adm-kpi adm-kpi--compact adm-kpi--stripe adm-kpi--stripe-gold">
+            <p class="adm-kpi__label">Niveau d’activité</p>
+            <p class="adm-kpi__value adm-kpi__value--md">{{ accountStats()!.activityLevel }}</p>
+          </div>
+        </div>
+
+        <div class="adm-grid-2 adm-grid-2--equal">
+          <div class="adm-subcard">
+            <h4 class="adm-subcard__title">Flux — dépôts et retraits</h4>
+            <p class="adm-subcard__sub">Cumul depuis l’ouverture du compte</p>
+            <div class="adm-chart-wrap adm-chart-wrap--bar-sm">
+              <ngx-charts-bar-vertical
+                [view]="[500, 220]"
+                [scheme]="barColorScheme"
+                [results]="accountStatsFlowsChartData"
+                [gradient]="false"
+                [xAxis]="true"
+                [yAxis]="true"
+                [legend]="false"
+                [roundDomains]="true">
+              </ngx-charts-bar-vertical>
+            </div>
+          </div>
+
+          <div class="adm-subcard">
+            <h4 class="adm-subcard__title">Liquidité et croissance</h4>
+            <p class="adm-subcard__sub">Ratios calculés côté serveur (statistiques compte)</p>
+            <div class="adm-chart-wrap adm-chart-wrap--bar-sm">
+              <ngx-charts-bar-vertical
+                [view]="[500, 220]"
+                [scheme]="barColorScheme"
+                [results]="accountStatsHealthChartData"
+                [gradient]="false"
+                [xAxis]="true"
+                [yAxis]="true"
+                [legend]="false">
+              </ngx-charts-bar-vertical>
+            </div>
+            <div class="adm-subcard__foot">
+              Liquidité :
+              <span class="adm-mono">{{ accountStats()!.liquidityRatioPercent | number: '1.0-1' }} %</span>
+              <span class="adm-subcard__sep">·</span>
+              Croissance :
+              <span class="adm-mono">{{ accountStats()!.growthRatePercent | number: '1.0-1' }} %</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="adm-table-card adm-table-card--activity">
+      <div class="adm-table-card__head adm-table-card__head--activity">
+        <div>
+          <h3 class="adm-card__title adm-table-card__title">Activité récente</h3>
+          <p class="adm-card__sub adm-table-card__sub">Dernières opérations sur les comptes d’épargne (dépôts et retraits).</p>
+        </div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table adm-table--activity">
+          <thead>
+            <tr>
+              <th>Date &amp; heure</th>
+              <th>Compte</th>
+              <th>Opération</th>
+              <th class="adm-table__th-amount">Montant</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of recentActivity; track row.time + row.action) {
+              <tr
+                class="adm-table__row"
+                [class.adm-table__row--depot]="row.action === 'Dépôt'"
+                [class.adm-table__row--retrait]="row.action !== 'Dépôt'"
+              >
+                <td class="adm-text-muted adm-table__cell-date">{{ row.time }}</td>
+                <td class="adm-text-bright adm-table__cell-account">{{ row.actor }}</td>
+                <td>
+                  <span
+                    class="adm-op-badge"
+                    [class.adm-op-badge--depot]="row.action === 'Dépôt'"
+                    [class.adm-op-badge--retrait]="row.action !== 'Dépôt'"
+                    >{{ row.action }}</span
+                  >
+                </td>
+                <td class="adm-mono adm-table__cell-amount">
+                  @if (row.action === 'Dépôt') {
+                    <span class="adm-tx-amount adm-tx-amount--depot">+{{ row.entity }}</span>
+                  } @else {
+                    <span class="adm-tx-amount adm-tx-amount--retrait">-{{ row.entity }}</span>
+                  }
+                </td>
+                <td>
+                  <app-admin-status-badge [status]="row.status" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+  </div>
+
+  @if (exportModalKind()) {
+    <div class="adm-export-backdrop" (click)="closeExportModal()" aria-hidden="false">
+      <div
+        class="adm-export-modal"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'adm-export-title'"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="adm-export-title" class="adm-export-modal__title">{{ exportModalTitle() }}</h2>
+        <p class="adm-export-modal__files">
+          Fichiers proposés :
+          <code class="adm-export-modal__code">{{ exportModalFilenameStem() }}-{{ exportModalStamp() }}.csv</code>
+          ·
+          <code class="adm-export-modal__code">{{ exportModalFilenameStem() }}-{{ exportModalStamp() }}.xlsx</code>
+        </p>
+        <p class="adm-export-modal__hint">Aperçu : en-tête + jusqu’à 5 lignes de données (le fichier complet contient toutes les lignes).</p>
+        <div class="adm-export-preview-wrap">
+          <table class="adm-export-preview-table">
+            @for (row of getExportPreviewRows(); track $index; let ri = $index) {
+              <tr [class.adm-export-preview-table__head]="ri === 0">
+                @for (cell of row; track $index; let ci = $index) {
+                  <td>{{ cell }}</td>
+                }
+              </tr>
+            }
+          </table>
+        </div>
+        <div class="adm-export-modal__actions">
+          <button type="button" class="adm-dashboard-btn adm-dashboard-btn--ghost" (click)="closeExportModal()">Annuler</button>
+          <button type="button" class="adm-dashboard-btn adm-dashboard-btn--ghost" (click)="confirmExportCsv()">Télécharger CSV</button>
+          <button type="button" class="adm-dashboard-btn adm-dashboard-btn--accent" (click)="confirmExportXlsx()">Télécharger XLSX</button>
+        </div>
+      </div>
+    </div>
+  }
+</main>

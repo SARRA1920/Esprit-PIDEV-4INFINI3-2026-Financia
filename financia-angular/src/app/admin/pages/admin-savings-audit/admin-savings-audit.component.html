@@ -1,0 +1,109 @@
+<div class="adm-stack">
+  <div>
+    <h1 class="adm-page-title">Audit épargne &amp; conformité</h1>
+    <p class="adm-page-sub">
+      Historique des actions sensibles : ouverture de compte, retraits et dépôts au‑delà des seuils configurés côté serveur.
+    </p>
+    <div class="adm-audit-actions">
+      <button type="button" class="adm-dashboard-btn adm-dashboard-btn--ghost" (click)="reload()" [disabled]="loading">
+        {{ loading ? 'Chargement…' : 'Rafraîchir' }}
+      </button>
+    </div>
+  </div>
+
+  @if (!loading || rows.length) {
+    <div class="adm-card adm-audit-filters">
+      <div class="adm-audit-filters__grid">
+        <div class="adm-audit-field">
+          <label for="auditFrom">Du</label>
+          <input id="auditFrom" type="date" [(ngModel)]="dateFrom" (ngModelChange)="onFilterChange()" />
+        </div>
+        <div class="adm-audit-field">
+          <label for="auditTo">Au</label>
+          <input id="auditTo" type="date" [(ngModel)]="dateTo" (ngModelChange)="onFilterChange()" />
+        </div>
+        <div class="adm-audit-field">
+          <label for="auditAction">Type d’action</label>
+          <select id="auditAction" [(ngModel)]="actionFilter" (ngModelChange)="onFilterChange()">
+            <option value="">Toutes</option>
+            @for (a of distinctActions; track a) {
+              <option [value]="a">{{ actionLabel(a) }} ({{ a }})</option>
+            }
+          </select>
+        </div>
+        <div class="adm-audit-field">
+          <label for="auditUser">Utilisateur (id)</label>
+          <input
+            id="auditUser"
+            type="text"
+            inputmode="numeric"
+            placeholder="ex. 42"
+            [(ngModel)]="userIdFilter"
+            (ngModelChange)="onFilterChange()"
+          />
+        </div>
+      </div>
+      <div class="adm-audit-filters__foot">
+        <span class="adm-text-muted adm-audit-count">{{ totalFiltered }} entrée(s) après filtres · page {{ safePageIndex + 1 }} / {{ totalPages }}</span>
+        <button type="button" class="adm-dashboard-btn adm-dashboard-btn--accent" (click)="exportFilteredCsv()" [disabled]="!totalFiltered">
+          Exporter CSV (filtré)
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="adm-card" style="border-color: #ef4444; color: #fecaca">{{ error }}</div>
+  }
+
+  @if (loading && !rows.length) {
+    <div class="adm-card">Chargement du journal…</div>
+  }
+
+  @if (!loading || rows.length) {
+    <div class="adm-card adm-audit-table-wrap">
+      @if (!rows.length && !loading) {
+        <p class="adm-text-muted">Aucune entrée pour le moment.</p>
+      } @else if (!totalFiltered && !loading) {
+        <p class="adm-text-muted">Aucune entrée ne correspond aux filtres.</p>
+      } @else {
+        <table class="adm-audit-table">
+          <thead>
+            <tr>
+              <th>Date (UTC)</th>
+              <th>Action</th>
+              <th>Utilisateur</th>
+              <th>Compte</th>
+              <th>Montant</th>
+              <th>Détail</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of pagedRows; track r.id) {
+              <tr>
+                <td class="adm-mono">{{ r.createdAt | date : 'short' }}</td>
+                <td><span class="adm-audit-pill">{{ actionLabel(r.action) }}</span></td>
+                <td class="adm-mono">{{ r.userId }}</td>
+                <td class="adm-mono">{{ r.accountId ?? '—' }}</td>
+                <td class="adm-mono">{{ r.amount != null ? (r.amount | number : '1.0-2') + ' TND' : '—' }}</td>
+                <td class="adm-audit-detail">{{ r.detail ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (totalPages > 1) {
+          <div class="adm-audit-pager">
+            <button type="button" class="adm-dashboard-btn adm-dashboard-btn--ghost" (click)="prevPage()" [disabled]="safePageIndex <= 0">
+              Précédent
+            </button>
+            <span class="adm-audit-pager__meta">{{ safePageIndex + 1 }} / {{ totalPages }}</span>
+            <button type="button" class="adm-dashboard-btn adm-dashboard-btn--ghost" (click)="nextPage()" [disabled]="safePageIndex >= totalPages - 1">
+              Suivant
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

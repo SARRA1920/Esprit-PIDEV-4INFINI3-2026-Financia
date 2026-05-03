@@ -28,3 +28,8 @@ export interface AuthRegisterRequest {
   role: UserRole | null;
   monthlyIncome: number | null;
 }
+
+export interface AuthResponse {
+  token: string;
+  user: UserResponse;
+}

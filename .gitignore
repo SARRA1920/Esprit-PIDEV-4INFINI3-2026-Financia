@@ -41,3 +41,6 @@ node_modules/
 *.zip
 .codex-logs/
 **/__pycache__/
+
+venv_face/
+.venv/

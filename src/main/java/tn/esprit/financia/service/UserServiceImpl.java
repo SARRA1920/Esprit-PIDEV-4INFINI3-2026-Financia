@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import tn.esprit.financia.entities.Role;
 import tn.esprit.financia.entities.User;
+import tn.esprit.financia.repository.LoginEventRepository;
+import tn.esprit.financia.repository.PasswordResetTokenRepository;
+import tn.esprit.financia.repository.SecurityAlertRepository;
 import tn.esprit.financia.repository.UserRepository;
 
 import java.util.List;
@@ -18,10 +21,19 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoginEventRepository loginEventRepository;
+    private final SecurityAlertRepository securityAlertRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           LoginEventRepository loginEventRepository,
+                           SecurityAlertRepository securityAlertRepository,
+                           PasswordResetTokenRepository passwordResetTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.loginEventRepository = loginEventRepository;
+        this.securityAlertRepository = securityAlertRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     @Override
@@ -67,8 +79,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long idUser) {
+        // Delete child rows first to satisfy FK constraints.
+        passwordResetTokenRepository.deleteAllByUserId(idUser);
+        securityAlertRepository.deleteAllByUserId(idUser);
+        loginEventRepository.deleteAllByUserId(idUser);
         userRepository.deleteById(idUser);
+        userRepository.flush();
     }
 
     @Override

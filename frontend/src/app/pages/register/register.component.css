@@ -1,0 +1,69 @@
+.register-page-root {
+  min-height: 100vh;
+}
+
+.ve-auth-msg {
+  color: #ffdddd;
+  margin-bottom: 12px;
+}
+
+.ve-login-oauth {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ve-login-oauth-sep {
+  text-align: center;
+  opacity: 0.85;
+  margin: 0 0 12px;
+}
+
+.ve-login-oauth-google {
+  min-height: 44px;
+  margin-bottom: 12px;
+}
+
+.ve-face-file-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.ve-face-cam-btn {
+  border-radius: 10px;
+}
+
+.ve-face-hint {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+.ve-face-video {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 12px;
+  background: #111;
+  margin-top: 10px;
+}
+
+.ve-face-canvas {
+  display: none;
+}
+
+.ve-face-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ve-login-footer-links {
+  margin-top: 14px;
+}
+
+.ve-mobile-menu.show {
+  display: block !important;
+}

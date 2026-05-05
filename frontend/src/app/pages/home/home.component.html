@@ -1,0 +1,7 @@
+<div class="home-wrap">
+  <h1>Financia</h1>
+  <p *ngIf="user">Connecté : <strong>{{ user.firstName }} {{ user.lastName }}</strong> ({{ user.email }})</p>
+  <p *ngIf="user">Rôle : {{ user.role }}</p>
+  <p class="err" *ngIf="error">{{ error }}</p>
+  <button type="button" (click)="logout()">Déconnexion</button>
+</div>

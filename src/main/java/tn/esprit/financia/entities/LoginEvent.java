@@ -26,6 +26,9 @@ public class LoginEvent {
 
     private String country;
 
+    @Column(name = "risk_score", nullable = false)
+    private Integer riskScore = 0;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -82,6 +85,14 @@ public class LoginEvent {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public Integer getRiskScore() {
+        return riskScore;
+    }
+
+    public void setRiskScore(Integer riskScore) {
+        this.riskScore = riskScore;
     }
 
     public Instant getCreatedAt() {

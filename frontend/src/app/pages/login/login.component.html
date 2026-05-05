@@ -1,0 +1,164 @@
+<div class="login-page-root">
+  <header class="ve-header" id="ve-sticky">
+    <div class="container-fluid ve-nav-wrap">
+      <div class="ve-logo">
+        <a routerLink="/home">
+          <span class="ve-logo-icon">F</span>
+          <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+        </a>
+      </div>
+      <nav class="ve-nav">
+        <ul>
+          <li><a routerLink="/home">Home</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="ve-nav-cta"></div>
+      <button
+        type="button"
+        class="ve-toggler"
+        id="ve-toggle"
+        (click)="mobileOpen = !mobileOpen"
+        [attr.aria-expanded]="mobileOpen"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="ve-mobile-menu" id="ve-mobile-menu" [class.show]="mobileOpen">
+      <ul>
+        <li><a routerLink="/home" (click)="mobileOpen = false">Home</a></li>
+        <li><a href="#" (click)="mobileOpen = false">Services</a></li>
+        <li><a href="#" (click)="mobileOpen = false">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section
+    class="ve-page-hero"
+    [style.background-image]="'url(' + heroBg + ')'"
+  >
+    <div class="ve-page-hero-overlay"></div>
+    <div class="container ve-page-hero-content">
+      <span class="ve-section-tag">Account</span>
+      <h1>Login to <span>Financia</span></h1>
+      <nav aria-label="breadcrumb">
+        <ol class="ve-breadcrumb">
+          <li><a routerLink="/home">Home</a></li>
+          <li class="active">Login</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <section class="ve-section ve-contact-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-7">
+          <div class="ve-contact-form-wrap">
+            <span class="ve-section-tag">Welcome Back</span>
+            <h2>Sign in to your <span>account</span></h2>
+            <p
+              *ngIf="authError"
+              class="ve-auth-msg"
+            >
+              {{ authError }}
+            </p>
+
+            <form class="ve-contact-form" (ngSubmit)="login()">
+              <div class="ve-form-group">
+                <label>Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  [(ngModel)]="email"
+                  placeholder="you@email.com"
+                  required
+                  autocomplete="username"
+                />
+              </div>
+              <div class="ve-form-group">
+                <label>Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  [(ngModel)]="password"
+                  placeholder="Your password"
+                  required
+                  autocomplete="current-password"
+                />
+              </div>
+              <button type="submit" class="ve-btn-primary">
+                Login <i class="fa fa-arrow-right"></i>
+              </button>
+
+              <div class="ve-login-oauth">
+                <p class="ve-login-oauth-sep">ou</p>
+                <div id="google-signin-button" class="ve-login-oauth-google"></div>
+
+                <div class="ve-face-row" *ngIf="faceMode === 'camera'">
+                  <video
+                    #faceVideo
+                    class="ve-face-video"
+                    autoplay
+                    playsinline
+                  ></video>
+                  <canvas #faceCanvas class="ve-face-canvas"></canvas>
+                  <div class="ve-face-actions">
+                    <button type="button" class="ve-cta-btn" (click)="startFaceCamera()">
+                      Démarrer caméra
+                    </button>
+                    <button type="button" class="ve-cta-btn" (click)="captureFace()">
+                      Capturer
+                    </button>
+                    <button type="button" class="ve-btn-primary" (click)="submitFaceLogin()">
+                      Login Face ID
+                    </button>
+                    <button type="button" class="ve-cta-btn" (click)="stopFaceCamera(); faceMode = 'none'">
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  #faceFileInput
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  class="ve-hidden-file"
+                  (change)="onFaceFile($event)"
+                />
+                <div class="ve-face-buttons">
+                  <button
+                    type="button"
+                    class="ve-btn-face"
+                    (click)="faceMode = faceMode === 'camera' ? 'none' : 'camera'"
+                  >
+                    Face ID — caméra
+                  </button>
+                  <button
+                    type="button"
+                    class="ve-cta-btn ve-face-file-btn"
+                    (click)="faceFileInput.click()"
+                  >
+                    Face ID — fichier
+                  </button>
+                </div>
+                <p class="ve-login-oauth-note">
+                  Caméra : autorisez l’accès puis « Capturer ». Sinon « fichier ».
+                  DeepFace doit tourner (<code>face.service.url</code> sur le back).
+                </p>
+              </div>
+
+              <p class="ve-login-footer-links">
+                <a href="#">Mot de passe oublié ?</a>
+                &nbsp;·&nbsp;
+                No account? <a routerLink="/register">Create one</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

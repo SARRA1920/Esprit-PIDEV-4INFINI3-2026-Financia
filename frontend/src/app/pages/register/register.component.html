@@ -1,0 +1,199 @@
+<div class="register-page-root">
+  <header class="ve-header" id="ve-sticky">
+    <div class="container-fluid ve-nav-wrap">
+      <div class="ve-logo">
+        <a routerLink="/home">
+          <span class="ve-logo-icon">F</span>
+          <span class="ve-logo-text">Fin<strong>ancia</strong></span>
+        </a>
+      </div>
+      <nav class="ve-nav">
+        <ul>
+          <li><a routerLink="/home">Home</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="ve-nav-cta"></div>
+      <button
+        type="button"
+        class="ve-toggler"
+        (click)="mobileOpen = !mobileOpen"
+        [attr.aria-expanded]="mobileOpen"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="ve-mobile-menu" [class.show]="mobileOpen">
+      <ul>
+        <li><a routerLink="/home" (click)="mobileOpen = false">Home</a></li>
+        <li><a href="#" (click)="mobileOpen = false">Services</a></li>
+        <li><a href="#" (click)="mobileOpen = false">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section
+    class="ve-page-hero"
+    [style.background-image]="'url(' + heroBg + ')'"
+  >
+    <div class="ve-page-hero-overlay"></div>
+    <div class="container ve-page-hero-content">
+      <span class="ve-section-tag">Account</span>
+      <h1>Create your <span>account</span></h1>
+      <nav aria-label="breadcrumb">
+        <ol class="ve-breadcrumb">
+          <li><a routerLink="/home">Home</a></li>
+          <li class="active">Register</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <section class="ve-section ve-contact-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-7">
+          <div class="ve-contact-form-wrap">
+            <span class="ve-section-tag">Get Started</span>
+            <h2>Register on <span>Financia</span></h2>
+            <p *ngIf="authError" class="ve-auth-msg">{{ authError }}</p>
+
+            <form class="ve-contact-form" (ngSubmit)="submitRegister()">
+              <div class="ve-form-row">
+                <div class="ve-form-group">
+                  <label>First Name</label>
+                  <input
+                    name="firstName"
+                    type="text"
+                    [(ngModel)]="firstName"
+                    placeholder="First name"
+                    required
+                  />
+                </div>
+                <div class="ve-form-group">
+                  <label>Last Name</label>
+                  <input
+                    name="lastName"
+                    type="text"
+                    [(ngModel)]="lastName"
+                    placeholder="Last name"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="ve-form-group">
+                <label>Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  [(ngModel)]="email"
+                  placeholder="you@email.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
+              <div class="ve-form-row">
+                <div class="ve-form-group">
+                  <label>Phone</label>
+                  <input
+                    name="phone"
+                    type="text"
+                    [(ngModel)]="phone"
+                    placeholder="Phone"
+                    required
+                  />
+                </div>
+                <div class="ve-form-group">
+                  <label>Address</label>
+                  <input
+                    name="address"
+                    type="text"
+                    [(ngModel)]="address"
+                    placeholder="Address"
+                  />
+                </div>
+              </div>
+              <div class="ve-form-group">
+                <label>Monthly income (local — non envoyé au back pour l’instant)</label>
+                <input
+                  name="monthlyIncome"
+                  type="number"
+                  [(ngModel)]="monthlyIncome"
+                  min="0"
+                  step="0.01"
+                  placeholder="e.g. 1500 (optional)"
+                />
+              </div>
+              <div class="ve-form-group">
+                <label>Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  [(ngModel)]="password"
+                  placeholder="Choose a password"
+                  required
+                  autocomplete="new-password"
+                />
+              </div>
+
+              <div class="ve-form-group">
+                <label>Photo visage (optionnel — Face ID)</label>
+                <div class="ve-face-file-row">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="user"
+                    (change)="onFaceFile($event)"
+                  />
+                  <button
+                    type="button"
+                    class="ve-cta-btn ve-face-cam-btn"
+                    (click)="faceMode = faceMode === 'camera' ? 'none' : 'camera'"
+                  >
+                    Caméra
+                  </button>
+                </div>
+                <p class="ve-face-hint">
+                  Une photo nette du visage. « Caméra » : aperçu puis « Capturer ».
+                </p>
+                <div class="ve-face-row" *ngIf="faceMode === 'camera'">
+                  <video
+                    #faceVideo
+                    class="ve-face-video"
+                    autoplay
+                    playsinline
+                  ></video>
+                  <canvas #faceCanvas class="ve-face-canvas"></canvas>
+                  <div class="ve-face-actions">
+                    <button type="button" class="ve-cta-btn" (click)="startFaceCamera()">
+                      Démarrer caméra
+                    </button>
+                    <button type="button" class="ve-cta-btn" (click)="captureFace()">
+                      Capturer
+                    </button>
+                    <button type="button" class="ve-cta-btn" (click)="stopFaceCamera(); faceMode = 'none'">
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ve-login-oauth">
+                <p class="ve-login-oauth-sep">or continue with</p>
+                <div id="google-signin-button-register" class="ve-login-oauth-google"></div>
+              </div>
+
+              <button type="submit" class="ve-btn-primary">
+                Create Account <i class="fa fa-user"></i>
+              </button>
+              <p class="ve-login-footer-links">
+                Already have an account? <a routerLink="/login">Login</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

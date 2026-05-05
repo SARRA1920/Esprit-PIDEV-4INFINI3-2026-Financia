@@ -1,0 +1,9 @@
+.home-wrap {
+  max-width: 640px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  font-family: system-ui, sans-serif;
+}
+.err {
+  color: #b00020;
+}

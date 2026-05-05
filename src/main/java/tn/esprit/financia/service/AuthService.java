@@ -40,6 +40,7 @@ public class AuthService {
     private static final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=%s";
     private static final int FAILED_ATTEMPTS_THRESHOLD = 5;
     private static final int FAILED_ATTEMPTS_WINDOW_MINUTES = 15;
+    private static final int RISK_HIGH_FAILED_WINDOW_COUNT = 3;
     private static final String ALERT_TYPE_TOO_MANY_FAILED_LOGINS = "TOO_MANY_FAILED_LOGINS";
     private static final String ALERT_TYPE_NEW_COUNTRY_LOGIN = "NEW_COUNTRY_LOGIN";
 
@@ -83,7 +84,8 @@ public class AuthService {
         }
         User user = userService.getUserByEmail(email);
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
-            recordLoginEvent(user, email, false, clientIp, requestCountry);
+            int riskScore = calculateRiskScore(user, false, requestCountry);
+            recordLoginEvent(user, email, false, clientIp, requestCountry, riskScore);
             if (user != null) {
                 evaluateFailedLoginAlert(user);
             }
@@ -92,7 +94,8 @@ public class AuthService {
         if (user.getRole() == null) {
             throw new IllegalArgumentException("User has no role assigned");
         }
-        recordLoginEvent(user, email, true, clientIp, requestCountry);
+        int riskScore = calculateRiskScore(user, true, requestCountry);
+        recordLoginEvent(user, email, true, clientIp, requestCountry, riskScore);
         evaluateNewCountryAlert(user, requestCountry, clientIp);
         String token = jwtService.generateToken(user.getEmail(), user.getIdUser(), user.getRole().name());
         return new AuthResponse(token, user);
@@ -292,14 +295,43 @@ public class AuthService {
                 .toList();
     }
 
-    private void recordLoginEvent(User user, String email, boolean success, String clientIp, String requestCountry) {
+    private void recordLoginEvent(User user, String email, boolean success, String clientIp, String requestCountry, int riskScore) {
         LoginEvent event = new LoginEvent();
         event.setUser(user);
         event.setEmail(email);
         event.setSuccess(success);
         event.setIpAddress(normalizeIp(clientIp));
         event.setCountry(normalizeCountry(requestCountry));
+        event.setRiskScore(riskScore);
         loginEventRepository.save(event);
+    }
+
+    private int calculateRiskScore(User user, boolean success, String requestCountry) {
+        int score = 0;
+        if (!success) {
+            score += 40;
+        }
+
+        if (user != null) {
+            Instant after = Instant.now().minusSeconds(FAILED_ATTEMPTS_WINDOW_MINUTES * 60L);
+            long failedAttempts = loginEventRepository.countByUserAndSuccessIsFalseAndCreatedAtAfter(user, after);
+            if (failedAttempts >= RISK_HIGH_FAILED_WINDOW_COUNT) {
+                score += 20;
+            }
+
+            String normalizedCountry = normalizeCountry(requestCountry);
+            if (success && normalizedCountry != null) {
+                boolean seenDifferentCountry = loginEventRepository.existsByUserAndSuccessIsTrueAndCountryIgnoreCaseNot(
+                        user,
+                        normalizedCountry
+                );
+                if (seenDifferentCountry) {
+                    score += 25;
+                }
+            }
+        }
+
+        return Math.min(100, Math.max(0, score));
     }
 
     private void evaluateFailedLoginAlert(User user) {

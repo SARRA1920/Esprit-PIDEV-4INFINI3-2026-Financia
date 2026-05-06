@@ -8,9 +8,22 @@ export interface EcheancierPayement {
   status: 'PENDING' | 'PAID' | 'LATE' | 'OVERDUE';
   overdueDate?: string;
   daysOverdue?: number;
+  paidAt?: string;
+  contratId?: number;
   createdAt: string;
   updatedAt: string;
 }
+
+/** Statuts possibles d'un échéancier */
+export type EcheancierStatus = EcheancierPayement['status'];
+
+/** Labels français pour chaque statut */
+export const ECHEANCIER_STATUS_LABELS: Record<EcheancierStatus, string> = {
+  PENDING: 'En attente',
+  PAID: 'Payé',
+  LATE: 'En retard',
+  OVERDUE: 'Échu',
+};
 
 export interface EcheancierPayementDTO {
   dueDate: string;

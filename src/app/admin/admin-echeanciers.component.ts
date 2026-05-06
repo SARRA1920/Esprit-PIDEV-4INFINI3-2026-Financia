@@ -4,7 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { EcheancierPayementService } from '../core/echeancier-payement.service';
 import { PenaltyService } from '../core/penalty.service';
 import { WhatsappService } from '../core/whatsapp.service';
-import { EcheancierPayement, PenaltyHistory, QuarterlyLateStats } from '../models/echeancier-payement.model';
+import {
+  EcheancierPayement,
+  EcheancierStatus,
+  ECHEANCIER_STATUS_LABELS,
+  PenaltyHistory,
+  QuarterlyLateStats,
+} from '../models/echeancier-payement.model';
 
 @Component({
   selector: 'app-admin-echeanciers',
@@ -153,6 +159,31 @@ export class AdminEcheanciersComponent implements OnInit {
       case 'OVERDUE': return 'badge-danger';
       default:        return 'badge-secondary';
     }
+  }
+
+  /** Retourne le label français du statut */
+  getStatusLabel(status: string): string {
+    return ECHEANCIER_STATUS_LABELS[status?.toUpperCase() as EcheancierStatus] ?? status ?? '—';
+  }
+
+  /** Marque un paiement comme payé et recharge la liste */
+  markAsPaid(id: number): void {
+    if (!confirm('Confirmer le paiement de cette échéance ?')) return;
+    this.echeancierService.markAsPaid(id).subscribe({
+      next: () => {
+        this.loadPayments();
+        if (this.selectedPaymentId() === id) this.loadPenaltyHistory(id);
+      },
+      error: (err) => { alert('Erreur: ' + err.message); },
+    });
+  }
+
+  getPendingCount(): number {
+    return this.payments().filter(p => p.status === 'PENDING').length;
+  }
+
+  getLateCount(): number {
+    return this.payments().filter(p => p.status === 'LATE').length;
   }
 
   getOverduePayments(): EcheancierPayement[] {

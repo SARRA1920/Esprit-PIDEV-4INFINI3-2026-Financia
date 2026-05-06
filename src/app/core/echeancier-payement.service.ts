@@ -58,6 +58,20 @@ export class EcheancierPayementService {
     );
   }
 
+  /** Marque un paiement comme payé */
+  markAsPaid(id: number): Observable<EcheancierPayement> {
+    return this.http.patch<EcheancierPayement>(`${this.baseUrl}/${id}/mark-paid`, {}).pipe(
+      catchError((err) => this.handleError(err))
+    );
+  }
+
+  /** Récupère uniquement les paiements en retard ou échus */
+  getOverduePayments(): Observable<EcheancierPayement[]> {
+    return this.http.get<EcheancierPayement[]>(`${this.baseUrl}/overdue`).pipe(
+      catchError((err) => this.handleError(err))
+    );
+  }
+
   viewSchedulePdf(contratId: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/contrat/${contratId}/schedule-pdf`, {
       responseType: 'blob',

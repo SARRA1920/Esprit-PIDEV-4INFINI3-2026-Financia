@@ -1,0 +1,265 @@
+/* Page connexion — complète le template legacy sans écraser .ve-btn-primary (jaune/or). */
+:host {
+  display: block;
+}
+
+/* Hero : fond navy + halo or (pas d’image externe cassée) */
+.ve-login-hero.ve-page-hero {
+  min-height: 300px;
+  background-color: #0d1b2a;
+  background-image:
+    radial-gradient(900px 420px at 18% 30%, rgba(212, 160, 23, 0.18), transparent 55%),
+    radial-gradient(600px 320px at 82% 20%, rgba(47, 107, 255, 0.08), transparent 50%),
+    linear-gradient(145deg, #0d1b2a 0%, #162032 55%, #1a2f4b 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Zone formulaire : léger dégradé ; allège le padding global .ve-section pour cette page */
+section.ve-login-section.ve-section {
+  padding-top: 44px;
+  padding-bottom: 72px;
+  background: linear-gradient(180deg, #e8ecf2 0%, #f4f7fb 35%, #f4f7fb 100%);
+}
+
+.ve-login-card.ve-contact-form-wrap {
+  position: relative;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 44px 46px 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow:
+    0 4px 6px rgba(13, 27, 42, 0.04),
+    0 22px 50px rgba(13, 27, 42, 0.1);
+}
+
+@media (max-width: 576px) {
+  .ve-login-card.ve-contact-form-wrap {
+    padding: 28px 22px 28px;
+    border-radius: 16px;
+  }
+}
+
+/* Formulaire : espacement cohérent */
+:host ::ng-deep .ve-contact-form {
+  gap: 18px;
+}
+
+/* Bouton principal : pleine largeur + icône — la couleur vient du CSS global (.ve-btn-primary jaune) */
+:host ::ng-deep .ve-contact-form .ve-btn-primary {
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  font-size: 15px;
+}
+
+:host ::ng-deep .ve-contact-form .ve-btn-primary i {
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+/* Ne pas réappliquer de fond sombre sur submit : laisser .ve-btn-primary global */
+
+.ve-login-alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.ve-login-alert--error {
+  background: rgba(185, 28, 28, 0.09);
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  color: #991b1b;
+}
+
+.ve-login-alert--success {
+  background: rgba(22, 163, 74, 0.09);
+  border: 1px solid rgba(22, 163, 74, 0.22);
+  color: #166534;
+}
+
+/* Séparateur OAuth */
+:host ::ng-deep .ve-login-oauth-sep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+:host ::ng-deep .ve-login-oauth-sep::before,
+:host ::ng-deep .ve-login-oauth-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0 20%, #e2e8f0 80%, transparent);
+}
+
+/* Conteneur Google centré — hauteur mini pour éviter un iframe GSI à 0 px si le script tarde */
+:host ::ng-deep .ve-login-oauth-google {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 12px;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+
+:host ::ng-deep .ve-login-oauth-google iframe {
+  max-width: 100%;
+}
+
+.ve-login-google-unavailable {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #64748b;
+  text-align: center;
+  background: rgba(248, 250, 252, 0.95);
+  border: 1px solid #e2e8f0;
+}
+
+.ve-login-google-unavailable code {
+  font-size: 11px;
+  word-break: break-all;
+}
+
+/* Face ID */
+:host ::ng-deep .ve-btn-face {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #0d1b2a;
+  background: #fff;
+  color: #0d1b2a;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.15s ease;
+}
+
+:host ::ng-deep .ve-btn-face:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #d4a017;
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .ve-btn-face:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:host ::ng-deep .ve-login-oauth-note {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Lien inscription */
+.ve-login-register {
+  margin-top: 22px;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 15px;
+  color: #475569;
+}
+
+.ve-login-register a {
+  font-weight: 800;
+  color: #0d1b2a;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(212, 160, 23, 0.45);
+  transition: color 0.15s ease;
+}
+
+.ve-login-register a:hover {
+  color: #b45309;
+}
+
+/** Mot de passe oublié */
+.ve-login-forgot-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 160, 23, 0.45);
+  background: rgba(212, 160, 23, 0.06);
+  color: #a16207;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ve-login-forgot-btn:hover {
+  background: rgba(212, 160, 23, 0.14);
+  border-color: rgba(212, 160, 23, 0.65);
+  color: #854d0e;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ve-face-login .ve-face-video {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  max-height: 270px;
+  margin: 0.75rem auto 0;
+  border-radius: 12px;
+  background: #0f172a;
+  object-fit: cover;
+}
+
+.ve-face-login .ve-face-camera-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.ve-face-login .ve-btn-face-secondary {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #94a3b8;
+  background: #fff;
+  color: #334155;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ve-face-login .ve-btn-face-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

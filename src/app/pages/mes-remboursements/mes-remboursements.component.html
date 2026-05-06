@@ -1,0 +1,87 @@
+<section class="ve-page-hero mes-remb-hero">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Client</span>
+    <h1>Mes <span>remboursements</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li><a routerLink="/services">Services</a></li>
+        <li class="active">Remboursements</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section mes-remb-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+        @if (loading) {
+          <div class="ve-contact-form-wrap mes-remb-card">
+            <p class="ve-muted">Chargement de vos échéances…</p>
+          </div>
+        } @else if (error) {
+          <div class="ve-contact-form-wrap mes-remb-card">
+            <div class="mes-remb-alert mes-remb-alert--error" role="alert">{{ error }}</div>
+            <a routerLink="/espace-client" class="ve-btn-primary mes-remb-cta">Retour à l’espace client</a>
+          </div>
+        } @else if (!rows.length) {
+          <div class="ve-contact-form-wrap mes-remb-card mes-remb-card--empty">
+            <span class="ve-section-tag">Aucune échéance</span>
+            <h2>Pas encore de <span>crédit</span> avec remboursements</h2>
+            <p class="mes-remb-lead">
+              Vous n’avez pas encore de dossier avec des échéances publiées. Déposez une demande de crédit depuis
+              l’espace client : après acceptation de l’offre, vos remboursements apparaîtront ici (données Spring).
+            </p>
+            <a routerLink="/espace-client" class="ve-btn-primary mes-remb-cta">Accéder à la demande de crédit</a>
+          </div>
+        } @else {
+          <div class="ve-contact-form-wrap mes-remb-card">
+            <div class="mes-remb-head">
+              <div>
+                <span class="ve-section-tag">Échéancier</span>
+                <h2>Vos <span>échéances</span></h2>
+                <p class="ve-muted">{{ rows.length }} ligne(s) — paiement et suivi détaillé dans l’espace client.</p>
+              </div>
+            </div>
+
+            <div class="mes-remb-table-wrap">
+              <table class="mes-remb-table">
+                <thead>
+                  <tr>
+                    <th>Date limite</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Crédit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of rows; track r.id + '-' + r.creditRef) {
+                    <tr>
+                      <td>{{ r.dueDate ?? '—' }}</td>
+                      <td class="mono">{{ r.amount | number: '1.0-2' }} €</td>
+                      <td>
+                        <span class="mes-remb-pill" [class.mes-remb-pill--paid]="(r.status ?? '') === 'PAID'">
+                          {{ statusLabel(r.status) }}
+                        </span>
+                      </td>
+                      <td class="mono">#{{ r.creditRef }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <p class="mes-remb-hint">
+              Pour payer en ligne (Stripe), marquer une échéance ou voir la progression complète du dossier :
+            </p>
+            <a routerLink="/espace-client" fragment="remboursements" class="ve-btn-primary mes-remb-cta"
+              >Ouvrir l’espace client — paiements</a
+            >
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

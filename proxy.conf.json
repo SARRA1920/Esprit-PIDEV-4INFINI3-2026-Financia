@@ -1,0 +1,47 @@
+{
+  "/f/api": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/course": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/recommendation": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/user": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/lesson": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/lesson-content": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/file": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/ai": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/f/reset-password": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

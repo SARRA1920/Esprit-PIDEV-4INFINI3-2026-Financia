@@ -1,0 +1,196 @@
+<div class="adm-users">
+  <div class="adm-users__head">
+    <div>
+      <h1 class="adm-users__title">Utilisateurs</h1>
+      <p class="adm-users__sub">Comptes applicatifs (table <code>users</code>) — CRUD via <code>/api/users</code></p>
+    </div>
+    <button type="button" class="adm-users__btn-primary" (click)="openCreateModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Ajouter un utilisateur
+    </button>
+  </div>
+
+  <div class="adm-users__toolbar">
+    <div class="adm-users__search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <path d="M21 21l-4.35-4.35" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Filtrer par nom, e-mail, téléphone, rôle…"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+      />
+    </div>
+    <p class="adm-users__count">{{ filtered().length }} utilisateur{{ filtered().length > 1 ? 's' : '' }}</p>
+  </div>
+
+  @if (loading()) {
+    <p class="adm-users__state">Chargement…</p>
+  } @else if (error()) {
+    <div class="adm-users__err" role="alert">{{ error() }}</div>
+  } @else if (users().length === 0) {
+    <p class="adm-users__state">Aucun utilisateur en base.</p>
+  } @else {
+    <div class="adm-users__table-wrap">
+      <table class="adm-users__table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>E-mail</th>
+            <th>Téléphone</th>
+            <th>Rôle</th>
+            <th>Revenu mensuel</th>
+            <th>Ancienneté</th>
+            <th>Inscription</th>
+            <th class="adm-users__th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of filtered(); track u.idUser) {
+            <tr>
+              <td class="adm-mono">{{ u.idUser }}</td>
+              <td>
+                <span class="adm-name">{{ u.firstName }} {{ u.lastName }}</span>
+              </td>
+              <td class="adm-mono adm-email">{{ u.email }}</td>
+              <td class="adm-mono">{{ u.phone }}</td>
+              <td>
+                <span [class]="'adm-role-pill ' + roleClass(u.role)">{{ roleLabel(u.role) }}</span>
+              </td>
+              <td class="adm-mono">{{ formatIncome(u.monthlyIncome) }}</td>
+              <td class="adm-muted">
+                @if (u.yearsAsClient != null) {
+                  {{ u.yearsAsClient }} an{{ u.yearsAsClient > 1 ? 's' : '' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td class="adm-mono adm-muted">
+                @if (u.createdAt) {
+                  {{ u.createdAt | date: 'dd/MM/yyyy' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td class="adm-users__actions">
+                <button type="button" class="adm-users__icon-btn" title="Modifier" (click)="openEditModal(u)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="adm-users__icon-btn adm-users__icon-btn--danger"
+                  [disabled]="isCurrentUser(u.idUser)"
+                  [title]="isCurrentUser(u.idUser) ? 'Impossible de supprimer votre propre compte' : 'Supprimer'"
+                  (click)="deleteUser(u, $event)"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (filtered().length === 0 && users().length > 0) {
+        <p class="adm-users__state">Aucun résultat pour ce filtre.</p>
+      }
+    </div>
+  }
+</div>
+
+@if (modalOpen()) {
+  <div class="adm-users__overlay" role="dialog" aria-modal="true" [attr.aria-labelledby]="'adm-user-modal-title'" (click)="closeModal()">
+    <div class="adm-users__modal-card" (click)="$event.stopPropagation()">
+      <div class="adm-users__modal-head">
+        <h2 id="adm-user-modal-title" class="adm-users__modal-title">
+          {{ modalMode() === 'create' ? 'Nouvel utilisateur' : 'Modifier l’utilisateur' }}
+        </h2>
+        <button type="button" class="adm-users__modal-close" (click)="closeModal()" aria-label="Fermer">×</button>
+      </div>
+
+      @if (modalError()) {
+        <div class="adm-users__modal-err" role="alert">{{ modalError() }}</div>
+      }
+
+      <form class="adm-users__modal-form" [formGroup]="userForm" (ngSubmit)="submitModal()">
+        <div class="adm-users__form-grid">
+          <label class="adm-users__field">
+            <span>Prénom</span>
+            <input type="text" formControlName="firstName" autocomplete="given-name" />
+          </label>
+          <label class="adm-users__field">
+            <span>Nom</span>
+            <input type="text" formControlName="lastName" autocomplete="family-name" />
+          </label>
+          <label class="adm-users__field adm-users__field--full">
+            <span>E-mail</span>
+            <input type="email" formControlName="email" autocomplete="email" />
+          </label>
+          <label class="adm-users__field">
+            <span>Téléphone</span>
+            <input type="text" formControlName="phone" autocomplete="tel" />
+          </label>
+          <label class="adm-users__field">
+            <span>Rôle</span>
+            <select formControlName="role">
+              @for (r of roles; track r) {
+                <option [ngValue]="r">{{ roleLabel(r) }}</option>
+              }
+            </select>
+          </label>
+          <label class="adm-users__field">
+            <span>Revenu mensuel (€)</span>
+            <input type="number" formControlName="monthlyIncome" min="0" step="1" placeholder="Optionnel" />
+          </label>
+          <label class="adm-users__field adm-users__field--full">
+            <span>Adresse</span>
+            <input type="text" formControlName="address" autocomplete="street-address" />
+          </label>
+          <label class="adm-users__field adm-users__field--full">
+            <span>Mot de passe</span>
+            @if (modalMode() === 'create') {
+              <input type="password" formControlName="password" autocomplete="new-password" placeholder="Minimum 6 caractères" />
+            } @else {
+              <input
+                type="password"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="Laisser vide pour ne pas changer"
+              />
+            }
+          </label>
+        </div>
+
+        @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
+          <p class="adm-users__field-hint">Le prénom est obligatoire.</p>
+        }
+        @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+          <p class="adm-users__field-hint">E-mail invalide.</p>
+        }
+        @if (userForm.get('password')?.errors?.['required'] && userForm.get('password')?.touched) {
+          <p class="adm-users__field-hint">Le mot de passe est obligatoire à la création.</p>
+        }
+        @if (userForm.get('password')?.errors?.['minlength'] && userForm.get('password')?.touched) {
+          <p class="adm-users__field-hint">Au moins 6 caractères.</p>
+        }
+
+        <div class="adm-users__modal-actions">
+          <button type="button" class="adm-users__btn-secondary" (click)="closeModal()" [disabled]="modalSaving()">Annuler</button>
+          <button type="submit" class="adm-users__btn-primary" [disabled]="modalSaving() || userForm.invalid">
+            {{ modalSaving() ? 'Enregistrement…' : modalMode() === 'create' ? 'Créer' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

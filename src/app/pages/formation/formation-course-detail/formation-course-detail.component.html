@@ -1,0 +1,68 @@
+<section class="ve-page-hero" style="background-image:url(img/bg-img/20.jpg);">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Parcours</span>
+    <h1>Détail du <span>cours</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li><a routerLink="/formation">Formation</a></li>
+        <li class="active">Cours</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section">
+  <div class="container">
+    @if (loading()) {
+      <p class="ve-muted">Chargement du cours…</p>
+    } @else if (error()) {
+      <div class="ve-alert ve-alert--danger">{{ error() }}</div>
+      <a routerLink="/formation" class="ve-btn-primary mt-20">Retour aux parcours</a>
+    } @else {
+      @if (course(); as c) {
+        <div class="ve-course-detail-head">
+          <span class="ve-section-tag">Cours #{{ c.courseId }}</span>
+          <h2>{{ c.title }}</h2>
+          @if (c.description) {
+            <p class="ve-course-desc">{{ c.description }}</p>
+          }
+        </div>
+
+        <div class="ve-section-head" style="margin-top: 32px;">
+          <span class="ve-section-tag">Programme</span>
+          <h3>Leçons</h3>
+        </div>
+
+        @if (!c.lessons?.length) {
+          <p class="ve-muted">Aucune leçon publiée pour ce cours pour le moment.</p>
+        } @else {
+          <div class="ve-lesson-list">
+            @for (lesson of sortedLessons(c); track lesson.lessonId) {
+              <article class="ve-lesson-card">
+                <div class="ve-lesson-order">{{ lesson.orderIndex ?? '—' }}</div>
+                <div class="ve-lesson-body">
+                  <h4>{{ lesson.title }}</h4>
+                  @if (lesson.type) {
+                    <span class="ve-lesson-type">{{ lesson.type }}</span>
+                  }
+                  @if (lesson.content?.textContent) {
+                    <p class="ve-lesson-excerpt">{{ excerpt(lesson.content!.textContent!) }}</p>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <div class="text-center mt-40">
+          <a routerLink="/formation" class="ve-btn-primary">← Tous les parcours</a>
+        </div>
+      } @else {
+        <p class="ve-muted">Cours introuvable.</p>
+        <a routerLink="/formation" class="ve-btn-primary mt-20">Retour aux parcours</a>
+      }
+    }
+  </div>
+</section>

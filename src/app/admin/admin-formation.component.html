@@ -1,0 +1,63 @@
+<div class="adm-stack">
+  <div class="adm-fmt-head">
+    <div>
+      <h1 class="adm-page-title">Formation (LMS)</h1>
+      <p class="adm-page-sub">Gestion des cours et contenus pédagogiques</p>
+    </div>
+    <button type="button" class="adm-btn-create" disabled title="Création de cours via API à brancher">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" /></svg>
+      Créer un cours
+    </button>
+  </div>
+
+  <div class="adm-fmt-panel">
+    <div class="adm-fmt-tabs">
+      @for (t of tabs; track t) {
+        <button type="button" class="adm-fmt-tab" [class.adm-fmt-tab--on]="activeTab === t" (click)="activeTab = t">{{ t }}</button>
+      }
+    </div>
+    <div class="adm-fmt-toolbar">
+      <div class="adm-toolbar__search" style="max-width: 28rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+        <input type="search" placeholder="Rechercher un cours..." disabled title="Filtre à brancher" />
+      </div>
+    </div>
+
+    @if (courses$ | async; as courses) {
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Titre</th>
+              <th>Leçons</th>
+              <th>Visibilité</th>
+              <th style="text-align: right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of courses; track c.courseId) {
+              <tr>
+                <td class="adm-mono adm-text-bright">{{ c.courseId }}</td>
+                <td class="adm-text-bright" style="font-weight: 500">{{ c.title }}</td>
+                <td class="adm-text-muted tabular-nums">{{ c.lessons?.length ?? 0 }}</td>
+                <td>
+                  @let vis = visibilityForLessons(c);
+                  <app-admin-status-badge [status]="vis" [label]="vis === 'ACTIVE' ? 'ACTIVE' : 'PENDING'" />
+                </td>
+                <td style="text-align: right">
+                  <a class="adm-link" [routerLink]="['/formation/course', c.courseId]">Voir le cours public</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (courses.length === 0) {
+          <p class="adm-empty">Aucun cours. Vérifiez le backend et <code>app.formation.seed-demo-data</code>.</p>
+        }
+      </div>
+    } @else {
+      <p class="adm-empty">Chargement des cours…</p>
+    }
+  </div>
+</div>

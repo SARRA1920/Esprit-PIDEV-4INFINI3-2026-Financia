@@ -1,0 +1,118 @@
+:host {
+  display: block;
+}
+
+.mes-remb-hero.ve-page-hero {
+  min-height: 260px;
+  background-color: #0d1b2a;
+  background-image:
+    radial-gradient(900px 420px at 18% 30%, rgba(212, 160, 23, 0.18), transparent 55%),
+    radial-gradient(600px 320px at 82% 20%, rgba(47, 107, 255, 0.08), transparent 50%),
+    linear-gradient(145deg, #0d1b2a 0%, #162032 55%, #1a2f4b 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+section.mes-remb-section.ve-section {
+  padding-top: 44px;
+  padding-bottom: 72px;
+  background: linear-gradient(180deg, #e8ecf2 0%, #f4f7fb 35%, #f4f7fb 100%);
+}
+
+.mes-remb-card {
+  max-width: 900px;
+  margin-inline: auto;
+  padding: 36px 40px 40px;
+  border-radius: 20px;
+}
+
+.mes-remb-card--empty .mes-remb-lead {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ve-text, #64748b);
+  margin-bottom: 22px;
+}
+
+.mes-remb-head {
+  margin-bottom: 22px;
+}
+
+.mes-remb-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.mes-remb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mes-remb-table th,
+.mes-remb-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.mes-remb-table th {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.mes-remb-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mes-remb-table .mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.mes-remb-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
+.mes-remb-pill--paid {
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+}
+
+.mes-remb-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.mes-remb-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.mes-remb-alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.mes-remb-alert--error {
+  background: rgba(185, 28, 28, 0.09);
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  color: #991b1b;
+}

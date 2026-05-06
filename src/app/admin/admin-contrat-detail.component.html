@@ -1,0 +1,149 @@
+<div class="contrat-detail">
+  <div class="header">
+    <h2>Détails du Contrat #{{ contrat()?.id }}</h2>
+    <div class="btn-group">
+      <button (click)="downloadPdf()" class="btn btn-primary">Télécharger PDF</button>
+      <button (click)="sendEmail()" class="btn btn-secondary">Envoyer Email</button>
+      <a routerLink="/admin/contrats" class="btn btn-secondary">Retour</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Chargement...</div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (contrat()) {
+    <div class="card">
+      <h3>Informations du Contrat</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Date de signature</label>
+          <div class="value">{{ contrat()!.signedDate | date: 'dd/MM/yyyy' }}</div>
+        </div>
+        <div class="info-item">
+          <label>Montant</label>
+          <div class="value">{{ contrat()!.amount | number: '1.2-2' }} {{ contrat()!.currency }}</div>
+        </div>
+        <div class="info-item">
+          <label>Taux d'intérêt</label>
+          <div class="value">{{ contrat()!.rate }}%</div>
+        </div>
+        <div class="info-item">
+          <label>Durée</label>
+          <div class="value">{{ contrat()!.duration }} mois</div>
+        </div>
+        <div class="info-item">
+          <label>Type</label>
+          <div class="value">{{ contrat()!.type }}</div>
+        </div>
+        <div class="info-item">
+          <label>Statut</label>
+          <div class="value">{{ contrat()!.status }}</div>
+        </div>
+        <div class="info-item">
+          <label>Version</label>
+          <div class="value">{{ contrat()!.version }}</div>
+        </div>
+        @if (contrat()!.penaltyRate) {
+          <div class="info-item">
+            <label>Taux de pénalité</label>
+            <div class="value">{{ contrat()!.penaltyRate }}% ({{ contrat()!.penaltyType }})</div>
+          </div>
+        }
+        @if (contrat()!.gracePeriodDays) {
+          <div class="info-item">
+            <label>Période de grâce</label>
+            <div class="value">{{ contrat()!.gracePeriodDays }} jours</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (multiCurrency()) {
+      <div class="card">
+        <h3>Vue Multi-Devises</h3>
+        <div class="currency-grid">
+          @for (currency of multiCurrency()!.conversions | keyvalue; track currency.key) {
+            <div class="currency-item">
+              <div class="currency-code">{{ currency.key }}</div>
+              <div class="currency-amount">{{ currency.value | number: '1.2-2' }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Signature électronique : déplacée vers l'espace client -->
+
+    <div class="card">
+      <div class="header">
+        <h3>Échéancier de Paiement</h3>
+        <div class="btn-group">
+          <button (click)="openCreatePayment()" class="btn btn-success">+ Ajouter Paiement</button>
+          <button (click)="downloadSchedulePdf()" class="btn btn-success">Télécharger Échéancier PDF</button>
+        </div>
+      </div>
+
+      @if (payments().length === 0) {
+        <p>Aucun paiement trouvé pour ce contrat.</p>
+      } @else {
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date d'échéance</th>
+                <th>Principal</th>
+                <th>Intérêts</th>
+                <th>Pénalités</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>Jours de retard</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (payment of payments(); track payment.id; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ payment.dueDate | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ payment.principalAmount | number: '1.2-2' }}</td>
+                  <td>{{ payment.interestAmount | number: '1.2-2' }}</td>
+                  <td>{{ payment.penaltyAmount | number: '1.2-2' }}</td>
+                  <td>{{ payment.amountDue | number: '1.2-2' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(payment.status)">
+                      {{ payment.status }}
+                    </span>
+                  </td>
+                  <td>{{ payment.daysOverdue || 0 }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">Total</td>
+                <td>{{ getTotalPrincipal() | number: '1.2-2' }}</td>
+                <td>{{ getTotalInterest() | number: '1.2-2' }}</td>
+                <td>{{ getTotalPenalties() | number: '1.2-2' }}</td>
+                <td>{{ getTotalAmount() | number: '1.2-2' }}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  @if (createPaymentOpen() && contrat()) {
+    <app-admin-create-payment-modal
+      [contratId]="contrat()!.id"
+      (paymentCreated)="onPaymentCreated()"
+      (closed)="closeCreatePayment()"
+    />
+  }
+</div>

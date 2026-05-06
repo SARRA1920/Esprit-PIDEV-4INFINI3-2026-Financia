@@ -1,0 +1,216 @@
+.ve-formation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.ve-formation-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+
+  i.fa {
+    font-size: 28px;
+    color: #c9a227;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+    color: #1a1f2c;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+}
+
+.mt-50 {
+  margin-top: 50px;
+}
+
+.ve-formation-api {
+  padding-bottom: 0;
+}
+
+.ve-formation-reco {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.ve-formation-reco-inner {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.ve-formation-reco-title {
+  margin: 12px 0 8px;
+  font-size: 1.35rem;
+  color: #1a1f2c;
+}
+
+.ve-formation-reco-lead {
+  margin: 0 0 16px;
+  max-width: 52rem;
+}
+
+.ve-formation-reco-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.ve-formation-reco-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.ve-formation-reco-textarea:focus {
+  outline: none;
+  border-color: #c9a227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
+}
+
+.ve-formation-reco-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ve-formation-reco-results {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ve-formation-reco-results-title {
+  margin: 0 0 20px;
+  font-size: 1.15rem;
+  color: #1a1f2c;
+}
+
+.ve-formation-reco-empty {
+  margin-top: 16px;
+}
+
+.ve-formation-reco-hint {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.ve-formation-guest {
+  max-width: 36rem;
+  margin: 1.5rem auto 0;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.ve-formation-guest .text-center {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.ve-formation-guest-register {
+  margin-left: 0;
+}
+
+.ve-formation-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.ve-formation-course-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 240px;
+
+  h3 {
+    margin: 16px 0 12px;
+    font-size: 1.25rem;
+    color: #1a1f2c;
+  }
+
+  p {
+    flex: 1;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 0 16px;
+  }
+}
+
+.ve-formation-course-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1a1f2c, #2d3548);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 22px;
+    color: #f4d03f;
+  }
+}
+
+.ve-formation-course-meta {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.ve-formation-alert {
+  max-width: 640px;
+  margin: 0 auto 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+code {
+  font-size: 0.88em;
+  padding: 2px 6px;
+  background: rgba(15, 23, 42, 0.06);
+  border-radius: 4px;
+}

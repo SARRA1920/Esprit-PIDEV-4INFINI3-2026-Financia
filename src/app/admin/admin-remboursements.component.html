@@ -1,0 +1,314 @@
+<div class="adm-stack">
+  @if (formMsg() && !createOpen() && !editOpen()) {
+    <div class="adm-credit-panel-err" role="alert">{{ formMsg() }}</div>
+  }
+
+  <div class="adm-head-row">
+    <div>
+      <h1 class="adm-page-title">Remboursements & échéances</h1>
+      <p class="adm-page-sub">Même vue que les crédits : cartes, filtres et actions sur <code>GET/POST/PUT/DELETE</code> Spring Boot <code>/api/remboursements</code>.</p>
+    </div>
+    <div class="adm-head-actions">
+      <button type="button" class="adm-btn-secondary" (click)="openCreate()" [disabled]="loading() || !!error()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" /></svg>
+        Nouvelle échéance
+      </button>
+      <button
+        type="button"
+        class="adm-btn-primary"
+        (click)="exportCsv()"
+        [disabled]="loading() || filteredRembRows().length === 0"
+        title="Export des résultats visibles (filtre + recherche)"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+        Exporter CSV
+      </button>
+    </div>
+  </div>
+
+  @if (!loading() && !error()) {
+    <div class="adm-toolbar">
+      <div class="adm-toolbar__search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+        <input
+          type="search"
+          placeholder="Rechercher par ID, crédit, client, montant…"
+          [value]="query()"
+          (input)="updateQuery($any($event.target).value)"
+        />
+      </div>
+      <div class="adm-filters">
+        <span class="adm-filters__label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+          Filtres:
+        </span>
+        @for (f of filters; track f) {
+          <button type="button" class="adm-filter-chip" [class.adm-filter-chip--on]="activeFilter() === f" (click)="setFilter(f)">
+            <span>{{ f }}</span>
+            <span class="adm-filter-chip__count">{{ filterCount(f) }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="adm-credit-summary">
+      <div class="adm-summary-card">
+        <span class="adm-summary-card__label">Résultats</span>
+        <strong>{{ filteredRembRows().length }}</strong>
+        <span class="adm-summary-card__hint">échéance{{ filteredRembRows().length > 1 ? 's' : '' }} affichée{{ filteredRembRows().length > 1 ? 's' : '' }}</span>
+      </div>
+      <div class="adm-summary-card">
+        <span class="adm-summary-card__label">Volume (filtre)</span>
+        <strong>{{ formatCurrency(totalVolume()) }}</strong>
+        <span class="adm-summary-card__hint">somme des montants</span>
+      </div>
+      <div class="adm-summary-card">
+        <span class="adm-summary-card__label">Payées</span>
+        <strong>{{ paidInFilter() }}</strong>
+        <span class="adm-summary-card__hint">statut PAID dans la sélection</span>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </div>
+      <h3>Chargement des échéances</h3>
+      <p>Récupération depuis l’API…</p>
+    </div>
+  } @else if (error()) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.12)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <h3>Impossible de charger les remboursements</h3>
+      <p>{{ error() }}</p>
+      <button type="button" class="adm-details-btn" (click)="reload()">Réessayer</button>
+    </div>
+  } @else if (rembRows().length === 0) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M7 15h4M15 15h2M7 11h10" />
+        </svg>
+      </div>
+      <h3>Aucune échéance</h3>
+      <p>Créez-en une ou attendez la génération automatique depuis un crédit approuvé ou actif.</p>
+    </div>
+  } @else if (filteredRembRows().length === 0) {
+    <div class="adm-empty-state">
+      <div class="adm-empty-state__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </div>
+      <h3>Aucun résultat</h3>
+      <p>Essayez un autre statut ou une recherche plus courte.</p>
+    </div>
+  } @else {
+    <div class="adm-credit-grid">
+      @for (row of filteredRembRows(); track row.displayId) {
+        <article class="adm-credit-card" [class.adm-credit-card--open]="selectedRow() === row.displayId">
+          <button type="button" class="adm-credit-card__main" (click)="toggleRow(row.displayId)">
+            <div class="adm-credit-card__top">
+              <div>
+                <span class="adm-credit-card__id">{{ row.displayId }}</span>
+                <h3>{{ row.client }}</h3>
+              </div>
+              <app-admin-status-badge [status]="row.statusBadge" [label]="row.statusUpper" />
+            </div>
+
+            <div class="adm-credit-card__amount">
+              <span>Montant échéance</span>
+              <strong>{{ formatCurrency(row.amount) }}</strong>
+            </div>
+
+            <div class="adm-progress">
+              <div class="adm-progress__head">
+                <span>Paiement</span>
+                <strong>{{ paidPercent(row) }}%</strong>
+              </div>
+              <div class="adm-progress__bar">
+                <span [style.width.%]="paidPercent(row)"></span>
+              </div>
+              <div class="adm-progress__foot">
+                <span>Date limite</span>
+                <strong>{{ row.dueLabel }}</strong>
+              </div>
+            </div>
+
+            <div class="adm-credit-card__meta">
+              <span class="adm-mono">{{ row.creditDisplay }}</span>
+              <span>{{ row.lateDays }} j. retard</span>
+              <span>Créé {{ row.createdLabel }}</span>
+            </div>
+          </button>
+
+          <div class="adm-credit-card__footer">
+            <span
+              class="adm-risk"
+              [class.adm-risk--a]="row.statusUpper === 'PAID'"
+              [class.adm-risk--b]="row.statusUpper === 'PENDING' || row.statusUpper === 'CANCELLED'"
+              [class.adm-risk--c]="row.statusUpper === 'FAILED'"
+            >
+              {{ row.creditDisplay }}
+            </span>
+            <button type="button" class="adm-details-btn" (click)="toggleRow(row.displayId); $event.stopPropagation()">
+              {{ selectedRow() === row.displayId ? 'Masquer' : 'Voir détails' }}
+            </button>
+          </div>
+
+          @if (selectedRow() === row.displayId) {
+            <div class="adm-credit-details">
+              <div class="adm-credit-details__read">
+                <div>
+                  <span>Date d’échéance</span>
+                  <strong>{{ row.dueLabel }}</strong>
+                </div>
+                <div>
+                  <span>Date de paiement</span>
+                  <strong>{{ row.paymentLabel }}</strong>
+                </div>
+                <div>
+                  <span>Retard (jours)</span>
+                  <strong>{{ row.lateDays }}</strong>
+                </div>
+              </div>
+
+              <div class="adm-credit-form">
+                <h4 class="adm-credit-form__title">Actions</h4>
+                <p class="adm-credit-form__hint">
+                  <code>PUT /api/remboursements/{{ row.rembId }}/pay</code> ·
+                  <code>PUT /api/remboursements/{{ row.rembId }}</code> ·
+                  <code>DELETE /api/remboursements/{{ row.rembId }}</code>
+                </p>
+                <div class="adm-credit-form__actions">
+                  @if (row.statusUpper === 'PENDING') {
+                    <button type="button" class="adm-btn-primary" (click)="markPaid(row)">Marquer payé</button>
+                  }
+                  <button type="button" class="adm-btn-secondary" (click)="openEdit(row)">Modifier</button>
+                  <button type="button" class="adm-btn-danger" (click)="confirmDelete(row)">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  <div class="adm-pager">
+    <p class="adm-text-muted" style="margin: 0; font-size: 0.875rem">
+      Affichage de {{ filteredRembRows().length }} résultat{{ filteredRembRows().length > 1 ? 's' : '' }}
+    </p>
+  </div>
+</div>
+
+@if (createOpen()) {
+  <div class="adm-credit-modal-root" role="dialog" aria-modal="true" aria-labelledby="adm-remb-create-title">
+    <div class="adm-credit-modal-bg" (click)="closeCreate()"></div>
+    <div class="adm-credit-modal-panel" (click)="$event.stopPropagation()">
+      <div class="adm-credit-modal-head">
+        <h2 id="adm-remb-create-title" class="adm-credit-modal-title">Nouvelle échéance</h2>
+        <button type="button" class="adm-credit-modal-close" (click)="closeCreate()" aria-label="Fermer">×</button>
+      </div>
+      <p class="adm-credit-modal-hint">POST <code>/api/remboursements/credit/&lt;id&gt;</code> — crédit APPROVED ou ACTIVE uniquement.</p>
+
+      @if (formMsg() && createOpen()) {
+        <div class="adm-credit-panel-err" role="alert">{{ formMsg() }}</div>
+      }
+
+      <label class="adm-field adm-field--full">
+        <span>Crédit</span>
+        <select class="adm-input" [ngModel]="createCreditId()" (ngModelChange)="createCreditId.set($event)">
+          <option value="">— Choisir —</option>
+          @for (c of eligibleCredits(); track c.id) {
+            <option [value]="c.id">#{{ c.id }} — {{ c.clientName?.trim() || 'Client' }} ({{ c.status }})</option>
+          }
+        </select>
+      </label>
+      @if (eligibleCredits().length === 0) {
+        <p class="adm-credit-panel-err">Aucun crédit éligible (approuvé ou actif).</p>
+      }
+
+      <div class="adm-credit-form__grid">
+        <label class="adm-field">
+          <span>Montant (€)</span>
+          <input class="adm-input" type="number" min="0.001" step="0.001" [ngModel]="createAmount()" (ngModelChange)="createAmount.set($event)" />
+        </label>
+        <label class="adm-field">
+          <span>Date d’échéance</span>
+          <input class="adm-input" type="date" [ngModel]="createDueDate()" (ngModelChange)="createDueDate.set($event)" />
+        </label>
+      </div>
+
+      <div class="adm-credit-form__actions">
+        <button type="button" class="adm-btn-secondary" (click)="closeCreate()" [disabled]="createSaving()">Annuler</button>
+        <button
+          type="button"
+          class="adm-btn-primary"
+          (click)="submitCreate()"
+          [disabled]="createSaving() || eligibleCredits().length === 0"
+        >
+          {{ createSaving() ? 'Création…' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (editOpen()) {
+  <div class="adm-credit-modal-root" role="dialog" aria-modal="true" aria-labelledby="adm-remb-edit-title">
+    <div class="adm-credit-modal-bg" (click)="closeEdit()"></div>
+    <div class="adm-credit-modal-panel" (click)="$event.stopPropagation()">
+      <div class="adm-credit-modal-head">
+        <h2 id="adm-remb-edit-title" class="adm-credit-modal-title">Échéance #{{ editId() }}</h2>
+        <button type="button" class="adm-credit-modal-close" (click)="closeEdit()" aria-label="Fermer">×</button>
+      </div>
+      <p class="adm-credit-modal-hint">PUT <code>/api/remboursements/{{ editId() }}</code></p>
+
+      @if (formMsg() && editOpen()) {
+        <div class="adm-credit-panel-err" role="alert">{{ formMsg() }}</div>
+      }
+
+      <div class="adm-credit-form__grid">
+        <label class="adm-field">
+          <span>Montant (€)</span>
+          <input class="adm-input" type="number" min="0.001" step="0.001" [ngModel]="editAmount()" (ngModelChange)="editAmount.set($event)" />
+        </label>
+        <label class="adm-field">
+          <span>Date d’échéance</span>
+          <input class="adm-input" type="date" [ngModel]="editDueDate()" (ngModelChange)="editDueDate.set($event)" />
+        </label>
+        <label class="adm-field adm-field--full">
+          <span>Statut</span>
+          <select class="adm-input" [ngModel]="editStatus()" (ngModelChange)="editStatus.set($event)">
+            <option value="PENDING">PENDING</option>
+            <option value="PAID">PAID</option>
+            <option value="FAILED">FAILED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="adm-credit-form__actions">
+        <button type="button" class="adm-btn-secondary" (click)="closeEdit()" [disabled]="editSaving()">Annuler</button>
+        <button type="button" class="adm-btn-primary" (click)="submitEdit()" [disabled]="editSaving()">
+          {{ editSaving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

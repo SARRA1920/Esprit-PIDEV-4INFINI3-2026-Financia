@@ -1,0 +1,6 @@
+/* Legacy template adds padding-top on .ve-hero for the fixed navbar.
+   The Angular shell (.main) already offsets content with padding-top,
+   so stacking both creates an empty strip under the header on the home page. */
+:host ::ng-deep .ve-hero {
+  padding-top: 0;
+}

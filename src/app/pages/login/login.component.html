@@ -1,0 +1,121 @@
+<section class="ve-page-hero ve-login-hero">
+  <div class="ve-page-hero-overlay"></div>
+  <div class="container ve-page-hero-content">
+    <span class="ve-section-tag">Compte</span>
+    <h1>Connexion <span>Financia</span></h1>
+    <nav aria-label="breadcrumb">
+      <ol class="ve-breadcrumb">
+        <li><a routerLink="/">Accueil</a></li>
+        <li class="active">Connexion</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="ve-section ve-login-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7">
+        <div class="ve-contact-form-wrap ve-login-card">
+          <span class="ve-section-tag">Bienvenue</span>
+          <h2>Se connecter à votre <span>compte</span></h2>
+
+          @if (error) {
+            <div id="ve-auth-msg" class="ve-login-alert ve-login-alert--error" role="alert">{{ error }}</div>
+          }
+
+          <form class="ve-contact-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="ve-form-group">
+              <label for="login-email">E-mail</label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                formControlName="email"
+                placeholder="vous@exemple.com"
+                autocomplete="email"
+              />
+            </div>
+            <div class="ve-form-group">
+              <label for="login-password">Mot de passe</label>
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                formControlName="password"
+                placeholder="Votre mot de passe"
+                autocomplete="current-password"
+              />
+            </div>
+
+            <button type="button" class="ve-login-forgot-btn" routerLink="/forgot-password">
+              Mot de passe oublié
+            </button>
+
+            <button type="submit" class="ve-btn-primary" [disabled]="loading || faceLoading || form.invalid">
+              {{ loading ? 'Connexion…' : 'Se connecter' }} <i class="fa fa-arrow-right"></i>
+            </button>
+
+            <div class="ve-login-oauth ve-face-login">
+              <p class="ve-login-oauth-sep">ou</p>
+              @if (googleEnabled) {
+                <div #googleHost id="google-signin-button" class="ve-login-oauth-google"></div>
+                @if (googleRenderFailed) {
+                  <p class="ve-login-google-unavailable" role="status">
+                    Le bouton Google n’a pas pu se charger (réseau ou bloqueur). Rechargez la page ou désactivez les
+                    extensions qui bloquent <code>accounts.google.com</code>.
+                  </p>
+                }
+              }
+              @if (faceCameraActive) {
+                <video
+                  id="face-login-video"
+                  class="ve-face-video"
+                  playsinline
+                  muted
+                  autoplay
+                  aria-label="Aperçu caméra Face ID"
+                ></video>
+                <div class="ve-face-camera-actions">
+                  <button
+                    type="button"
+                    class="ve-btn-face"
+                    [disabled]="loading || faceLoading"
+                    (click)="captureFaceLoginAndAuthenticate()"
+                  >
+                    {{ faceLoading ? 'Vérification…' : 'Capturer et se connecter' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="ve-btn-face-secondary"
+                    [disabled]="loading || faceLoading"
+                    (click)="closeFaceLoginCamera()"
+                  >
+                    Fermer la caméra
+                  </button>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="ve-btn-face"
+                  [disabled]="loading || faceLoading"
+                  (click)="openFaceLoginCamera()"
+                >
+                  Ouvrir la caméra (Face ID)
+                </button>
+              }
+              <p class="ve-login-oauth-note">
+                Face ID : indiquez votre e-mail, ouvrez la caméra, puis capturez votre visage. Une photo de référence doit
+                exister sur le compte (inscription).
+              </p>
+            </div>
+
+            <p class="ve-login-register">
+              Pas de compte ? <a routerLink="/register">Créer un compte</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

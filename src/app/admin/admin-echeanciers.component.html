@@ -1,0 +1,421 @@
+<div class="admin-echeanciers">
+  <div class="header">
+    <div>
+      <h2>💳 Gestion des Échéanciers de Paiement</h2>
+      <p class="subtitle">Suivi des paiements, pénalités et rappels automatiques</p>
+    </div>
+    <div class="header-actions">
+      <button (click)="toggleStats()" class="btn btn-stats" [class.active]="showStats()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        Statistiques trimestrielles
+      </button>
+      <button (click)="calculateAllPenalties()" class="btn btn-action">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
+        Calculer toutes les pénalités
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SECTION STATISTIQUES TRIMESTRIELLES
+  ════════════════════════════════════════════════════════════ -->
+  @if (showStats()) {
+    <div class="quarterly-stats-section">
+      <div class="stats-section-header">
+        <div>
+          <h3>📊 Statistiques des retards par trimestre</h3>
+          <p>Analyse de la distribution des paiements en retard sur l'année</p>
+        </div>
+        <div class="year-selector">
+          <label>Année</label>
+          <select [ngModel]="statsYear()" (ngModelChange)="onYearChange($event)" class="year-select">
+            @for (y of availableYears; track y) {
+              <option [value]="y">{{ y }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (statsLoading()) {
+        <div class="stats-loading">
+          <div class="spinner"></div>
+          <p>Calcul des statistiques...</p>
+        </div>
+      }
+
+      @if (statsError()) {
+        <div class="alert alert-danger">{{ statsError() }}</div>
+      }
+
+      @if (!statsLoading() && quarterlyStats().length > 0) {
+
+        <!-- KPI résumé annuel -->
+        <div class="yearly-kpis">
+          <div class="kpi-card kpi-late">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-value">{{ getTotalLate() }}</div>
+            <div class="kpi-label">Paiements en retard (année)</div>
+          </div>
+          <div class="kpi-card kpi-overdue">
+            <div class="kpi-icon">🔴</div>
+            <div class="kpi-value">{{ getTotalOverdue() }}</div>
+            <div class="kpi-label">Paiements OVERDUE (année)</div>
+          </div>
+          <div class="kpi-card kpi-penalty">
+            <div class="kpi-icon">💸</div>
+            <div class="kpi-value">{{ getYearlyPenalties() | number: '1.3-3' }}</div>
+            <div class="kpi-label">Total pénalités TND</div>
+          </div>
+          @if (getWorstQuarter(); as worst) {
+            <div class="kpi-card kpi-worst">
+              <div class="kpi-icon">📌</div>
+              <div class="kpi-value">{{ worst.label }}</div>
+              <div class="kpi-label">Trimestre le plus critique ({{ worst.lateRate }}%)</div>
+            </div>
+          }
+        </div>
+
+        <!-- Graphique en barres groupées -->
+        <div class="chart-container">
+          <div class="chart-title">Nombre de paiements en retard par trimestre</div>
+          <div class="bar-chart">
+            @for (q of quarterlyStats(); track q.quarter) {
+              <div class="bar-group">
+                <div class="bars">
+                  <!-- Barre total -->
+                  <div class="bar-wrap" title="Total: {{ q.totalPayments }}">
+                    <div class="bar bar-total"
+                         [style.height]="barHeight(q.totalPayments, maxLate())">
+                    </div>
+                    <span class="bar-val">{{ q.totalPayments }}</span>
+                  </div>
+                  <!-- Barre retards (LATE+OVERDUE) -->
+                  <div class="bar-wrap" title="En retard: {{ q.latePayments }}">
+                    <div class="bar bar-late"
+                         [style.height]="barHeight(q.latePayments, maxLate())">
+                    </div>
+                    <span class="bar-val late">{{ q.latePayments }}</span>
+                  </div>
+                  <!-- Barre OVERDUE uniquement -->
+                  <div class="bar-wrap" title="OVERDUE: {{ q.overduePayments }}">
+                    <div class="bar bar-overdue"
+                         [style.height]="barHeight(q.overduePayments, maxLate())">
+                    </div>
+                    <span class="bar-val overdue">{{ q.overduePayments }}</span>
+                  </div>
+                </div>
+                <div class="bar-label">{{ q.label }}</div>
+              </div>
+            }
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="dot dot-total"></span>Total</span>
+            <span class="legend-item"><span class="dot dot-late"></span>En retard</span>
+            <span class="legend-item"><span class="dot dot-overdue"></span>OVERDUE</span>
+          </div>
+        </div>
+
+        <!-- Tableau détaillé par trimestre -->
+        <div class="quarterly-table-wrap">
+          <table class="quarterly-table">
+            <thead>
+              <tr>
+                <th>Trimestre</th>
+                <th>Total paiements</th>
+                <th>En retard</th>
+                <th>OVERDUE</th>
+                <th>Taux de retard</th>
+                <th>Pénalités (TND)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (q of quarterlyStats(); track q.quarter) {
+                <tr [class.row-critical]="q.lateRate > 50">
+                  <td class="quarter-label">
+                    <span class="q-badge">{{ q.label }}</span>
+                  </td>
+                  <td>{{ q.totalPayments }}</td>
+                  <td>
+                    <span class="count-late">{{ q.latePayments }}</span>
+                  </td>
+                  <td>
+                    <span class="count-overdue">{{ q.overduePayments }}</span>
+                  </td>
+                  <td>
+                    <div class="rate-bar-wrap">
+                      <div class="rate-bar" [style.width]="q.lateRate + '%'"
+                           [class.rate-high]="q.lateRate > 50"
+                           [class.rate-medium]="q.lateRate > 20 && q.lateRate <= 50">
+                      </div>
+                      <span class="rate-label">{{ q.lateRate }}%</span>
+                    </div>
+                  </td>
+                  <td class="penalty-cell">{{ q.totalPenalties | number: '1.3-3' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading() && payments().length > 0) {
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-total">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ payments().length }}</div>
+          <div class="stat-label">Total Paiements</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-overdue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getOverduePayments().length }}</div>
+          <div class="stat-label">En Retard</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-paid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getPaidCount() }}</div>
+          <div class="stat-label">Payés</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-amount">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getTotalPenalties() | number: '1.0-0' }}</div>
+          <div class="stat-label">Pénalités Totales</div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des paiements...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      {{ error() }}
+    </div>
+  }
+
+  @if (getOverduePayments().length > 0) {
+    <div class="overdue-section">
+      <div class="overdue-header">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Paiements en Retard ({{ getOverduePayments().length }})
+        </h3>
+        <p>Action requise : Ces paiements nécessitent un suivi immédiat</p>
+      </div>
+      <div class="overdue-grid">
+        @for (payment of getOverduePayments(); track payment.id; let i = $index) {
+          <div class="overdue-card" [style.animation-delay]="(i * 0.05) + 's'">
+            <div class="overdue-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {{ payment.daysOverdue }} jours
+            </div>
+            <div class="overdue-content">
+              <div class="payment-id">Paiement #{{ payment.id }}</div>
+              <div class="payment-details">
+                <div class="detail-row">
+                  <span class="detail-label">Échéance</span>
+                  <span class="detail-value">{{ payment.dueDate | date: 'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Montant dû</span>
+                  <span class="detail-value amount">{{ payment.amountDue | number: '1.2-2' }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Pénalités</span>
+                  <span class="detail-value penalty">{{ payment.penaltyAmount | number: '1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+            <button (click)="sendWhatsappReminder(payment.id)" class="btn-whatsapp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+              Rappel WhatsApp
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading() && payments().length === 0) {
+    <div class="alert alert-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+      Aucun paiement trouvé. Les échéanciers apparaîtront ici une fois créés.
+    </div>
+  }
+
+  @if (!loading() && payments().length > 0) {
+    <div class="payments-section">
+      <h3>Tous les Paiements</h3>
+      <div class="payments-grid">
+        @for (payment of payments(); track payment.id; let i = $index) {
+          <article class="payment-card" [style.animation-delay]="(i * 0.03) + 's'">
+            <div class="payment-header">
+              <div class="payment-id">#{{ payment.id }}</div>
+              <span class="badge" [ngClass]="getStatusClass(payment.status)">
+                {{ payment.status }}
+              </span>
+            </div>
+
+            <div class="payment-body">
+              <div class="due-date">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Échéance: {{ payment.dueDate | date: 'dd/MM/yyyy' }}
+              </div>
+
+              <div class="amount-breakdown">
+                <div class="breakdown-item">
+                  <span class="label">Principal</span>
+                  <span class="value">{{ payment.principalAmount | number: '1.2-2' }}</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="label">Intérêts</span>
+                  <span class="value">{{ payment.interestAmount | number: '1.2-2' }}</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="label">Pénalités</span>
+                  <span class="value penalty">{{ payment.penaltyAmount | number: '1.2-2' }}</span>
+                </div>
+              </div>
+
+              <div class="total-amount">
+                <span class="label">Total à payer</span>
+                <span class="value">{{ payment.amountDue | number: '1.2-2' }}</span>
+              </div>
+
+              @if (payment.daysOverdue && payment.daysOverdue > 0) {
+                <div class="overdue-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  {{ payment.daysOverdue }} jours de retard
+                </div>
+              }
+            </div>
+
+            <div class="payment-footer">
+              <button (click)="calculatePenalty(payment.id)" class="btn btn-recalc">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+                Recalculer
+              </button>
+              <button (click)="togglePenaltyHistory(payment.id)" class="btn btn-history"
+                      [class.active]="selectedPaymentId() === payment.id">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Historique
+              </button>
+              @if (payment.status === 'OVERDUE') {
+                <button (click)="sendWhatsappReminder(payment.id)" class="btn btn-whatsapp-small">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  WhatsApp
+                </button>
+              }
+            </div>
+
+            @if (selectedPaymentId() === payment.id) {
+              <div class="penalty-history-panel">
+                <h4>📋 Historique des pénalités</h4>
+                @if (historyLoading()) {
+                  <p class="history-loading">Chargement...</p>
+                } @else if (penaltyHistory().length === 0) {
+                  <p class="history-empty">Aucun historique de pénalité pour ce paiement.</p>
+                } @else {
+                  <table class="history-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Jours retard</th>
+                        <th>Ancienne pénalité</th>
+                        <th>Nouvelle pénalité</th>
+                        <th>Méthode</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of penaltyHistory(); track h.id) {
+                        <tr>
+                          <td>{{ h.calculationDate | date: 'dd/MM/yyyy' }}</td>
+                          <td>{{ h.daysOverdue }} j</td>
+                          <td class="amount-old">{{ h.previousPenaltyAmount | number: '1.3-3' }} TND</td>
+                          <td class="amount-new">{{ h.penaltyAmount | number: '1.3-3' }} TND</td>
+                          <td><span class="method-badge">{{ h.calculationMethod }}</span></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  }
+</div>

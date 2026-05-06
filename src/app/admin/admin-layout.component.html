@@ -1,0 +1,248 @@
+<div class="admin-root" [class.admin-root--collapsed]="collapsed()">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">
+      @if (!collapsed()) {
+        <div class="admin-sidebar__logo">
+          <span class="admin-sidebar__logo-mark">F</span>
+          <div class="admin-sidebar__logo-text">
+            <span class="admin-sidebar__logo-title">Financia</span>
+            <span class="admin-sidebar__logo-sub">Admin</span>
+          </div>
+        </div>
+      } @else {
+        <span class="admin-sidebar__logo-mark" style="margin: 0 auto">F</span>
+      }
+      <button
+        type="button"
+        class="admin-sidebar__collapse"
+        [class.admin-sidebar__collapse--flip]="collapsed()"
+        (click)="collapsed.set(!collapsed())"
+        [attr.aria-label]="collapsed() ? 'Déplier le menu' : 'Replier le menu'"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav__section">
+        <div class="admin-nav__items">
+          <a
+            routerLink="/admin"
+            routerLinkActive="admin-nav__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="admin-nav__link"
+            [title]="collapsed() ? 'Tableau de bord' : ''"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="9" rx="1" />
+              <rect x="14" y="3" width="7" height="5" rx="1" />
+              <rect x="14" y="12" width="7" height="9" rx="1" />
+              <rect x="3" y="16" width="7" height="5" rx="1" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Tableau de bord</span>
+            }
+          </a>
+        </div>
+      </div>
+
+      <div class="admin-nav__section">
+        @if (!collapsed()) {
+          <div class="admin-nav__title">Opérations</div>
+        }
+        <div class="admin-nav__items">
+          <a routerLink="/admin/clients" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Utilisateurs' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Utilisateurs</span>
+            }
+          </a>
+          <a
+            routerLink="/admin/statistiques-clients"
+            routerLinkActive="admin-nav__link--active"
+            class="admin-nav__link"
+            [title]="collapsed() ? 'Statistiques clients' : ''"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18" />
+              <path d="M7 16l4-4 4 4 6-6" />
+              <path d="M7 8h.01M11 8h.01M15 8h.01" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Statistiques crédits</span>
+            }
+          </a>
+          <a routerLink="/admin/credits" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Crédits' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" />
+              <path d="M1 10h22" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Crédits & dossiers</span>
+            }
+          </a>
+          <a routerLink="/admin/remboursements" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Remboursements' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Remboursements</span>
+            }
+          </a>
+          <a routerLink="/admin/contrats" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Contrats' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M8 13h8M8 17h8" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Contrats</span>
+            }
+          </a>
+          <a routerLink="/admin/echeanciers" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Échéanciers' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Échéanciers</span>
+            }
+          </a>
+          <a routerLink="/admin/formation" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Formation' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Formation (LMS)</span>
+            }
+          </a>
+          <a routerLink="/admin/paiements" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Paiements' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Paiements / Stripe</span>
+            }
+          </a>
+        </div>
+      </div>
+
+      <div class="admin-nav__section">
+        @if (!collapsed()) {
+          <div class="admin-nav__title">Système</div>
+        }
+        <div class="admin-nav__items">
+          <a routerLink="/admin/settings" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Paramètres' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Paramètres</span>
+            }
+          </a>
+          <a routerLink="/admin/audit" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'Audit' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            @if (!collapsed()) {
+              <span>Audit</span>
+            }
+          </a>
+          <a routerLink="/admin/ui-kit" routerLinkActive="admin-nav__link--active" class="admin-nav__link" [title]="collapsed() ? 'UI Kit' : ''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+            </svg>
+            @if (!collapsed()) {
+              <span>UI Kit</span>
+            }
+          </a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <header class="admin-topbar">
+    <div class="admin-topbar__right">
+      <span class="admin-topbar__sandbox">SANDBOX</span>
+      <button type="button" class="admin-topbar__bell" aria-label="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        <span class="admin-topbar__bell-dot"></span>
+      </button>
+      <div class="admin-topbar__sep"></div>
+      <div class="admin-topbar__user-wrap">
+        <button
+          type="button"
+          class="admin-topbar__user"
+          [class.admin-topbar__user--open]="userMenuOpen()"
+          (click)="toggleUserMenu($event)"
+          [attr.aria-expanded]="userMenuOpen()"
+          aria-haspopup="true"
+          aria-controls="admin-user-menu"
+          id="admin-user-menu-trigger"
+        >
+          <span class="admin-topbar__avatar">{{ userInitial() }}</span>
+          <div class="admin-topbar__user-text">
+            <div class="admin-topbar__user-name">{{ displayName() }}</div>
+            <div class="admin-topbar__user-email">{{ displayEmail() }}</div>
+          </div>
+          <svg
+            class="admin-topbar__user-chevron"
+            [class.admin-topbar__user-chevron--open]="userMenuOpen()"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#64748b"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        @if (userMenuOpen()) {
+          <div
+            id="admin-user-menu"
+            class="admin-topbar__user-menu"
+            role="menu"
+            aria-labelledby="admin-user-menu-trigger"
+          >
+            <a routerLink="/about" class="admin-topbar__user-menu-item" role="menuitem" (click)="closeUserMenu()">
+              Site public (accueil)
+            </a>
+            <a routerLink="/espace-client" class="admin-topbar__user-menu-item" role="menuitem" (click)="closeUserMenu()">
+              Espace client
+            </a>
+            <a routerLink="/admin/settings" class="admin-topbar__user-menu-item" role="menuitem" (click)="closeUserMenu()">
+              Paramètres
+            </a>
+            <button type="button" class="admin-topbar__user-menu-item admin-topbar__user-menu-item--danger" role="menuitem" (click)="logout()">
+              Déconnexion
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <router-outlet />
+  </main>
+</div>

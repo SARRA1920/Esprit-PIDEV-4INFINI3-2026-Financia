@@ -1,0 +1,39 @@
+<div class="adm-stack">
+  <div>
+    <h1 class="adm-page-title">Tableau de bord</h1>
+    <p class="adm-page-sub">Vue d'ensemble des opérations Financia</p>
+  </div>
+
+  <div class="adm-table-card">
+    <div class="adm-table-card__head">
+      <h3 class="adm-card__title" style="margin: 0">Activité récente</h3>
+      <p class="adm-card__sub" style="margin: 0.25rem 0 0">Dernières actions système et utilisateurs</p>
+    </div>
+    <div class="adm-table-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Heure</th>
+            <th>Acteur</th>
+            <th>Action</th>
+            <th>Entité</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of recentActivity; track $index) {
+            <tr>
+              <td class="adm-mono adm-text-muted">{{ row.time }}</td>
+              <td class="adm-text-bright">{{ row.actor }}</td>
+              <td class="adm-text-muted">{{ row.action }}</td>
+              <td class="adm-mono adm-text-bright">{{ row.entity }}</td>
+              <td>
+                <app-admin-status-badge [status]="row.status" />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

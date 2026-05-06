@@ -1,0 +1,164 @@
+<div class="adm-stack">
+  <div>
+    <h1 class="adm-page-title">Statistiques clients</h1>
+    <p class="adm-page-sub">Données consommées depuis Spring Boot : /api/stats/credits/portfolio</p>
+  </div>
+
+  @if (loading()) {
+    <p class="adm-page-sub">Chargement…</p>
+  } @else if (error()) {
+    <p class="adm-page-sub" style="color: #f87171">{{ error() }}</p>
+  } @else {
+    @if (stats(); as s) {
+    <div class="adm-kpi-grid">
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Total crédits</p>
+            <p class="adm-kpi__value">{{ s.totalCreditsCount }}</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(59, 130, 246, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" />
+              <path d="M1 10h22" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">Tous statuts confondus</p>
+      </div>
+
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Montant accordé</p>
+            <p class="adm-kpi__value">{{ formatCurrency(s.totalGrantedAmount) }}</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(16, 185, 129, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+              <polyline points="17 6 23 6 23 12" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">Crédits approuvés, actifs et clôturés</p>
+      </div>
+
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Crédits en retard</p>
+            <p class="adm-kpi__value">{{ s.overdueCreditsCount }}</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(239, 68, 68, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">{{ s.overdueInstallmentsCount }} échéance(s) en retard</p>
+      </div>
+
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Score risque moyen</p>
+            <p class="adm-kpi__value">{{ formatScore(s.avgRiskScore) }}</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(245, 158, 11, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">Hors crédits rejetés</p>
+      </div>
+
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Taux de retard</p>
+            <p class="adm-kpi__value">{{ formatPercent(s.portfolioLateRate) }}</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(168, 85, 247, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2">
+              <path d="M3 3v18h18" />
+              <path d="M7 16l4-4 4 4 6-6" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">Sur crédits actifs ou approuvés</p>
+      </div>
+
+      <div class="adm-kpi">
+        <div class="adm-kpi__row">
+          <div>
+            <p class="adm-kpi__label">Retard maximal</p>
+            <p class="adm-kpi__value">{{ s.maxLateDaysOverall }} j</p>
+          </div>
+          <div class="adm-kpi__icon" style="background-color: rgba(100, 116, 139, 0.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+        </div>
+        <p class="adm-kpi__change-hint" style="margin: 0; color: #64748b; font-size: 0.8125rem">Échéance la plus en retard</p>
+      </div>
+    </div>
+
+    <div class="adm-grid-2">
+      <div class="adm-card">
+        <h3 class="adm-card__title">Répartition par statut</h3>
+        <p class="adm-card__sub">Distribution des crédits depuis Spring Boot</p>
+        @let donut = statusDonut();
+        @if (donut.segments.length === 0) {
+          <p class="adm-card__sub">Aucune donnée</p>
+        } @else {
+          <div class="adm-donut-wrap">
+            <svg viewBox="0 0 200 200" width="200" height="200">
+              @for (segment of donut.segments; track segment.name) {
+                <path [attr.d]="segment.path" [attr.fill]="segment.color" stroke="#1e293b" stroke-width="1" />
+              }
+              <circle cx="100" cy="100" r="52" fill="#1e293b" />
+            </svg>
+          </div>
+          <div class="adm-legend">
+            @for (item of donut.items; track item.name) {
+              <div class="adm-legend__row">
+                <div class="adm-legend__left">
+                  <span class="adm-legend__swatch" [style.background-color]="item.color"></span>
+                  <span class="adm-legend__name">{{ item.label }}</span>
+                </div>
+                <span class="adm-legend__val">{{ item.value }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="adm-card">
+        <h3 class="adm-card__title">Distribution du risque</h3>
+        <p class="adm-card__sub">Buckets calculés côté Spring Boot</p>
+        <div class="adm-legend">
+          @for (bucket of riskBuckets(); track bucket.key) {
+            <div class="adm-legend__row" style="display: block">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem">
+                <div class="adm-legend__left">
+                  <span class="adm-legend__swatch" [style.background-color]="bucket.color"></span>
+                  <span class="adm-legend__name">{{ bucket.label }}</span>
+                </div>
+                <span class="adm-legend__val">{{ bucket.value }}</span>
+              </div>
+              <div style="height: 0.5rem; margin-top: 0.5rem; overflow: hidden; border-radius: 999px; background: #0f172a">
+                <div style="height: 100%; border-radius: 999px" [style.width.%]="bucket.percent" [style.background-color]="bucket.color"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  }
+</div>

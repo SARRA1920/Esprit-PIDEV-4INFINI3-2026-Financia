@@ -1,0 +1,54 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Template frontend handles almost all styling; keep only layout padding for Angular outlet. */
+.main {
+  flex: 1;
+  padding-top: 72px;
+}
+
+/* Zone /admin : pas de header public → éviter la bande claire sous la barre admin */
+.main--no-public-header {
+  padding-top: 0;
+}
+
+.ve-admin-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1c1917;
+  background: linear-gradient(135deg, #e8b84b, #d4a017);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ve-admin-pill:hover {
+  filter: brightness(1.06);
+  color: #1c1917;
+}
+
+/* Public header brand logo */
+.ve-brand-logo {
+  display: block;
+  height: 54px;
+  width: auto;
+  max-width: min(380px, 46vw);
+  object-fit: contain;
+  transform-origin: left center;
+  transform: scale(1.06);
+}
+
+@media (max-width: 576px) {
+  .ve-brand-logo {
+    height: 46px;
+    max-width: min(320px, 72vw);
+    transform: scale(1.04);
+  }
+}
